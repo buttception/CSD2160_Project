@@ -1,6 +1,6 @@
 #include "ClientNetwork.h"
 #include "..\application.h"
-#include "packets\packets_s2c.h"
+#include "..\Shares\packets\packets_s2c.h"
 #include "process_packet.h"
 #include "send_packet.h"
 #include <string>

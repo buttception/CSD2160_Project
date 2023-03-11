@@ -8,7 +8,7 @@
 #include "..\movables\missile.h"
 #include "..\movables\Boom.h"
 #include "ClientNetwork.h"
-#include "packets\packets_c2s.h"
+#include "..\Shares\packets\packets_c2s.h"
 
 class Mine;
 class TimeBomb;
