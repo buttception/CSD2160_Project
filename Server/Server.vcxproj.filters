@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Shares">
+      <UniqueIdentifier>{89a96b77-9849-486d-ad47-6094554dc78e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RecvProcess">
+      <UniqueIdentifier>{f2e0254f-32cb-437b-9152-7d8b407ab89d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SendProcess">
+      <UniqueIdentifier>{d8f7b3b9-c99f-4e96-a8fe-40d42ba0258b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Timer">
+      <UniqueIdentifier>{1b0740f8-f401-4857-9f23-aa904e5656c3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\process_packet.cpp">
+      <Filter>RecvProcess</Filter>
+    </ClCompile>
+    <ClCompile Include="src\send_packet.cpp">
+      <Filter>SendProcess</Filter>
+    </ClCompile>
+    <ClCompile Include="src\asteroid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shares\timer\timer.cpp">
+      <Filter>Timer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\speedup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\process_packet.h">
+      <Filter>RecvProcess</Filter>
+    </ClInclude>
+    <ClInclude Include="src\send_packet.h">
+      <Filter>SendProcess</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Ship.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\asteroid.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shares\packets\Packets_s2c.h">
+      <Filter>Shares</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shares\packets\packets_c2s.h">
+      <Filter>Shares</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shares\timer\timer.h">
+      <Filter>Timer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\main.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\speedup.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

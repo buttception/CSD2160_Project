@@ -1,0 +1,15 @@
+#directories
+.vs
+Intermediate
+
+#files
+*.VC.db
+*.exe
+*.log
+*.ilk
+*.pdb
+*.obj
+*.idb
+*.tlog
+*.exe.recipe
+*.DS_Store

@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\net\process_packet.cpp">
+      <Filter>Net</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net\send_packet.cpp">
+      <Filter>Net</Filter>
+    </ClCompile>
+    <ClCompile Include="src\application.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="src\movables\asteroid.cpp">
+      <Filter>Movables</Filter>
+    </ClCompile>
+    <ClCompile Include="src\movables\ship.cpp">
+      <Filter>Movables</Filter>
+    </ClCompile>
+    <ClCompile Include="src\movables\movables.cpp">
+      <Filter>Movables</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shares\timer\timer.cpp">
+      <Filter>Timer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\movables\missile.cpp">
+      <Filter>Movables</Filter>
+    </ClCompile>
+    <ClCompile Include="src\movables\Boom.cpp">
+      <Filter>Movables</Filter>
+    </ClCompile>
+    <ClCompile Include="src\movables\mine.cpp">
+      <Filter>Movables</Filter>
+    </ClCompile>
+    <ClCompile Include="src\movables\TimeBomb.cpp">
+      <Filter>Movables</Filter>
+    </ClCompile>
+    <ClCompile Include="src\movables\SpeedUp.cpp">
+      <Filter>Movables</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\net\send_packet.h">
+      <Filter>Net</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net\process_packet.h">
+      <Filter>Net</Filter>
+    </ClInclude>
+    <ClInclude Include="src\movables\asteroid.h">
+      <Filter>Movables</Filter>
+    </ClInclude>
+    <ClInclude Include="src\movables\movables.h">
+      <Filter>Movables</Filter>
+    </ClInclude>
+    <ClInclude Include="src\movables\ship.h">
+      <Filter>Movables</Filter>
+    </ClInclude>
+    <ClInclude Include="src\application.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="src\globals.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shares\timer\timer.h">
+      <Filter>Timer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shares\packets\packets_c2s.h">
+      <Filter>Shares</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shares\packets\Packets_s2c.h">
+      <Filter>Shares</Filter>
+    </ClInclude>
+    <ClInclude Include="src\movables\missile.h">
+      <Filter>Movables</Filter>
+    </ClInclude>
+    <ClInclude Include="src\movables\Boom.h">
+      <Filter>Movables</Filter>
+    </ClInclude>
+    <ClInclude Include="src\movables\mine.h">
+      <Filter>Movables</Filter>
+    </ClInclude>
+    <ClInclude Include="src\movables\TimeBomb.h">
+      <Filter>Movables</Filter>
+    </ClInclude>
+    <ClInclude Include="src\movables\SpeedUp.h">
+      <Filter>Movables</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{d06beaf6-61f0-461d-8a04-6dff03d0cd76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shares">
+      <UniqueIdentifier>{12e19e9c-154b-4605-9d5b-1cf96a7bdb79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Net">
+      <UniqueIdentifier>{ad231550-36b9-4663-be4c-dbbb36a64e30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Timer">
+      <UniqueIdentifier>{2676eff5-db73-4496-af7d-5798c032fba5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main">
+      <UniqueIdentifier>{b3e9b772-c3f3-49e5-8fc5-0fd5a60099db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Movables">
+      <UniqueIdentifier>{0a65f353-ed9b-4500-98ac-af5f1bac261e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
