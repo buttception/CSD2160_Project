@@ -4,6 +4,8 @@
 #pragma once
 
 #include "NetworkLib.h"
+#include <iostream>
+#include <string>
 
 namespace CatNet
 {
@@ -69,9 +71,11 @@ namespace CatNet
             return 1;
         }
 
-        int SendPacket(const PacketMessage& PacketMessage)
+        int SendPacket(const PacketMessage& packet_message)
         {
-            return NetLib::SendPacket(GetMainSocket(), PacketMessage);
+            PacketMessage encoded{};
+            encoded << "Socket=" << std::to_string(m_Session.GetSocket()).c_str() << " Message=" << packet_message.Buffer;
+            return NetLib::SendPacket(GetMainSocket(), encoded);
         }
 
         int CheckPacketRecevied()

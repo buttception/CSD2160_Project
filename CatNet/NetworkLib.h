@@ -31,7 +31,7 @@ namespace  CatNet
 
     enum class ERROR_TYPE : unsigned int
     {
-    	CATNET_ERROR_NOERROR = 0,
+        CATNET_ERROR_NOERROR = 0,
         CATNET_ERROR_WSASTARTUP,		    // 1
         CATNET_ERROR_WRONGAPPTYPE,		    // 2
         CATNET_ERROR_SOCKETFAILED,		    // 3
@@ -98,6 +98,7 @@ namespace CatNet
         int EncodePacket(PacketMessage& PacketMessage, char Packet[])
         {
             PacketMessage.Reset();
+
             PacketMessage << '<' << Packet << '>';
 
             return PacketMessage.BufferWritePos;
@@ -115,22 +116,22 @@ namespace CatNet
 
         char* GetErrorMessage() const
         {
-            static char errorMessage[256] {'\0', };
-	        switch (m_ErrorCode)
-	        {
-	        case ERROR_TYPE::CATNET_ERROR_WSASTARTUP:
+            static char errorMessage[256]{ '\0', };
+            switch (m_ErrorCode)
+            {
+            case ERROR_TYPE::CATNET_ERROR_WSASTARTUP:
                 strcpy_s(errorMessage, "WSA Startup failed");
                 break;
-	        case ERROR_TYPE::CATNET_ERROR_WRONGAPPTYPE:
+            case ERROR_TYPE::CATNET_ERROR_WRONGAPPTYPE:
                 strcpy_s(errorMessage, "Application Type does not match");
                 break;
-	        case ERROR_TYPE::CATNET_ERROR_SOCKETFAILED:
+            case ERROR_TYPE::CATNET_ERROR_SOCKETFAILED:
                 strcpy_s(errorMessage, "Socket failed to open");
                 break;
             case ERROR_TYPE::CATNET_ERROR_BINDFAILED:
                 strcpy_s(errorMessage, "Bind to socket failed");
                 break;
-            case ERROR_TYPE::CATNET_ERROR_LISTENFAILED: 
+            case ERROR_TYPE::CATNET_ERROR_LISTENFAILED:
                 strcpy_s(errorMessage, "Failed to listen to socket");
                 break;
             case ERROR_TYPE::CATNET_ERROR_SELECTRETURNEDERROR:
@@ -142,14 +143,14 @@ namespace CatNet
             case ERROR_TYPE::CATNET_ERROR_NOERROR:
             default:
                 strcpy_s(errorMessage, "No error");
-	        }
+            }
             return errorMessage;
         }
 
     protected:
         int InitCatNet(int AppType, int ProtocolType, int PortNumber)
         {
-	        const WORD wVersion = MAKEWORD(2, 0);
+            const WORD wVersion = MAKEWORD(2, 0);
 
             if (WSAStartup(wVersion, &m_WsaData))
             {
@@ -181,7 +182,7 @@ namespace CatNet
         int SendPacket(SOCKET SendSocket, PacketMessage packet_message)
         {
             int nCntSend;
-            char buf[SEND_BUFSIZE] {'\0',};
+            char buf[SEND_BUFSIZE]{ '\0', };
             strcpy_s(buf, packet_message.Buffer);
             EncodePacket(packet_message, buf);
             char* pBuffer{ packet_message.Buffer };
