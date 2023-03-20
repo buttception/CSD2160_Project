@@ -8,7 +8,6 @@
 #pragma once
 
 #include "NetLib.h"
-#include "ServerNetwork.h"
 
 
 //-------------------------

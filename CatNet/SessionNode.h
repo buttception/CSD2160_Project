@@ -52,6 +52,7 @@ namespace CatNet
 
 		char* GetRecvBuffer() { return m_RecvBuf; }
 		char* GetRecvBuffer(int Pos) { return m_RecvBuf + Pos; }
+		void SetRecvBufferWritePos(int Pos) { m_RecvBufWritePos = Pos; }
 		//int ShiftRecvBuffer(int ShiftSize);
 
 		int& GetRecvBufferWritePos() { return m_RecvBufWritePos; }
