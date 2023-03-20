@@ -28,7 +28,7 @@ namespace CatNet
 
                     // Add the connection to the list of clients
                     FD_SET(client, &connectedSockets);
-                    SessionNode* newClient;
+                    SessionNode* newClient = new SessionNode();
                     newClient->SetNewConnectedSession(client, server->serverAddr);
                     server->GetSessionList()->ActiveList.AttachNode(newClient);
                 }
@@ -105,7 +105,7 @@ namespace CatNet
         return  m_SessionNode->GetSocket();
     }
 
-    SOCKET ServerNetwork::GetMainSocket() { return GetMainSocket(); }
+    SOCKET ServerNetwork::GetMainSocket() { return NetLib::GetMainSocket(); }
     SessionList* ServerNetwork::GetSessionList() { return &m_SessionList; }
     ProcessSessionList* ServerNetwork::GetProcessList() { return &m_ToProcessList; }
 
@@ -148,6 +148,7 @@ namespace CatNet
 
             curr = curr->GetNext();
         }
+        return 1;
     }
 
     int ServerNetwork::CloseSessionByIndex(int SessionIndex)
