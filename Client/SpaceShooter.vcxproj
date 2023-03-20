@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\CatNet\ClientNetwork.cpp" />
+    <ClCompile Include="..\CatNet\ServerNetwork.cpp" />
     <ClCompile Include="..\Shares\timer\timer.cpp" />
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -34,6 +36,11 @@
     <ClCompile Include="src\net\send_packet.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\CatNet\ClientNetwork.h" />
+    <ClInclude Include="..\CatNet\NetworkLib.h" />
+    <ClInclude Include="..\CatNet\ProcessSession.h" />
+    <ClInclude Include="..\CatNet\ServerNetwork.h" />
+    <ClInclude Include="..\CatNet\SessionNode.h" />
     <ClInclude Include="..\Shares\packets\packets_c2s.h" />
     <ClInclude Include="..\Shares\packets\Packets_s2c.h" />
     <ClInclude Include="..\Shares\timer\timer.h" />
@@ -127,7 +134,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>hge16\include;..\NetLib\include;..\Shares;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>hge16\include;$(SolutionDir)..\CatNet;$(SolutionDir)..\Shares;$(SolutionDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -185,7 +192,7 @@
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <AdditionalIncludeDirectories>hge16\include;..\NetLib\include;..\Shares;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>hge16\include;$(SolutionDir)..\CatNet;$(SolutionDir)..\Shares;$(SolutionDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>

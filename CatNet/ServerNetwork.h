@@ -1,10 +1,3 @@
-///////////////////////////////////////////////////////////////////////////////
-// ** CAUSION **                                                             //
-// YOU SHOULD NOT TOUCH ANYTHING INSIDE THIS HEADER FILE.                    //
-///////////////////////////////////////////////////////////////////////////////
-
-#ifndef _SERVERNETWORK_H
-#define _SERVERNETWORK_H
 #pragma once
 
 #include "NetworkLib.h"
@@ -47,7 +40,3 @@ namespace CatNet
             int SendPacketToAllExcept(PacketMessage packet_message, int SessionIndex);
     };
 }
-
-
-
-#endif

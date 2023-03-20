@@ -40,6 +40,12 @@
     <ClCompile Include="src\movables\SpeedUp.cpp">
       <Filter>Movables</Filter>
     </ClCompile>
+    <ClCompile Include="..\CatNet\ClientNetwork.cpp">
+      <Filter>CatNet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CatNet\ServerNetwork.cpp">
+      <Filter>CatNet</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\net\send_packet.h">
@@ -87,6 +93,21 @@
     <ClInclude Include="src\movables\SpeedUp.h">
       <Filter>Movables</Filter>
     </ClInclude>
+    <ClInclude Include="..\CatNet\ClientNetwork.h">
+      <Filter>CatNet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CatNet\NetworkLib.h">
+      <Filter>CatNet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CatNet\ProcessSession.h">
+      <Filter>CatNet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CatNet\ServerNetwork.h">
+      <Filter>CatNet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CatNet\SessionNode.h">
+      <Filter>CatNet</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -106,6 +127,9 @@
     </Filter>
     <Filter Include="Movables">
       <UniqueIdentifier>{0a65f353-ed9b-4500-98ac-af5f1bac261e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CatNet">
+      <UniqueIdentifier>{a5b4fbcd-ff01-4e6e-b052-38c4cc670503}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

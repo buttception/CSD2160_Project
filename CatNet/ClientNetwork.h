@@ -1,6 +1,3 @@
-#ifndef _CLIENTNETWORK_H
-#define _CLIENTNETWORK_H
-
 #pragma once
 
 #include "NetworkLib.h"
@@ -85,5 +82,3 @@ namespace CatNet
 
     };
 }
-
-#endif

@@ -1,13 +1,14 @@
-#include "..\CatNet\ClientNetwork.h"
-#include "..\application.h"
-#include "..\Shares\packets\packets_s2c.h"
-#include "process_packet.h"
-#include "send_packet.h"
 #include <string>
 #include <thread>
-#include "..\movables\mine.h"
-#include "..\movables\TimeBomb.h"
-#include "..\movables\SpeedUp.h"
+
+#include "ClientNetwork.h"
+#include "application.h"
+#include "packets\packets_s2c.h"
+#include "process_packet.h"
+#include "send_packet.h"
+#include "movables\mine.h"
+#include "movables\TimeBomb.h"
+#include "movables\SpeedUp.h"
 
 
 // NetLib Step 2. Client network object to use network library.

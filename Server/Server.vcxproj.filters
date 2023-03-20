@@ -25,6 +25,9 @@
     <Filter Include="Timer">
       <UniqueIdentifier>{1b0740f8-f401-4857-9f23-aa904e5656c3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CatNet">
+      <UniqueIdentifier>{245ea2f4-2de8-4392-bdb8-248afb0f4172}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -44,6 +47,12 @@
     </ClCompile>
     <ClCompile Include="src\speedup.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CatNet\ClientNetwork.cpp">
+      <Filter>CatNet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CatNet\ServerNetwork.cpp">
+      <Filter>CatNet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -73,6 +82,21 @@
     </ClInclude>
     <ClInclude Include="src\speedup.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CatNet\ClientNetwork.h">
+      <Filter>CatNet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CatNet\NetworkLib.h">
+      <Filter>CatNet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CatNet\ProcessSession.h">
+      <Filter>CatNet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CatNet\ServerNetwork.h">
+      <Filter>CatNet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CatNet\SessionNode.h">
+      <Filter>CatNet</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

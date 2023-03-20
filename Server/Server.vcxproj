@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\CatNet\ClientNetwork.cpp" />
+    <ClCompile Include="..\CatNet\ServerNetwork.cpp" />
     <ClCompile Include="..\Shares\timer\timer.cpp" />
     <ClCompile Include="src\asteroid.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -27,6 +29,11 @@
     <ClCompile Include="src\speedup.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\CatNet\ClientNetwork.h" />
+    <ClInclude Include="..\CatNet\NetworkLib.h" />
+    <ClInclude Include="..\CatNet\ProcessSession.h" />
+    <ClInclude Include="..\CatNet\ServerNetwork.h" />
+    <ClInclude Include="..\CatNet\SessionNode.h" />
     <ClInclude Include="..\Shares\packets\packets_c2s.h" />
     <ClInclude Include="..\Shares\packets\Packets_s2c.h" />
     <ClInclude Include="..\Shares\timer\timer.h" />
@@ -111,12 +118,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\NetLib\include;..\NetLib\include\;..\Shares\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\NetLib\include;..\NetLib\include\;..\Shares\;$(SolutionDir)..\CatNet</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\NetLib\\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
       <AdditionalDependencies>HNet_$(Configuration)_$(PlatformTarget).lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -145,14 +153,15 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\NetLib\include\;..\Shares\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\NetLib\include\;..\Shares\;$(SolutionDir)..\CatNet</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\NetLib\\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
       <AdditionalDependencies>HNet_$(PlatformTarget).lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

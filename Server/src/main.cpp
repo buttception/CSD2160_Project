@@ -6,7 +6,7 @@
 #endif
 
 #include "main.h"
-#include "../../CatNet/ServerNetwork.h"
+#include "ServerNetwork.h"
 #include "send_packet.h"
 #include "process_packet.h"
 #include "Ship.h"
