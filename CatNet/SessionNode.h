@@ -2,6 +2,7 @@
 #define SESSION_NODE_H
 #pragma once
 
+#include <unordered_map>
 #include <WinSock2.h>
 
 #ifndef MAX_CONNECTION
@@ -30,6 +31,7 @@ namespace CatNet
 		SessionNode() : m_Index{}, m_Socket{ INVALID_SOCKET }, m_SessionAddr{}, m_RecvBuf{ '\0', }, m_RecvBufWritePos{}, m_Prev{ nullptr }, m_Next{ nullptr } {}
 		~SessionNode() = default;
 
+		void SetIndex(int Index) { m_Index = Index; }
 		int& GetIndex() { return m_Index; }
 		int GetIndex() const { return  m_Index; }
 
@@ -90,128 +92,48 @@ namespace CatNet
 	class SessionList
 	{
 	private:
-		SessionNode* IndexList[MAX_CONNECTION + 1];
+		bool indexList[MAX_CONNECTION + 1];
+		std::unordered_map<int, SessionNode*> indexSessionMap;
+		std::unordered_map<SOCKET, int> socketIndexMap;
+		int m_SessionCount{};
 
 	public:
-		struct ListData
+
+		SessionList() : indexList{ false }
 		{
-		private:
-			int m_NodeCount {};
-			SessionNode* m_Head {nullptr};
-			SessionNode* m_Tail {nullptr};
-
-		public:
-			int& GetNodeCount() { return m_NodeCount; }
-			int GetNodeCount() const { return m_NodeCount; }
-
-			SessionNode*& GetHead() { return m_Head; }
-			SessionNode* GetHead() const { return m_Head; }
-
-			SessionNode*& GetTail() { return m_Tail; }
-			SessionNode* GetTail() const { return m_Tail; }
-
-		public:
-			int AttachNode(SessionNode* node)
-			{
-				if (!m_Head)
-					m_Head = m_Tail = node;
-				else
-				{
-					node->GetPrev() = m_Tail;
-					m_Tail->GetNext() = node;
-					m_Tail = node;
-				}
-
-				return ++m_NodeCount;
-			}
-			SessionNode* DetachFirstNode()
-			{
-				if (!m_Head)
-					return m_Head;
-
-				m_Head = m_Head->GetNext();
-				m_Head->GetPrev() = nullptr;
-
-				return m_Head;
-			}
-			SessionNode* DetachLastNode()
-			{
-				if (!m_Tail)
-					return m_Tail;
-
-				m_Tail = m_Tail->GetPrev();
-				m_Tail->GetNext() = nullptr;
-
-				return m_Tail;
-			}
-			int DetachNode(SessionNode* Node)
-			{
-				SessionNode* node{ m_Head };
-				while (node)
-				{
-					if (node == Node)
-					{
-						SessionNode* next{ node->GetNext() }, *prev{ node->GetPrev() };
-
-						prev->GetNext() = next;
-						next->GetPrev() = prev;
-
-						node->GetNext() = node->GetPrev() = nullptr;
-						break;
-					}
-
-					node = node->GetNext();
-				}
-
-				return --m_NodeCount;
-			}
-
-			int GetSessionIndexBySocket(SOCKET Socket) const
-			{
-				SessionNode* node{ m_Head };
-				while (node)
-				{
-					if (node->GetSocket() == Socket)
-						break;
-
-					node = node->GetNext();
-				}
-
-				return node->GetIndex();
-			}
-
-			SessionNode* GetSessionNodeBySocket(SOCKET Socket) const
-			{
-				SessionNode* node{ m_Head };
-				while (node)
-				{
-					if (node->GetSocket() == Socket)
-						break;
-
-					node = node->GetNext();
-				}
-
-				return node;
-			}
-		} ActiveList, EmptyList;
-
-	public:
-		SessionList() : IndexList{ nullptr, }
-		{
-			int i{};
-			for (auto& session_node : IndexList)
-			{
-				session_node = new SessionNode{};
-				session_node->GetIndex() = i++;
-			}
+			m_SessionCount = 0;
 		}
 		~SessionList()
 		{
-			for (auto& session_node : IndexList)
-			{
-				delete session_node;
-				session_node = nullptr;
-			}
+			indexSessionMap.clear();
+			socketIndexMap.clear();
+		}
+
+		int GetSessionIndexBySocket(SOCKET Socket)
+		{
+			return socketIndexMap[Socket];
+		}
+
+		SessionNode* GetSessionNodeBySocket(SOCKET Socket)
+		{
+			return indexSessionMap[GetSessionIndexBySocket(Socket)];
+		}
+
+		void AddSession(SessionNode* newSession)
+		{
+			indexList[newSession->GetIndex()] = true;
+			indexSessionMap[newSession->GetIndex()] = newSession;
+			socketIndexMap[newSession->GetSocket()] = newSession->GetIndex();
+			m_SessionCount++;
+		}
+
+		void RemoveSession(int index)
+		{
+			indexList[index] = false;
+			SOCKET temp = indexSessionMap[index]->GetSocket();
+			socketIndexMap.erase(temp);
+			indexSessionMap.erase(index);
+			m_SessionCount--;
 		}
 
 		SessionList(const SessionList&) = delete;
@@ -219,9 +141,9 @@ namespace CatNet
 
 		SessionList& operator=(const SessionList&) = delete;
 		SessionList& operator=(SessionList&&) = delete;
-	public:
-		SessionNode*& GetSessionNodeByIndex(int Index) { return IndexList[Index]; }
-		SessionNode* GetSessionNodeByIndex(int Index) const { return IndexList[Index]; }
+		SessionNode*& GetSessionNodeByIndex(int Index) { return indexSessionMap[Index]; }
+		bool CheckIndex(int index) { return indexList[index]; }
+		int GetSessionCount() { return m_SessionCount; }
 	};
 }
 

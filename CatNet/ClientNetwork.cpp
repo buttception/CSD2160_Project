@@ -8,7 +8,8 @@ namespace CatNet
         do
         {
             client->GetSession()->ClearRecvBuffer();
-            recv(client->GetSocket(), client->GetSession()->GetRecvBuffer(), SEND_BUFSIZE, 0);
+            int length = recv(client->GetSocket(), client->GetSession()->GetRecvBuffer(), SEND_BUFSIZE, 0);
+            client->GetSession()->SetRecvBufferWritePos(length);
             if (client->CheckPacketRecevied() > 0)
                 client->GetProcessList()->Attach(client->GetSession(), SESSION_STATE_READPACKET, client->CheckPacketRecevied(), client->GetSession()->GetRecvBuffer());
             else if (0 == client->CheckPacketRecevied())

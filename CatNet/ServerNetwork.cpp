@@ -14,7 +14,7 @@ namespace CatNet
         while (true)
         {
             readySockets = connectedSockets;
-            const int readyCount = select(0, &readySockets, nullptr, nullptr, nullptr);
+            int readyCount = select(0, &readySockets, nullptr, nullptr, nullptr);
 
             for (SOCKET i = 0; i < static_cast<unsigned>(readyCount); ++i)
             {
@@ -28,24 +28,41 @@ namespace CatNet
 
                     // Add the connection to the list of clients
                     FD_SET(client, &connectedSockets);
-                    SessionNode* newClient = new SessionNode();
-                    newClient->SetNewConnectedSession(client, server->serverAddr);
-                    server->GetSessionList()->ActiveList.AttachNode(newClient);
+                    
+                    int index = -1;
+                    for(int j = 0; i < MAX_CONNECTION+1; j++)
+                    {
+	                    if(!server->GetSessionList()->CheckIndex(j))
+	                    {
+                            index = j;
+                            break;
+	                    }
+                    }
+                    if(index > -1)
+                    {
+                        SessionNode* newClient = new SessionNode();
+                        newClient->SetNewConnectedSession(client, server->serverAddr);
+                        newClient->SetIndex(index);
+                        server->GetSessionList()->AddSession(newClient);
+                        newClient->SetRecvBufferWritePos(recv(socket, newClient->GetRecvBuffer(), SEND_BUFSIZE, 0));
+                        server->GetProcessList()->Attach(newClient, SESSION_STATE_NEWCONNECTION, newClient->GetRecvBufferWritePos(), newClient->GetRecvBuffer());
+                    }
+                        
                 }
                 else
                 {
-                    auto currClient = server->GetSessionList()->ActiveList.GetSessionNodeBySocket(socket);
+                    auto currClient = server->GetSessionList()->GetSessionNodeBySocket(socket);
                     currClient->SetRecvBufferWritePos(recv(socket, currClient->GetRecvBuffer(), SEND_BUFSIZE, 0));
                     if (currClient->GetRecvBufferWritePos() > 0)
                     {
                         server->GetProcessList()->Attach(currClient, SESSION_STATE_READPACKET, currClient->GetRecvBufferWritePos(), currClient->GetRecvBuffer());
                     }
-                    else
+                    /*else
                     {
                         currClient->CloseSession();
                         server->GetSessionList()->ActiveList.DetachNode(currClient);
                         FD_CLR(socket, &connectedSockets);
-                    }
+                    }*/
                 }
             }
         }
@@ -96,12 +113,12 @@ namespace CatNet
     }
     int ServerNetwork::GetConnectedCount(void)
     {
-        return m_SessionList.ActiveList.GetNodeCount();
+        return m_SessionList.GetSessionCount();
     };
     int ServerNetwork::CloseSession(SessionNode* m_SessionNode)
     {
         m_SessionNode->CloseSession();
-        m_SessionList.ActiveList.DetachNode(m_SessionNode);
+        m_SessionList.RemoveSession(m_SessionNode->GetIndex());
         return  m_SessionNode->GetSocket();
     }
 
@@ -124,31 +141,29 @@ namespace CatNet
     }
     int ServerNetwork::SendPacketToAll(PacketMessage packet_message)
     {
-        SessionNode* curr = m_SessionList.ActiveList.GetHead();
-        while (curr != nullptr)
+        for(int i = 0; i < MAX_CONNECTION +1; i++)
         {
-            PacketMessage encoded{};
-            encoded << "Socket=" << std::to_string(curr->GetSocket()).c_str() << " Message=" << packet_message.Buffer;
-            NetLib::SendPacket(curr->GetSocket(), encoded);
-            curr == curr->GetNext();
+	        if(m_SessionList.CheckIndex(i))
+	        {
+                PacketMessage encoded{};
+                encoded << "Socket=" << std::to_string(m_SessionList.GetSessionNodeByIndex(i)->GetSocket()).c_str() << " Message=" << packet_message.Buffer;
+                NetLib::SendPacket(m_SessionList.GetSessionNodeByIndex(i)->GetSocket(), encoded);
+	        }
         }
-        return 1;
+        return m_SessionList.GetSessionCount();
     }
     int ServerNetwork::SendPacketToAllExcept(PacketMessage packet_message, int SessionIndex)
     {
-        SessionNode* curr = m_SessionList.ActiveList.GetHead();
-        while (curr != nullptr)
+        for (int i = 0; i < MAX_CONNECTION + 1; i++)
         {
-            if (curr->GetIndex() != SessionIndex)
+            if (m_SessionList.CheckIndex(i) && i != SessionIndex)
             {
                 PacketMessage encoded{};
-                encoded << "Socket=" << std::to_string(curr->GetSocket()).c_str() << " Message=" << packet_message.Buffer;
-                NetLib::SendPacket(curr->GetSocket(), encoded);
+                encoded << "Socket=" << std::to_string(m_SessionList.GetSessionNodeByIndex(i)->GetSocket()).c_str() << " Message=" << packet_message.Buffer;
+                NetLib::SendPacket(m_SessionList.GetSessionNodeByIndex(i)->GetSocket(), encoded);
             }
-
-            curr = curr->GetNext();
         }
-        return 1;
+        return m_SessionList.GetSessionCount();
     }
 
     int ServerNetwork::CloseSessionByIndex(int SessionIndex)
