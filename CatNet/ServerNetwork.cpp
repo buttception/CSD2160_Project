@@ -102,6 +102,7 @@ namespace CatNet
     {
         m_SessionNode->CloseSession();
         m_SessionList.ActiveList.DetachNode(m_SessionNode);
+        return  m_SessionNode->GetSocket();
     }
 
     SOCKET ServerNetwork::GetMainSocket() { return GetMainSocket(); }
