@@ -6,7 +6,7 @@
 #endif
 
 #include "main.h"
-#include "ServerNetwork.h"
+#include "../../CatNet/ServerNetwork.h"
 #include "send_packet.h"
 #include "process_packet.h"
 #include "Ship.h"
@@ -22,7 +22,7 @@
 
 using namespace std;
 
-HNet::_ServerNetwork NetObj;
+CatNet::ServerNetwork NetObj;
 struct _Ship g_ShipList[MAX_CLIENT_CONNECTION + 1]; // Ship list. Array Index number is same as SessionIndex number from Network Library.
 std::vector <_Asteroid *> g_AsteroidList; // Asteroid list.
 std::vector<SpeedUp*> powerUpList;
@@ -63,7 +63,7 @@ int main( void )
         return 0;
     }
 
-    if( false == NetObj.InitNet( HNet::APPTYPE_SERVER, HNet::PROTOCOL_TCP, 3456 ) )
+    if( false == NetObj.InitNet(1, 1, 3456 ) )
     {
 #ifdef _DEBUG
         log( "%s", NetObj.GetErrorMessage() );
@@ -77,17 +77,17 @@ int main( void )
     Sleep( 1000 ); // Wait for a while to make sure everything is ok.
 
     g_LoopTimer.GetTimer_sec(); // To initialize the timer.
-    struct HNet::_ProcessSession *ToProcessSessoin;
+    struct CatNet::ProcessSession *ToProcessSessoin;
     while( 1 )
     {
         while( nullptr != ( ToProcessSessoin = NetObj.GetProcessList()->GetFirstSession() ) )
         {
-            switch( ToProcessSessoin->SessionState )
+            switch( ToProcessSessoin->m_SessionState )
             {
-                case HNet::SESSION_STATE_NEWCONNECTION:
+                case CatNet::SESSION_STATE_NEWCONNECTION:
                 { // New connection request arrived.
 #ifdef _DEBUG
-                    log( "\n New connection connected: Index:%d. Total Connection now:%d", ToProcessSessoin->SessionIndex, NetObj.GetConnectedCount() );
+                    log( "\n New connection connected: Index:%d. Total Connection now:%d", ToProcessSessoin->m_SessionIndex, NetObj.GetConnectedCount() );
 #endif
 					///TODO: Check if more than 3, then need deny
 					//check if there is already 3 players
@@ -95,26 +95,26 @@ int main( void )
 					if (NetObj.GetConnectedCount() > 3)
 					{
 						//deny access
-						SendPacketProcess_FullGame(ToProcessSessoin->SessionIndex);
+						SendPacketProcess_FullGame(ToProcessSessoin->m_SessionIndex);
 					}
 					else
 					{
-						SendPacketProcess_NewAccept(ToProcessSessoin->SessionIndex);
+						SendPacketProcess_NewAccept(ToProcessSessoin->m_SessionIndex);
 					}
                 }
                 break;
 
-                case HNet::SESSION_STATE_CLOSEREDY:
+                case CatNet::SESSION_STATE_CLOSEREDY:
                 { // Connection closed arrived or communication error.
 #ifdef _DEBUG
                     log( "\n Received: Index %d wants to close or already closed.\n Total Connection now:%d",
-                            ToProcessSessoin->SessionIndex, NetObj.GetConnectedCount() );
+                            ToProcessSessoin->m_SessionIndex, NetObj.GetConnectedCount() );
 #endif
-                    SendPacketProcess_EnemyShipDisconnect( ToProcessSessoin->SessionIndex );
+                    SendPacketProcess_EnemyShipDisconnect( ToProcessSessoin->m_SessionIndex);
                 }
                 break;
 
-                case HNet::SESSION_STATE_READPACKET:
+                case CatNet::SESSION_STATE_READPACKET:
                 { // Any packet data recevied.
                     ReceviedPacketProcess( ToProcessSessoin );
                 }

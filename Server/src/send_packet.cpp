@@ -6,7 +6,7 @@
 extern void log( char *szFormat, ... );
 #endif
 
-extern HNet::_ServerNetwork NetObj;
+extern CatNet::ServerNetwork NetObj;
 extern _Ship g_ShipList[];
 
 void SendPacketProcess_NewAccept( const int SessionID )
@@ -20,7 +20,7 @@ void SendPacketProcess_NewAccept( const int SessionID )
 
 void SendPacketProcess_FullGame(const int SessionID)
 {
-	struct HNet::_PacketMessage Packet;
+	struct CatNet::PacketMessage Packet;
 	struct PKT_S2C_FullGame PacketData;
 	int PacketID = PACKET_ID_S2C_FULLGAME;
 	PacketData.ShipID = SessionID;
@@ -33,7 +33,7 @@ void SendPacketProcess_FullGame(const int SessionID)
 void SendPacketProcess_NewAccept_SendWelcomeMessage( const int SessionID )
 {
     // Send Welcome packet with spaceship ID.
-    struct HNet::_PacketMessage Packet;       // Create the _PacketMessage structure object.
+    struct CatNet::PacketMessage Packet;       // Create the _PacketMessage structure object.
     struct PKT_S2C_WelcomeMessage PacketData;
     int PacketID = PACKET_ID_S2C_WELCOMEMESSAGE;
     PacketData.ShipID = SessionID;
@@ -50,7 +50,7 @@ void SendPacketProcess_EnemyShipDisconnect( const int SessionID )
 {
     g_ShipList[SessionID].connected = false;
 
-    struct HNet::_PacketMessage Packet;
+    struct CatNet::PacketMessage Packet;
     int PacketID = PACKET_ID_S2C_DISCONNECTENEMYSHIP;
     Packet << PacketID;
     Packet << SessionID;
@@ -72,7 +72,7 @@ void SendPacketProcess_EnemyShipDisconnect( const int SessionID )
 
 void SendPacketProcess_AsteroidMovement( _Asteroid *asteroid )
 {
-    struct HNet::_PacketMessage Packet;
+    struct CatNet::PacketMessage Packet;
     int PacketID = PACKET_ID_S2C_ASTEROIDMOVEMENT;
 
     struct PKT_S2C_AsteroidMovement PacketData;
@@ -90,7 +90,7 @@ void SendPacketProcess_AsteroidMovement( _Asteroid *asteroid )
 
 void SendPacketProcess_AsteroidCollided(_Asteroid* asteroid)
 {
-	struct HNet::_PacketMessage Packet;
+	struct CatNet::PacketMessage Packet;
 	int PacketID = PACKET_ID_S2C_ASTEROIDCOLLIDED;
 
 	struct PKT_S2C_AsteroidMovement PacketData;
@@ -107,7 +107,7 @@ void SendPacketProcess_AsteroidCollided(_Asteroid* asteroid)
 
 void SendPacketProcess_NewSpeedUp(SpeedUp * speedup)
 {
-	struct HNet::_PacketMessage Packet;
+	struct CatNet::PacketMessage Packet;
 	int PacketID = PACKET_ID_S2C_NEWSPEEDUP;
 	struct PKT_S2C_NewSpeedUp PacketData;
 	PacketData.SpeedUpID = speedup->get_ID();

@@ -1,7 +1,7 @@
 #ifndef _SENDPACKET_H
 #define _SENDPACKET_H
 
-#include "ServerNetwork.h"
+#include "../../CatNet/ServerNetwork.h"
 #include "packets\packets_s2c.h"
 #include "asteroid.h"
 #include "Ship.h"

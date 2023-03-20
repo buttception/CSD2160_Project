@@ -11,7 +11,7 @@
 void log( char *szFormat, ... );
 #endif
 
-extern HNet::_ClientNetwork NetObj;
+extern CatNet::ClientNetwork NetObj;
 // Global variables for send_packet.cpp
 namespace Net
 {
@@ -34,7 +34,7 @@ namespace Net
         PacketData.velocity_y = myship->get_velocity_y();
         PacketData.angular_velocity = myship->get_angular_velocity();
 
-        struct HNet::_PacketMessage Packet;
+        struct CatNet::PacketMessage Packet;
         int PacketID = PACKET_ID_C2S_ENTERGAME;
         Packet << PacketID;
         Packet << PacketData;
@@ -63,7 +63,7 @@ namespace Net
             PacketData.velocity_y = myship->get_server_velocity_x();
             PacketData.angular_velocity = myship->get_angular_velocity();
 
-            struct HNet::_PacketMessage Packet;
+            struct CatNet::PacketMessage Packet;
             int PacketID = PACKET_ID_C2S_MOVEMENT;
             Packet << PacketID;
             Packet << PacketData;
@@ -88,7 +88,7 @@ namespace Net
         PacketData.velocity_y = myship->get_server_velocity_y();
         PacketData.angular_velocity = myship->get_angular_velocity();
 
-        struct HNet::_PacketMessage Packet;
+        struct CatNet::PacketMessage Packet;
         int PacketID = PACKET_ID_C2S_COLLIDED;
         Packet << PacketID;
         Packet << PacketData;
@@ -104,7 +104,7 @@ namespace Net
 		PacketData.velocity_x = asteroid->get_server_velocity_x();
 		PacketData.velocity_y = asteroid->get_server_velocity_y();
 		PacketData.angular_velocity = asteroid->get_angular_velocity();
-		struct HNet::_PacketMessage Packet;
+		struct CatNet::PacketMessage Packet;
 		int PacketID = PACKET_ID_C2S_ASTEROIDCOLLIDED;
 		Packet << PacketID;
 		Packet << PacketData;
@@ -121,7 +121,7 @@ namespace Net
 		PacketData.velocity_x = NewMissile->get_server_velocity_x();
 		PacketData.velocity_y = NewMissile->get_server_velocity_y();
 		PacketData.angular_velocity = NewMissile->get_angular_velocity();
-		struct HNet::_PacketMessage Packet;
+		struct CatNet::PacketMessage Packet;
 		int PacketID = PACKET_ID_C2S_NEWMISSILE;
 		Packet << PacketID;
 		Packet << PacketData;
@@ -131,7 +131,7 @@ namespace Net
 	{
 		struct PKT_C2S_DeleteMissile PacketData;
 		PacketData.OwnerShipID = missile->ownerid_;
-		struct HNet::_PacketMessage Packet;
+		struct CatNet::PacketMessage Packet;
 		int PacketID = PACKET_ID_C2S_DELETEMISSILE;
 		Packet << PacketID;
 		Packet << PacketData;
@@ -143,7 +143,7 @@ namespace Net
 		PacketData.x = boom->get_x();
 		PacketData.y = boom->get_y();
 		PacketData.w = boom->get_w();
-		struct HNet::_PacketMessage Packet;
+		struct CatNet::PacketMessage Packet;
 		int PacketID = PACKET_ID_C2S_NEWBOOM;
 		Packet << PacketID;
 		Packet << PacketData;
@@ -155,7 +155,7 @@ namespace Net
 		PacketData.ShipHitID = shipID;
 		PacketData.x = x;
 		PacketData.y = y;
-		struct HNet::_PacketMessage Packet;
+		struct CatNet::PacketMessage Packet;
 		int PacketID = PACKET_ID_C2S_HITSHIP;
 		Packet << PacketID;
 		Packet << PacketData;
@@ -165,7 +165,7 @@ namespace Net
 	{
 		struct PKT_C2S_Respawn PacketData;
 		PacketData.ShipID = shipID;
-		struct HNet::_PacketMessage Packet;
+		struct CatNet::PacketMessage Packet;
 		int PacketID = PACKET_ID_C2S_RESPAWN;
 		Packet << PacketID;
 		Packet << PacketData;
@@ -177,7 +177,7 @@ namespace Net
 		PacketData.x = mine->get_x();
 		PacketData.y = mine->get_y();
 		PacketData.OwnerID = mine->ownerid_;
-		struct HNet::_PacketMessage Packet;
+		struct CatNet::PacketMessage Packet;
 		int PacketID = PACKET_ID_C2S_NEWMINE;
 		Packet << PacketID;
 		Packet << PacketData;
@@ -187,7 +187,7 @@ namespace Net
 	{
 		struct PKT_C2S_DeleteMine PacketData;
 		PacketData.ownerId = mine->ownerid_;
-		struct HNet::_PacketMessage Packet;
+		struct CatNet::PacketMessage Packet;
 		int PacketID = PACKET_ID_C2S_DELETEMINE;
 		Packet << PacketID;
 		Packet << PacketData;
@@ -199,7 +199,7 @@ namespace Net
 		PacketData.x = bomb->get_x();
 		PacketData.y = bomb->get_y();
 		PacketData.ownerId = bomb->ownerid_;
-		struct HNet::_PacketMessage Packet;
+		struct CatNet::PacketMessage Packet;
 		int PacketID = PACKET_ID_C2S_NEWTIMEBOMB;
 		Packet << PacketID;
 		Packet << PacketData;
@@ -209,7 +209,7 @@ namespace Net
 	{
 		struct PKT_C2S_DeleteTimeBomb PacketData;
 		PacketData.ownerId = bomb->ownerid_;
-		struct HNet::_PacketMessage Packet;
+		struct CatNet::PacketMessage Packet;
 		int PacketID = PACKET_ID_C2S_DELETETIMEBOMB;
 		Packet << PacketID;
 		Packet << PacketData;
@@ -219,7 +219,7 @@ namespace Net
 	{
 		struct PKT_C2S_DeleteSpeedUp PacketData;
 		PacketData.SpeedUpID = sp->id;
-		struct HNet::_PacketMessage Packet;
+		struct CatNet::PacketMessage Packet;
 		int PacketID = PACKET_ID_C2S_DELETESPEEDUP;
 		Packet << PacketID;
 		Packet << PacketData;

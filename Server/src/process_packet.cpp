@@ -1,5 +1,5 @@
 #include "main.h"
-#include "ServerNetwork.h"
+#include "../../CatNet/ServerNetwork.h"
 #include "process_packet.h"
 #include "packets\packets_c2s.h"
 #include "packets\packets_s2c.h"
@@ -13,16 +13,16 @@
 extern void log( char *szFormat, ... );
 #endif
 
-extern HNet::_ServerNetwork NetObj;
+extern CatNet::ServerNetwork NetObj;
 extern _Ship g_ShipList[];
 extern std::vector <_Asteroid *> g_AsteroidList; // Asteroid list.
 extern std::vector<SpeedUp*>  powerUpList;
 
-void ReceviedPacketProcess( struct HNet::_ProcessSession *ToProcessSessoin )
+void ReceviedPacketProcess( struct CatNet::ProcessSession *ToProcessSessoin )
 {
     int PacketID;
 
-    ToProcessSessoin->PacketMessage >> PacketID;
+    ToProcessSessoin->m_PacketMessage >> PacketID;
     switch( PacketID )
     {
         case PACKET_ID_C2S_ENTERGAME:
@@ -111,12 +111,12 @@ void ReceviedPacketProcess( struct HNet::_ProcessSession *ToProcessSessoin )
     }
 }
 
-void ReceviedPacketProcess_EnterGame( struct HNet::_ProcessSession *ToProcessSessoin )
+void ReceviedPacketProcess_EnterGame( struct CatNet::ProcessSession *ToProcessSessoin )
 {
-    int ShipID = ToProcessSessoin->SessionIndex;
+    int ShipID = ToProcessSessoin->m_SessionIndex;
     struct PKT_C2S_EnterGame Data;
 
-    ToProcessSessoin->PacketMessage >> Data;
+    ToProcessSessoin->m_PacketMessage >> Data;
     g_ShipList[ShipID].ship_type = Data.ShipType;
     g_ShipList[ShipID].x = Data.x;
     g_ShipList[ShipID].y = Data.y;
@@ -132,13 +132,13 @@ void ReceviedPacketProcess_EnterGame( struct HNet::_ProcessSession *ToProcessSes
 #endif
 
     // Send Ack.
-    struct HNet::_PacketMessage EnterGameAckPacket;
+    struct CatNet::PacketMessage EnterGameAckPacket;
     int EnterGameAckPacketID = PACKET_ID_S2C_ENTERGAMEOK;
     EnterGameAckPacket << EnterGameAckPacketID;
     NetObj.SendPacket( ShipID, EnterGameAckPacket );
 
     // Send Asteroid list.
-    struct HNet::_PacketMessage NewAsteroidPacket;
+    struct CatNet::PacketMessage NewAsteroidPacket;
     struct PKT_S2C_NewAsteroid NewAsteroidData;
     int NewAsteroidPacketID = PACKET_ID_S2C_NEWASTEROID;
     for( auto asteroid : g_AsteroidList )
@@ -163,11 +163,11 @@ void ReceviedPacketProcess_EnterGame( struct HNet::_ProcessSession *ToProcessSes
     // Send Info & Notice Message.
     int Index;
 
-    struct HNet::_PacketMessage EnemyPacket;
+    struct CatNet::PacketMessage EnemyPacket;
     struct PKT_S2C_EnemyShip EnemyPacketData;
     int EnemyPacketID = PACKET_ID_S2C_ENEMYSHIP;
 
-    struct HNet::_PacketMessage NewEnemyShipPacket;
+    struct CatNet::PacketMessage NewEnemyShipPacket;
     struct PKT_S2C_NewEnemyShip NewEnemyShipPacketData;
     int NewEnemyPacketID = PACKET_ID_S2C_NEWENEMYSHIP;
     NewEnemyShipPacketData.ShipID = ShipID;
@@ -219,13 +219,13 @@ void ReceviedPacketProcess_EnterGame( struct HNet::_ProcessSession *ToProcessSes
     }
 }
 
-void ReceviedPacketProcess_Movement( struct HNet::_ProcessSession *ToProcessSessoin )
+void ReceviedPacketProcess_Movement( struct CatNet::ProcessSession *ToProcessSessoin )
 {
-    int ShipID = ToProcessSessoin->SessionIndex;
+    int ShipID = ToProcessSessoin->m_SessionIndex;
     struct PKT_C2S_Movement RecvData;
 
     // Update server data.
-    ToProcessSessoin->PacketMessage >> RecvData;
+    ToProcessSessoin->m_PacketMessage >> RecvData;
     g_ShipList[ShipID].x = RecvData.x;
     g_ShipList[ShipID].y = RecvData.y;
     g_ShipList[ShipID].w = RecvData.w;
@@ -238,7 +238,7 @@ void ReceviedPacketProcess_Movement( struct HNet::_ProcessSession *ToProcessSess
 #endif
 
     // Send to everyone except sender.
-    struct HNet::_PacketMessage SendPacket;
+    struct CatNet::PacketMessage SendPacket;
     struct PKT_S2C_Movement SendData;
     int PacketID = PACKET_ID_S2C_MOVEMENT;
 
@@ -255,13 +255,13 @@ void ReceviedPacketProcess_Movement( struct HNet::_ProcessSession *ToProcessSess
     NetObj.SendPacketToAll( SendPacket );
 }
 
-void ReceivedPacketProcess_Collided( struct HNet::_ProcessSession *ToProcessSessoin )
+void ReceivedPacketProcess_Collided( struct CatNet::ProcessSession *ToProcessSessoin )
 {
-    int ShipID = ToProcessSessoin->SessionIndex;
+    int ShipID = ToProcessSessoin->m_SessionIndex;
     struct PKT_C2S_Collided RecvData;
 
     // Update the server data.
-    ToProcessSessoin->PacketMessage >> RecvData;
+    ToProcessSessoin->m_PacketMessage >> RecvData;
     g_ShipList[ShipID].x = RecvData.x;
     g_ShipList[ShipID].y = RecvData.y;
     g_ShipList[ShipID].w = RecvData.w;
@@ -270,7 +270,7 @@ void ReceivedPacketProcess_Collided( struct HNet::_ProcessSession *ToProcessSess
     g_ShipList[ShipID].angular_velocity = RecvData.angular_velocity;
 
     // Send to everyone
-    struct HNet::_PacketMessage SendPacket;
+    struct CatNet::PacketMessage SendPacket;
     struct PKT_S2C_Collided SendData;
     int PacketID = PACKET_ID_S2C_COLLIDED;
 
@@ -292,13 +292,13 @@ void ReceivedPacketProcess_Collided( struct HNet::_ProcessSession *ToProcessSess
 #endif
 }
 
-void ReceviedPacketProcess_AsteroidCollided(HNet::_ProcessSession * ToProcessSession)
+void ReceviedPacketProcess_AsteroidCollided(CatNet::ProcessSession * ToProcessSession)
 {
 	struct PKT_C2S_AsteroidCollided RecvData;
 	int AsteroidID;
 
 	//Update the server data
-	ToProcessSession->PacketMessage >> RecvData;
+	ToProcessSession->m_PacketMessage >> RecvData;
 	AsteroidID = RecvData.AsteroidID;
 
 	for (auto itr_asteroid : g_AsteroidList) {
@@ -315,12 +315,12 @@ void ReceviedPacketProcess_AsteroidCollided(HNet::_ProcessSession * ToProcessSes
 	}
 }
 
-void ReceviedPacketProcess_NewMissile(struct HNet::_ProcessSession *ToProcessSession)
+void ReceviedPacketProcess_NewMissile(struct CatNet::ProcessSession *ToProcessSession)
 {
 	struct PKT_C2S_NewMissile RecvData;
-	ToProcessSession->PacketMessage >> RecvData;
+	ToProcessSession->m_PacketMessage >> RecvData;
 	// Send to everyone
-	struct HNet::_PacketMessage SendPacket;
+	struct CatNet::PacketMessage SendPacket;
 	struct PKT_S2C_NewMissile SendData;
 	int PacketID = PACKET_ID_S2C_NEWMISSILE;
 	SendData.OwnerShipID = RecvData.OwnerShipID;
@@ -335,12 +335,12 @@ void ReceviedPacketProcess_NewMissile(struct HNet::_ProcessSession *ToProcessSes
 	NetObj.SendPacketToAll(SendPacket);
 }
 
-void ReceviedPacketProcess_DeleteMissile(HNet::_ProcessSession * ToProcessSession)
+void ReceviedPacketProcess_DeleteMissile(CatNet::ProcessSession * ToProcessSession)
 {
 	struct PKT_C2S_DeleteMissile RecvData;
-	ToProcessSession->PacketMessage >> RecvData;
+	ToProcessSession->m_PacketMessage >> RecvData;
 	// Send to everyone
-	struct HNet::_PacketMessage SendPacket;
+	struct CatNet::PacketMessage SendPacket;
 	struct PKT_S2C_DeleteMissile SendData;
 	int PacketID = PACKET_ID_S2C_DELETEMISSILE;
 	SendData.OwnerShipID = RecvData.OwnerShipID;
@@ -349,12 +349,12 @@ void ReceviedPacketProcess_DeleteMissile(HNet::_ProcessSession * ToProcessSessio
 	NetObj.SendPacketToAll(SendPacket);
 }
 
-void ReceviedPacketProcess_NewBoom(HNet::_ProcessSession * ToProcessSession)
+void ReceviedPacketProcess_NewBoom(CatNet::ProcessSession * ToProcessSession)
 {
 	struct PKT_C2S_NewBoom RecvData;
-	ToProcessSession->PacketMessage >> RecvData;
+	ToProcessSession->m_PacketMessage >> RecvData;
 	// Send to everyone
-	struct HNet::_PacketMessage SendPacket;
+	struct CatNet::PacketMessage SendPacket;
 	struct PKT_S2C_NewBoom SendData;
 	int PacketID = PACKET_ID_S2C_NEWBOOM;
 	SendData.x = RecvData.x;
@@ -365,12 +365,12 @@ void ReceviedPacketProcess_NewBoom(HNet::_ProcessSession * ToProcessSession)
 	NetObj.SendPacketToAll(SendPacket);
 }
 
-void ReceviedPakcetProcess_ShipHit(HNet::_ProcessSession * ToProcessSession)
+void ReceviedPakcetProcess_ShipHit(CatNet::ProcessSession * ToProcessSession)
 {
 	struct PKT_C2S_HitShip RecvData;
-	ToProcessSession->PacketMessage >> RecvData;
+	ToProcessSession->m_PacketMessage >> RecvData;
 	// Send to everyone
-	struct HNet::_PacketMessage SendPacket;
+	struct CatNet::PacketMessage SendPacket;
 	struct PKT_S2C_HitShip SendData;
 	int PacketID = PACKET_ID_S2C_HITSHIP;
 	SendData.ShipHitID = RecvData.ShipHitID;
@@ -379,12 +379,12 @@ void ReceviedPakcetProcess_ShipHit(HNet::_ProcessSession * ToProcessSession)
 	NetObj.SendPacketToAll(SendPacket);
 }
 
-void ReceviedPacketProcess_Respawn(HNet::_ProcessSession * ToProcessSession)
+void ReceviedPacketProcess_Respawn(CatNet::ProcessSession * ToProcessSession)
 {
 	struct PKT_C2S_Respawn RecvData;
-	ToProcessSession->PacketMessage >> RecvData;
+	ToProcessSession->m_PacketMessage >> RecvData;
 	// Send to everyone
-	struct HNet::_PacketMessage SendPacket;
+	struct CatNet::PacketMessage SendPacket;
 	struct PKT_S2C_Respawn SendData;
 	int PacketID = PACKET_ID_S2C_RESPAWN;
 	SendData.ShipID = RecvData.ShipID;
@@ -393,12 +393,12 @@ void ReceviedPacketProcess_Respawn(HNet::_ProcessSession * ToProcessSession)
 	NetObj.SendPacketToAll(SendPacket);
 }
 
-void ReceviedPacketProcess_NewMine(HNet::_ProcessSession * ToProcessSession)
+void ReceviedPacketProcess_NewMine(CatNet::ProcessSession * ToProcessSession)
 {
 	struct PKT_C2S_NewMine RecvData;
-	ToProcessSession->PacketMessage >> RecvData;
+	ToProcessSession->m_PacketMessage >> RecvData;
 	// Send to everyone
-	struct HNet::_PacketMessage SendPacket;
+	struct CatNet::PacketMessage SendPacket;
 	struct PKT_S2C_NewMine SendData;
 	int PacketID = PACKET_ID_S2C_NEWMINE;
 	SendData.x = RecvData.x;
@@ -409,11 +409,11 @@ void ReceviedPacketProcess_NewMine(HNet::_ProcessSession * ToProcessSession)
 	NetObj.SendPacketToAll(SendPacket);
 }
 
-void ReceivedPacketProcess_DeleteMine(HNet::_ProcessSession * ToProcessSession)
+void ReceivedPacketProcess_DeleteMine(CatNet::ProcessSession * ToProcessSession)
 {
 	struct PKT_C2S_DeleteMine RecvData;
-	ToProcessSession->PacketMessage >> RecvData;
-	struct HNet::_PacketMessage SendPacket;
+	ToProcessSession->m_PacketMessage >> RecvData;
+	struct CatNet::PacketMessage SendPacket;
 	struct PKT_S2C_DeleteMine SendData;
 	int PacketID = PACKET_ID_S2C_DELETEMINE;
 	SendData.ownerId = RecvData.ownerId;
@@ -422,11 +422,11 @@ void ReceivedPacketProcess_DeleteMine(HNet::_ProcessSession * ToProcessSession)
 	NetObj.SendPacketToAll(SendPacket);
 }
 
-void ReceivedPacketProcess_NewBomb(HNet::_ProcessSession * ToProcessSession)
+void ReceivedPacketProcess_NewBomb(CatNet::ProcessSession * ToProcessSession)
 {
 	struct PKT_C2S_NewTimeBomb RecvData;
-	ToProcessSession->PacketMessage >> RecvData;
-	struct HNet::_PacketMessage SendPacket;
+	ToProcessSession->m_PacketMessage >> RecvData;
+	struct CatNet::PacketMessage SendPacket;
 	struct PKT_S2C_NewTimeBomb SendData;
 	int PacketID = PACKET_ID_S2C_NEWTIMEBOMB;
 	SendData.ownerId = RecvData.ownerId;
@@ -437,11 +437,11 @@ void ReceivedPacketProcess_NewBomb(HNet::_ProcessSession * ToProcessSession)
 	NetObj.SendPacketToAll(SendPacket);
 }
 
-void ReceivedPacketProcess_DeleteBomb(HNet::_ProcessSession * ToProcessSession)
+void ReceivedPacketProcess_DeleteBomb(CatNet::ProcessSession * ToProcessSession)
 {
 	struct PKT_C2S_DeleteTimeBomb RecvData;
-	ToProcessSession->PacketMessage >> RecvData;
-	struct HNet::_PacketMessage SendPacket;
+	ToProcessSession->m_PacketMessage >> RecvData;
+	struct CatNet::PacketMessage SendPacket;
 	struct PKT_S2C_DeleteTimeBomb SendData;
 	int PacketID = PACKET_ID_S2C_DELETETIMEBOMB;
 	SendData.ownerId = RecvData.ownerId;
@@ -450,11 +450,11 @@ void ReceivedPacketProcess_DeleteBomb(HNet::_ProcessSession * ToProcessSession)
 	NetObj.SendPacketToAll(SendPacket);
 }
 
-void ReceivedPacketProcess_DeleteSpeedUp(HNet::_ProcessSession * ToProcessSession)
+void ReceivedPacketProcess_DeleteSpeedUp(CatNet::ProcessSession * ToProcessSession)
 {
 	struct PKT_C2S_DeleteSpeedUp RecvData;
-	ToProcessSession->PacketMessage >> RecvData;
-	struct HNet::_PacketMessage SendPacket;
+	ToProcessSession->m_PacketMessage >> RecvData;
+	struct CatNet::PacketMessage SendPacket;
 	struct PKT_S2C_DeleteSpeedUp SendData;
 	int PacketID = PACKET_ID_S2C_DELETESPEEDUP;
 	SendData.SpeedUpID = RecvData.SpeedUpID;

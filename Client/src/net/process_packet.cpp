@@ -1,4 +1,4 @@
-#include "ClientNetwork.h"
+#include "..\CatNet\ClientNetwork.h"
 #include "..\application.h"
 #include "..\Shares\packets\packets_s2c.h"
 #include "process_packet.h"
@@ -11,7 +11,7 @@
 
 
 // NetLib Step 2. Client network object to use network library.
-HNet::_ClientNetwork NetObj;
+CatNet::ClientNetwork NetObj;
 
 #ifdef _DEBUG
 extern void log( char *szFormat, ... );
@@ -21,7 +21,8 @@ extern void log( char *szFormat, ... );
 namespace Net {
     bool InitNetwork( void )
     {
-        return NetObj.InitNet( HNet::APPTYPE_CLIENT, HNet::PROTOCOL_TCP, "127.0.0.1", 3456 );
+        //return NetObj.InitNet( CatNet::APP_TYPE::APPTYPE_CLIENT, CatNet::PROTOCOL_TYPE::PROTOCOL_TCP, "127.0.0.1", 3456 );
+		return NetObj.InitNet(2, 1, "127.0.0.1", 3456);
     }
 
     //-------------------------------------------------------------------------
@@ -31,14 +32,14 @@ namespace Net {
         // NetLib Step 6. Prepare the pointer of _ProcessSession and buffer structure of _PacketMessage.
         //         _ProcessSession pointer will give you the session information if there is any network communication from any client.
         //         _PacketMessage is for fetch the each of the actual data inside the packet buffer.
-        struct HNet::_ProcessSession *ToProcessSessoin;
+        struct CatNet::ProcessSession *ToProcessSessoin;
         // NetLib Step 7. Message Loop.
         //         Check any message from server and process.
         while( nullptr != ( ToProcessSessoin = NetObj.GetProcessList()->GetFirstSession() ) )
         { // Something recevied from network.
             int PacketID;
 
-            ToProcessSessoin->PacketMessage >> PacketID;
+            ToProcessSessoin->m_PacketMessage >> PacketID;
             switch( thisapp->GetGameState() )
             {
                 case GAMESTATE_INITIALIZING:
@@ -150,10 +151,10 @@ namespace Net {
     }
 
     //-------------------------------------------------------------------------
-    void WelcomeMessage( Application *thisapp, struct HNet::_ProcessSession *ToProcessSessoin )
+    void WelcomeMessage( Application *thisapp, struct CatNet::ProcessSession *ToProcessSessoin )
     {
         struct PKT_S2C_WelcomeMessage PacketData;
-        ToProcessSessoin->PacketMessage >> PacketData;
+        ToProcessSessoin->m_PacketMessage >> PacketData;
         thisapp->GetMyShip()->SetShipID( PacketData.ShipID );
 #ifdef _DEBUG
         log( "\nReceived: PACKET_ID_S2C_WELCOMEMESSAGE. ShipID:%d", PacketData.ShipID );
@@ -163,12 +164,12 @@ namespace Net {
     }
 
     //-------------------------------------------------------------------------
-    void NewEnemyShip( Application *thisapp, struct HNet::_ProcessSession *ToProcessSessoin )
+    void NewEnemyShip( Application *thisapp, struct CatNet::ProcessSession *ToProcessSessoin )
     {
         //struct PKT_S2C_EnemyShip EnemyshipPacketData;
         struct PKT_S2C_NewEnemyShip NewEnemyShipPacketData;
 
-        ToProcessSessoin->PacketMessage >> NewEnemyShipPacketData;
+        ToProcessSessoin->m_PacketMessage >> NewEnemyShipPacketData;
 
         std::string EnemyShipName = "Enemy" + std::to_string( NewEnemyShipPacketData.ShipID );
         Ship *EnemyShip = new Ship( NewEnemyShipPacketData.ShipType, EnemyShipName, NewEnemyShipPacketData.x, NewEnemyShipPacketData.y );
@@ -197,10 +198,10 @@ namespace Net {
     }
 
     //-------------------------------------------------------------------------
-    void NewAstreroid( Application *thisapp, struct HNet::_ProcessSession *ToProcessSessoin )
+    void NewAstreroid( Application *thisapp, struct CatNet::ProcessSession *ToProcessSessoin )
     {
         struct PKT_S2C_NewAsteroid AsteroidData;
-        ToProcessSessoin->PacketMessage >> AsteroidData;
+        ToProcessSessoin->m_PacketMessage >> AsteroidData;
 
 #ifdef _DEBUG
         log( "\nReceived PACKET_ID_S2C_NEWASTEROID. ID:%d, x:%0.0f, y:%0.0f, vx:%0.0f, vy:%0.0f, av:%0.0f",
@@ -215,10 +216,10 @@ namespace Net {
     }
 
     //-------------------------------------------------------------------------
-    void DisconnectEnemyShip( Application *thisapp, struct HNet::_ProcessSession *ToProcessSessoin )
+    void DisconnectEnemyShip( Application *thisapp, struct CatNet::ProcessSession *ToProcessSessoin )
     {
         struct PKT_S2C_EnemyShipDisconnect EnemyShipData;
-        ToProcessSessoin->PacketMessage >> EnemyShipData;
+        ToProcessSessoin->m_PacketMessage >> EnemyShipData;
 
         for( unsigned int i = 0; i < thisapp->GetEnemyShipList()->size(); ++i )
         {
@@ -249,10 +250,10 @@ namespace Net {
     }
 
     //-------------------------------------------------------------------------
-    void ShipMovement( Application *thisapp, struct HNet::_ProcessSession *ToProcessSessoin )
+    void ShipMovement( Application *thisapp, struct CatNet::ProcessSession *ToProcessSessoin )
     {
         struct PKT_S2C_Movement MovementData;
-        ToProcessSessoin->PacketMessage >> MovementData;
+        ToProcessSessoin->m_PacketMessage >> MovementData;
 //#ifdef _DEBUG
 //        log( "\nReceived: PACKET_ID_S2C_MOVEMENT. ShipID:%d, x:%0.0f, y:%0.0f, w:%0.0f, svx:%0.2f, svy:%0.2f, av:%0.0f",
 //             MovementData.ShipID, MovementData.server_x, MovementData.server_y, MovementData.server_w,
@@ -279,10 +280,10 @@ namespace Net {
     }
 
     //-------------------------------------------------------------------------
-    void ShipCollided( Application *thisapp, struct HNet::_ProcessSession *ToProcessSessoin )
+    void ShipCollided( Application *thisapp, struct CatNet::ProcessSession *ToProcessSessoin )
     {
         struct PKT_S2C_Collided CollidedData;
-        ToProcessSessoin->PacketMessage >> CollidedData;
+        ToProcessSessoin->m_PacketMessage >> CollidedData;
 
         Ship *CollidedShip;
         if( thisapp->GetMyShip()->GetShipID() == CollidedData.ShipID )
@@ -302,10 +303,10 @@ namespace Net {
     }
 
     //-------------------------------------------------------------------------
-    void AsteroidMovement( Application *thisapp, struct HNet::_ProcessSession *ToProcessSessoin )
+    void AsteroidMovement( Application *thisapp, struct CatNet::ProcessSession *ToProcessSessoin )
     {
         struct PKT_S2C_AsteroidMovement AsteroidMovementData;
-        ToProcessSessoin->PacketMessage >> AsteroidMovementData;
+        ToProcessSessoin->m_PacketMessage >> AsteroidMovementData;
 
         Asteroid *MovingAsteroid = nullptr;
         for( auto itr_asteroid : *( thisapp->GetAsteroidList() ) )
@@ -328,10 +329,10 @@ namespace Net {
         MovingAsteroid->set_angular_velocity( AsteroidMovementData.angular_velocity );
         MovingAsteroid->do_interpolate_update();
     }
-	void AsteroidCollided(Application * thisapp, HNet::_ProcessSession * ToProcessSessoin)
+	void AsteroidCollided(Application * thisapp, CatNet::ProcessSession * ToProcessSessoin)
 	{
 		struct PKT_S2C_AsteroidCollided AsteroidCollidedData;
-		ToProcessSessoin->PacketMessage >> AsteroidCollidedData;
+		ToProcessSessoin->m_PacketMessage >> AsteroidCollidedData;
 		Asteroid *CollidedAsteroid = NULL;
 		for (auto itr_asteroid : *(thisapp->GetAsteroidList()))
 		{
@@ -353,10 +354,10 @@ namespace Net {
 		CollidedAsteroid->do_interpolate_update();
 
 	}
-	void NewMissile(Application * thisapp, HNet::_ProcessSession * ToProcessSessoin)
+	void NewMissile(Application * thisapp, CatNet::ProcessSession * ToProcessSessoin)
 	{
 		struct PKT_S2C_NewMissile NewMissileData;
-		ToProcessSessoin->PacketMessage >> NewMissileData;
+		ToProcessSessoin->m_PacketMessage >> NewMissileData;
 		// If the missile is my own missile, then ignore the packet.
 		if (thisapp->GetMyShip()->GetShipID() == NewMissileData.OwnerShipID) return;
 		// If there is exsiting missile with the ShipID, delete it first.
@@ -376,10 +377,10 @@ namespace Net {
 		missile->set_server_velocity_y(NewMissileData.velocity_y);
 		thisapp->GetEnemyMissileList()->push_back(missile);
 	}
-	void DeleteMissile(Application * thisapp, HNet::_ProcessSession * ToProcessSession)
+	void DeleteMissile(Application * thisapp, CatNet::ProcessSession * ToProcessSession)
 	{
 		struct PKT_S2C_DeleteMissile DeleteMissileData;
-		ToProcessSession->PacketMessage >> DeleteMissileData;
+		ToProcessSession->m_PacketMessage >> DeleteMissileData;
 		//if it is my own missile, no need delete as i delete alr
 		if (thisapp->GetMyShip()->GetShipID() == DeleteMissileData.OwnerShipID) return;
 		//find the missile
@@ -394,18 +395,18 @@ namespace Net {
 			}
 		}
 	}
-	void NewBoom(Application * thisapp, HNet::_ProcessSession * ToProcessSession)
+	void NewBoom(Application * thisapp, CatNet::ProcessSession * ToProcessSession)
 	{
 		struct PKT_S2C_NewBoom NewBoomData;
-		ToProcessSession->PacketMessage >> NewBoomData;
+		ToProcessSession->m_PacketMessage >> NewBoomData;
 		//create the boom
 		Boom* boom = new Boom("boom.png", NewBoomData.x, NewBoomData.y, NewBoomData.w);
 		thisapp->GetParticleList()->push_back(boom);
 	}
-	void HitShip(Application * thisapp, HNet::_ProcessSession * ToProcessSession)
+	void HitShip(Application * thisapp, CatNet::ProcessSession * ToProcessSession)
 	{
 		struct PKT_S2C_HitShip HitData;
-		ToProcessSession->PacketMessage >> HitData;
+		ToProcessSession->m_PacketMessage >> HitData;
 		//set the ship it hit to inactive
 		for (auto it : *thisapp->GetEnemyShipList())
 		{
@@ -415,10 +416,10 @@ namespace Net {
 		if (thisapp->GetMyShip()->GetShipID() == HitData.ShipHitID)
 			thisapp->GetMyShip()->active = false;
 	}
-	void Respawn(Application * thisapp, HNet::_ProcessSession * ToProcessSession)
+	void Respawn(Application * thisapp, CatNet::ProcessSession * ToProcessSession)
 	{
 		struct PKT_S2C_Respawn ShipData;
-		ToProcessSession->PacketMessage >> ShipData;
+		ToProcessSession->m_PacketMessage >> ShipData;
 		if (thisapp->GetMyShip()->GetShipID() == ShipData.ShipID)
 			return;
 		//find the ship to respawn
@@ -428,10 +429,10 @@ namespace Net {
 				it->active = true;
 		}
 	}
-	void NewMine(Application * thisapp, HNet::_ProcessSession * ToPrcoessSession)
+	void NewMine(Application * thisapp, CatNet::ProcessSession * ToPrcoessSession)
 	{
 		struct PKT_S2C_NewMine MineData;
-		ToPrcoessSession->PacketMessage >> MineData;
+		ToPrcoessSession->m_PacketMessage >> MineData;
 		if (thisapp->GetMyShip()->GetShipID() == MineData.OwnerID)
 			return;
 		//check mine exist
@@ -448,10 +449,10 @@ namespace Net {
 		//create the thing
 		thisapp->GetEnemyMineList()->push_back(new Mine("mine.png", MineData.x, MineData.y, MineData.OwnerID));
 	}
-	void DeleteMine(Application * thisapp, HNet::_ProcessSession * ToProcessSession)
+	void DeleteMine(Application * thisapp, CatNet::ProcessSession * ToProcessSession)
 	{
 		struct PKT_S2C_DeleteMine mineData;
-		ToProcessSession->PacketMessage >> mineData;
+		ToProcessSession->m_PacketMessage >> mineData;
 		for (std::vector<Mine*>::iterator it = thisapp->GetEnemyMineList()->begin(); it != thisapp->GetEnemyMineList()->end(); ++it)
 		{
 			if ((*it)->ownerid_ == mineData.ownerId)
@@ -464,10 +465,10 @@ namespace Net {
 			}
 		}
 	}
-	void NewTimeBomb(Application * thisapp, HNet::_ProcessSession * ToProcessSession)
+	void NewTimeBomb(Application * thisapp, CatNet::ProcessSession * ToProcessSession)
 	{
 		struct PKT_S2C_NewTimeBomb bombData;
-		ToProcessSession->PacketMessage >> bombData;
+		ToProcessSession->m_PacketMessage >> bombData;
 
 		if (thisapp->GetMyShip()->GetShipID() == bombData.ownerId)
 			return;
@@ -486,10 +487,10 @@ namespace Net {
 		newBomb->ownerid_ = bombData.ownerId;
 		thisapp->GetEnemyBombList()->push_back(newBomb);
 	}
-	void DeleteTimeBomb(Application * thisapp, HNet::_ProcessSession * ToProcessSession)
+	void DeleteTimeBomb(Application * thisapp, CatNet::ProcessSession * ToProcessSession)
 	{
 		struct PKT_S2C_DeleteTimeBomb bombData;
-		ToProcessSession->PacketMessage >> bombData;
+		ToProcessSession->m_PacketMessage >> bombData;
 		for (std::vector<TimeBomb*>::iterator it = thisapp->GetEnemyBombList()->begin(); it != thisapp->GetEnemyBombList()->end(); ++it)
 		{
 			if ((*it)->ownerid_ == bombData.ownerId)
@@ -502,10 +503,10 @@ namespace Net {
 			}
 		}
 	}
-	void NewSpeedUp(Application * thisapp, HNet::_ProcessSession * ToProcessSession)
+	void NewSpeedUp(Application * thisapp, CatNet::ProcessSession * ToProcessSession)
 	{
 		struct PKT_S2C_NewSpeedUp speedupdata;
-		ToProcessSession->PacketMessage >> speedupdata;
+		ToProcessSession->m_PacketMessage >> speedupdata;
 		//spawn pick up
 		for (auto it : *thisapp->GetSpeedUps())
 		{
@@ -517,10 +518,10 @@ namespace Net {
 		thisapp->GetSpeedUps()->push_back(newSU);
 		printf("\npower up packet was received");
 	}
-	void DeleteSpeedUp(Application * thisapp, HNet::_ProcessSession * ToProcessSession)
+	void DeleteSpeedUp(Application * thisapp, CatNet::ProcessSession * ToProcessSession)
 	{
 		struct PKT_S2C_DeleteSpeedUp speedupdata;
-		ToProcessSession->PacketMessage >> speedupdata;
+		ToProcessSession->m_PacketMessage >> speedupdata;
 		for (std::vector<SpeedUp*>::iterator it = thisapp->GetSpeedUps()->begin(); it != thisapp->GetSpeedUps()->end(); ++it)
 		{
 			SpeedUp* temp = (*it);

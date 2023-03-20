@@ -4,20 +4,20 @@
 
 
 // Function declarations.
-void ReceviedPacketProcess( struct HNet::_ProcessSession *ToProcessSessoin );
-void ReceviedPacketProcess_EnterGame( struct HNet::_ProcessSession *ToProcessSessoin );
-void ReceviedPacketProcess_Movement( struct HNet::_ProcessSession *ToProcessSessoin );
-void ReceivedPacketProcess_Collided( struct HNet::_ProcessSession *ToProcessSessoin );
-void ReceviedPacketProcess_AsteroidCollided(struct HNet::_ProcessSession * ToProcessSession);
-void ReceviedPacketProcess_NewMissile(struct HNet::_ProcessSession* ToProcessSession);
-void ReceviedPacketProcess_DeleteMissile(struct HNet::_ProcessSession* ToProcessSession);
-void ReceviedPacketProcess_NewBoom(struct HNet::_ProcessSession* ToProcessSession);
-void ReceviedPakcetProcess_ShipHit(struct HNet::_ProcessSession* ToProcessSession);
-void ReceviedPacketProcess_Respawn(struct HNet::_ProcessSession* ToProcessSession);
-void ReceviedPacketProcess_NewMine(struct HNet::_ProcessSession* ToProcessSession);
-void ReceivedPacketProcess_DeleteMine(struct HNet::_ProcessSession* ToProcessSession);
-void ReceivedPacketProcess_NewBomb(struct HNet::_ProcessSession* ToProcessSession);
-void ReceivedPacketProcess_DeleteBomb(struct HNet::_ProcessSession* ToProcessSession);
-void ReceivedPacketProcess_DeleteSpeedUp(struct HNet::_ProcessSession* ToProcessSession);
+void ReceviedPacketProcess( struct CatNet::ProcessSession *ToProcessSessoin );
+void ReceviedPacketProcess_EnterGame( struct CatNet::ProcessSession *ToProcessSessoin );
+void ReceviedPacketProcess_Movement( struct CatNet::ProcessSession *ToProcessSessoin );
+void ReceivedPacketProcess_Collided( struct CatNet::ProcessSession *ToProcessSessoin );
+void ReceviedPacketProcess_AsteroidCollided(struct CatNet::ProcessSession * ToProcessSession);
+void ReceviedPacketProcess_NewMissile(struct CatNet::ProcessSession* ToProcessSession);
+void ReceviedPacketProcess_DeleteMissile(struct CatNet::ProcessSession* ToProcessSession);
+void ReceviedPacketProcess_NewBoom(struct CatNet::ProcessSession* ToProcessSession);
+void ReceviedPakcetProcess_ShipHit(struct CatNet::ProcessSession* ToProcessSession);
+void ReceviedPacketProcess_Respawn(struct CatNet::ProcessSession* ToProcessSession);
+void ReceviedPacketProcess_NewMine(struct CatNet::ProcessSession* ToProcessSession);
+void ReceivedPacketProcess_DeleteMine(struct CatNet::ProcessSession* ToProcessSession);
+void ReceivedPacketProcess_NewBomb(struct CatNet::ProcessSession* ToProcessSession);
+void ReceivedPacketProcess_DeleteBomb(struct CatNet::ProcessSession* ToProcessSession);
+void ReceivedPacketProcess_DeleteSpeedUp(struct CatNet::ProcessSession* ToProcessSession);
 
 #endif
