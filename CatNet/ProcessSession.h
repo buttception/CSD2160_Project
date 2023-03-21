@@ -3,6 +3,7 @@
 #pragma once
 
 #include <WinSock2.h>
+#include <iostream>
 
 #include "SessionNode.h"
 
@@ -58,7 +59,10 @@ namespace CatNet
 
         int DecodePacket(char Packet[], int PacketLength)
         {
-            strcpy_s(Buffer, PacketLength, Packet);
+            if (PacketLength < 0)
+                return 0;
+            memset(Buffer, '\0', SEND_BUFSIZE);
+            memcpy(Buffer, Packet, PacketLength);
 
             return BufferWritePos = PacketLength;
         }
