@@ -18,9 +18,14 @@ namespace CatNet
                 break;
             }
             else
+            {
                 printf("Recv failed: %d\n", WSAGetLastError());
-            break;
+                break;
+            }
+                
+
         } while (true);
+        std::cout << "thread exit" << std::endl;
         return 0;
     }
 }

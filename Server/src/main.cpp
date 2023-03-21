@@ -63,7 +63,7 @@ int main( void )
         return 0;
     }
 
-    if( false == NetObj.InitNet(1, 1, 3456 ) )
+    if( false == NetObj.InitNet(1, 1, 5050 ) )
     {
 #ifdef _DEBUG
         log( "%s", NetObj.GetErrorMessage() );

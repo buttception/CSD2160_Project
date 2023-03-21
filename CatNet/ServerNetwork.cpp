@@ -41,6 +41,7 @@ namespace CatNet
                     if(index > -1)
                     {
                         SessionNode* newClient = new SessionNode();
+                        std::cout << "new client daddy " << client << std::endl;
                         newClient->SetNewConnectedSession(client, server->serverAddr);
                         newClient->SetIndex(index);
                         server->GetSessionList()->AddSession(newClient);
@@ -57,12 +58,12 @@ namespace CatNet
                     {
                         server->GetProcessList()->Attach(currClient, SESSION_STATE_READPACKET, currClient->GetRecvBufferWritePos(), currClient->GetRecvBuffer());
                     }
-                    /*else
-                    {
-                        currClient->CloseSession();
-                        server->GetSessionList()->ActiveList.DetachNode(currClient);
-                        FD_CLR(socket, &connectedSockets);
-                    }*/
+                    //else
+                    //{
+                    //    currClient->CloseSession();
+                    //    server->GetSessionList()->ActiveList.DetachNode(currClient);
+                    //    FD_CLR(socket, &connectedSockets);
+                    //}
                 }
             }
         }

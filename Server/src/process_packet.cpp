@@ -135,6 +135,7 @@ void ReceviedPacketProcess_EnterGame( struct CatNet::ProcessSession *ToProcessSe
     struct CatNet::PacketMessage EnterGameAckPacket;
     int EnterGameAckPacketID = PACKET_ID_S2C_ENTERGAMEOK;
     EnterGameAckPacket << EnterGameAckPacketID;
+	//SendPacketProcess_FullGame(ShipID);
     NetObj.SendPacket( ShipID, EnterGameAckPacket );
 
     // Send Asteroid list.

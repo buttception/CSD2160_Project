@@ -191,21 +191,6 @@ namespace CatNet
             memcpy(pBuffer, buf, packet_message.GetBufferLength());
             int BufferLen{ packet_message.BufferWritePos };
 
-            std::cout << std::endl;
-            std::cout << "BUFFER: ";
-            for (int i = 0; i < BufferLen; ++i)
-            {
-                std::cout << buf[i];
-            }
-            std::cout << std::endl;
-
-            std::cout << "PBUF: ";
-            for (int i = 0; i < BufferLen; ++i)
-            {
-                std::cout << pBuffer[i];
-            }
-            std::cout << std::endl;
-
             while ((nCntSend = send(SendSocket, pBuffer, BufferLen, 0) != BufferLen))
             {
                 if (nCntSend == -1)

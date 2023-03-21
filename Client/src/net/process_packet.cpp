@@ -23,7 +23,7 @@ namespace Net {
     bool InitNetwork( void )
     {
         //return NetObj.InitNet( CatNet::APP_TYPE::APPTYPE_CLIENT, CatNet::PROTOCOL_TYPE::PROTOCOL_TCP, "127.0.0.1", 3456 );
-		return NetObj.InitNet(2, 1, "127.0.0.1", 3456);
+		return NetObj.InitNet(2, 1, "127.0.0.1", 5050);
     }
 
     //-------------------------------------------------------------------------
