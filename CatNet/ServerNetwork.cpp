@@ -135,9 +135,9 @@ namespace CatNet
         if (!client)
             return -1;
 
-        PacketMessage encoded{};
-        encoded << "Socket=" << std::to_string(client->GetSocket()).c_str() << " Message=" << packet_message.Buffer;
-        return NetLib::SendPacket(client->GetSocket(), encoded);
+       // PacketMessage encoded{};
+        //encoded << "Socket=" << std::to_string(client->GetSocket()).c_str() << " Message=" << packet_message.Buffer;
+        return NetLib::SendPacket(client->GetSocket(), packet_message);
     }
     int ServerNetwork::SendPacketToAll(PacketMessage packet_message)
     {
@@ -145,9 +145,9 @@ namespace CatNet
         {
 	        if(m_SessionList.CheckIndex(i))
 	        {
-                PacketMessage encoded{};
-                encoded << "Socket=" << std::to_string(m_SessionList.GetSessionNodeByIndex(i)->GetSocket()).c_str() << " Message=" << packet_message.Buffer;
-                NetLib::SendPacket(m_SessionList.GetSessionNodeByIndex(i)->GetSocket(), encoded);
+               // PacketMessage encoded{};
+               // encoded << "Socket=" << std::to_string(m_SessionList.GetSessionNodeByIndex(i)->GetSocket()).c_str() << " Message=" << packet_message.Buffer;
+                NetLib::SendPacket(m_SessionList.GetSessionNodeByIndex(i)->GetSocket(), packet_message);
 	        }
         }
         return m_SessionList.GetSessionCount();
@@ -158,9 +158,9 @@ namespace CatNet
         {
             if (m_SessionList.CheckIndex(i) && i != SessionIndex)
             {
-                PacketMessage encoded{};
-                encoded << "Socket=" << std::to_string(m_SessionList.GetSessionNodeByIndex(i)->GetSocket()).c_str() << " Message=" << packet_message.Buffer;
-                NetLib::SendPacket(m_SessionList.GetSessionNodeByIndex(i)->GetSocket(), encoded);
+               // PacketMessage encoded{};
+               // encoded << "Socket=" << std::to_string(m_SessionList.GetSessionNodeByIndex(i)->GetSocket()).c_str() << " Message=" << packet_message.Buffer;
+                NetLib::SendPacket(m_SessionList.GetSessionNodeByIndex(i)->GetSocket(), packet_message);
             }
         }
         return m_SessionList.GetSessionCount();

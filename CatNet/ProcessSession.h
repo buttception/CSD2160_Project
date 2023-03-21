@@ -112,7 +112,8 @@ namespace CatNet
         PacketMessage& AddString(const char*& data)
         {
             const int StringLength{ static_cast<int>(strlen(data) + 1) };
-            strcpy_s(Buffer + BufferWritePos, StringLength, data);
+            //strcpy_s(Buffer + BufferWritePos, StringLength, data);
+            memcpy(Buffer + BufferWritePos, data, StringLength);
             BufferWritePos += StringLength - 1;
             return *this;
         }

@@ -99,7 +99,7 @@ namespace CatNet
         {
             PacketMessage.Reset();
 
-            PacketMessage << '<' << Packet << '>';
+            PacketMessage <<  Packet;
 
             return PacketMessage.BufferWritePos;
         }
@@ -183,10 +183,28 @@ namespace CatNet
         {
             int nCntSend;
             char buf[SEND_BUFSIZE]{ '\0', };
-            strcpy_s(buf, packet_message.Buffer);
-            EncodePacket(packet_message, buf);
-            char* pBuffer{ packet_message.Buffer };
+            //strcpy_s(buf, packet_message.Buffer);
+            memcpy(buf, packet_message.Buffer, packet_message.GetBufferLength());
+            
+            //EncodePacket(packet_message, buf);
+            char* pBuffer{buf};
+            memcpy(pBuffer, buf, packet_message.GetBufferLength());
             int BufferLen{ packet_message.BufferWritePos };
+
+            std::cout << std::endl;
+            std::cout << "BUFFER: ";
+            for (int i = 0; i < BufferLen; ++i)
+            {
+                std::cout << buf[i];
+            }
+            std::cout << std::endl;
+
+            std::cout << "PBUF: ";
+            for (int i = 0; i < BufferLen; ++i)
+            {
+                std::cout << pBuffer[i];
+            }
+            std::cout << std::endl;
 
             while ((nCntSend = send(SendSocket, pBuffer, BufferLen, 0) != BufferLen))
             {

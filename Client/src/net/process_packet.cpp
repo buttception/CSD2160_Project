@@ -39,7 +39,8 @@ namespace Net {
         while( nullptr != ( ToProcessSessoin = NetObj.GetProcessList()->GetFirstSession() ) )
         { // Something recevied from network.
             int PacketID;
-
+			CatNet::PacketMessage temp;
+			
             ToProcessSessoin->m_PacketMessage >> PacketID;
             switch( thisapp->GetGameState() )
             {

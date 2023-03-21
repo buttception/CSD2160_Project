@@ -70,9 +70,9 @@ namespace CatNet
 
         int SendPacket(const PacketMessage& packet_message)
         {
-            PacketMessage encoded{};
-            encoded << "Socket=" << std::to_string(m_Session.GetSocket()).c_str() << " Message=" << packet_message.Buffer;
-            return NetLib::SendPacket(GetMainSocket(), encoded);
+            //PacketMessage encoded{};
+            //encoded << "Socket=" << std::to_string(m_Session.GetSocket()).c_str() << " Message=" << packet_message.Buffer;
+            return NetLib::SendPacket(GetMainSocket(), packet_message);
         }
 
         int CheckPacketRecevied()
