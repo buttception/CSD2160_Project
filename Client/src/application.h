@@ -1,16 +1,9 @@
 #ifndef _APPLICATION_H_
 #define _APPLICATION_H_
 
-#include "movables\ship.h"
-#include "movables\Asteroid.h"
-#include "movables\missile.h"
-#include "movables\Boom.h"
-//#include "movables\mine.h"
 #include <vector>
 
-class Mine;
-class TimeBomb;
-class SpeedUp;
+#include "movables/Tank.h"
 
 enum _GAMESTATE {
     GAMESTATE_NONE = 0,
@@ -34,77 +27,41 @@ static const float DEFAULT_ACCELERATION = 50.0f;
 */
 class Application
 {
-    private:
-        int gamestate_;
-    	HGE* hge_; //!< Instance of the internal graphics engine
+private:
+    int gamestate_;
+    HGE* hge_; //!< Instance of the internal graphics engine
 
-        Ship *myship_; //!< My own space ship
-        typedef std::vector<Ship*> ShipList;  //!< A list of ships
-        ShipList enemyships_; //!< List of all the enemy ships in the universe
+    Tank player;
+    std::vector<Tank> clients;
 
-        typedef std::vector<Asteroid *> AsteroidList; //!< A list of asteroids
-        AsteroidList asteroids_; //!< List of all the asteroids in the universe
+    bool Init();
+    static bool Loop();
+    void Shutdown();
 
-		typedef std::vector<Missile*> MissileList;
-		MissileList enemymissiles_;
+public:
+    Application();
+    ~Application() throw();
 
-		typedef std::vector<Boom*> ParticleList;
-		ParticleList particleList;
+    void Start();
+    bool Update();
+    void Render();
 
-		typedef std::vector<Mine*> MineList;
-		MineList enemymines_;
+    template <typename T1, typename T2>
+    bool HasCollided( T1 &object, T2 &movable );
 
-		typedef std::vector<TimeBomb*> BombList;
-		BombList enemybombs_;
+    template <typename Mov, typename Tgt>
+    bool CheckCollision( Mov &object, Tgt &movable, float timedelta );
 
-		typedef std::vector<SpeedUp*> SpeedUpList;
-		SpeedUpList speedups;
+	void CreateMissile(float x, float y, float w, int id);
+	void CreateMine(float x, float y, int id);
 
-		Missile* mymissile;
-		bool have_missile;
-		bool keydown_enter;
-		
-		Mine* myMine;
-		bool keydown_space;
+public:
+    void SetGameState( int gamestate ) { gamestate_ = gamestate; }
+    int  GetGameState( void          ) { return gamestate_; }
 
-		TimeBomb* myBomb;
-		bool keydown_q;
-	
-    	bool Init();
-    	static bool Loop();
-    	void Shutdown();
-
-    public:
-    	Application();
-    	~Application() throw();
-
-    	void Start();
-    	bool Update();
-    	void Render();
-
-        template <typename T1, typename T2>
-        bool HasCollided( T1 &object, T2 &movable );
-
-        template <typename Mov, typename Tgt>
-        bool CheckCollision( Mov &object, Tgt &movable, float timedelta );
-
-		void CreateMissile(float x, float y, float w, int id);
-		void CreateMine(float x, float y, int id);
-
-    public:
-        void SetGameState( int gamestate ) { gamestate_ = gamestate; }
-        int  GetGameState( void          ) { return gamestate_; }
-
-    public:
-        Ship *GetMyShip( void ) { return myship_; }
-        ShipList *GetEnemyShipList( void ) { return &enemyships_; }
-        Ship *FindEnemyShip( int ShipID );
-        AsteroidList *GetAsteroidList( void ) { return &asteroids_; }
-		MissileList* GetEnemyMissileList(void) { return &enemymissiles_; }
-		ParticleList* GetParticleList(void) { return &particleList; }
-		MineList* GetEnemyMineList(void) { return &enemymines_; }
-		BombList* GetEnemyBombList(void) { return &enemybombs_; }
-		SpeedUpList* GetSpeedUps(void) { return &speedups; }
+public:
+    Tank& GetPlayer() { return player; }
+    std::vector<Tank>& GetClients() { return clients; }
 };
 
 #endif

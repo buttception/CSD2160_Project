@@ -9,23 +9,19 @@
 #include "ServerNetwork.h"
 #include "send_packet.h"
 #include "process_packet.h"
-#include "Ship.h"
-#include "asteroid.h"
-#include "speedup.h"
 #include "timer\timer.h"
+#include "tank.h"
 
-#include <vector>
+#include <array>
 
 #ifdef _DEBUG
 #include <io.h>
 #endif
 
-using namespace std;
+//using namespace std;
 
 CatNet::ServerNetwork NetObj;
-struct _Ship g_ShipList[MAX_CLIENT_CONNECTION + 1]; // Ship list. Array Index number is same as SessionIndex number from Network Library.
-std::vector <_Asteroid *> g_AsteroidList; // Asteroid list.
-std::vector<SpeedUp*> powerUpList;
+std::array<Tank, MAX_CLIENT_CONNECTION + 1> g_Tanks;
 
 _Timer g_LoopTimer;
 
@@ -47,11 +43,8 @@ void log( char *szFormat, ... )
 #endif
 
 bool init_game_server( void )
-{ // Initialize whatever you need.
-
-    // Initialize two asteroid. This is for simple example.
-    g_AsteroidList.push_back( new _Asteroid( 1, 100, 100, 1 ) );
-    g_AsteroidList.push_back( new _Asteroid( 2, 700, 500, 1 ) );
+{ 
+    
 
     return true;
 }
@@ -72,22 +65,22 @@ int main( void )
     }
 #ifdef _DEBUG
     log( "%s", "\n Server network initialized!" );
-    log( "%s", "\n Network thread started! Ready to accept & recevie the message." );
+    log( "%s", "\n Network thread started! Ready to accept & receive the message." );
 #endif
     Sleep( 1000 ); // Wait for a while to make sure everything is ok.
 
     g_LoopTimer.GetTimer_sec(); // To initialize the timer.
-    struct CatNet::ProcessSession *ToProcessSessoin;
+    struct CatNet::ProcessSession *ToProcessSession;
     while( 1 )
     {
-        while( nullptr != ( ToProcessSessoin = NetObj.GetProcessList()->GetFirstSession() ) )
+        while( nullptr != ( ToProcessSession = NetObj.GetProcessList()->GetFirstSession() ) )
         {
-            switch( ToProcessSessoin->m_SessionState )
+            switch( ToProcessSession->m_SessionState )
             {
                 case CatNet::SESSION_STATE_NEWCONNECTION:
                 { // New connection request arrived.
 #ifdef _DEBUG
-                    log( "\n New connection connected: Index:%d. Total Connection now:%d", ToProcessSessoin->m_SessionIndex, NetObj.GetConnectedCount() );
+                    log( "\n New connection connected: Index:%d. Total Connection now:%d", ToProcessSession->m_SessionIndex, NetObj.GetConnectedCount() );
 #endif
 					///TODO: Check if more than 3, then need deny
 					//check if there is already 3 players
@@ -95,11 +88,11 @@ int main( void )
 					if (NetObj.GetConnectedCount() > 3)
 					{
 						//deny access
-						SendPacketProcess_FullGame(ToProcessSessoin->m_SessionIndex);
+						SendPacketProcess_FullGame(ToProcessSession->m_SessionIndex);
 					}
 					else
 					{
-						SendPacketProcess_NewAccept(ToProcessSessoin->m_SessionIndex);
+						SendPacketProcess_NewAccept(ToProcessSession->m_SessionIndex);
 					}
                 }
                 break;
@@ -108,68 +101,22 @@ int main( void )
                 { // Connection closed arrived or communication error.
 #ifdef _DEBUG
                     log( "\n Received: Index %d wants to close or already closed.\n Total Connection now:%d",
-                            ToProcessSessoin->m_SessionIndex, NetObj.GetConnectedCount() );
+                            ToProcessSession->m_SessionIndex, NetObj.GetConnectedCount() );
 #endif
-                    SendPacketProcess_EnemyShipDisconnect( ToProcessSessoin->m_SessionIndex);
+                    SendPacketProcess_Disconnect( ToProcessSession->m_SessionIndex);
                 }
                 break;
 
                 case CatNet::SESSION_STATE_READPACKET:
-                { // Any packet data recevied.
-                    ReceviedPacketProcess( ToProcessSessoin );
+                { // Any packet data received.
+                    ReceivedPacketProcess( ToProcessSession );
                 }
                 break;
             }
 
             NetObj.GetProcessList()->DeleteFirstSession();
         }
-
-        // You can add your own server codes here. If there is any regular work.
-
-        // Update the asteroid movement.
-        float asteroid_prev_x, asteroid_prev_y;
-        float time_delta = g_LoopTimer.GetTimer_sec();
-        for( auto asteroid : g_AsteroidList )
-        {
-            asteroid_prev_x = asteroid->get_x();
-            asteroid_prev_y = asteroid->get_y();
-            asteroid->Update( time_delta, 30, 30 );
-            if( ( asteroid_prev_x != asteroid->get_x() ) || ( asteroid_prev_y != asteroid->get_y() ) )
-            {
-                SendPacketProcess_AsteroidMovement( asteroid );
-            }
-        }
-
-		//create a speed up every 5s
-		static float timer = 0;
-		timer += time_delta;
-		if (timer >= 10.f)
-		{
-			timer = 0;
-			static int id = 0;
-			SpeedUp* speedup = new SpeedUp(id, 400, 300, 0);
-			powerUpList.push_back(speedup);
-			SendPacketProcess_NewSpeedUp(speedup);
-			++id;
-			printf("\npower up was created\n");
-		}
-
-		for (auto speedup : powerUpList)
-		{
-			speedup->Update(time_delta, 20, 20);
-			SendPacketProcess_SpeedUpMovement(speedup);
-		}
-		for (std::vector<SpeedUp*>::iterator it = powerUpList.begin(); it != powerUpList.end(); ++it)
-		{
-			if ((*it)->active == false)
-			{
-				delete (*it);
-				powerUpList.erase(it);
-				break;
-				printf("\npower up was deleted");
-			}
-		}
-        Sleep( 100 ); // You can check a timer to nomalize the looping spped (FPS).
+        Sleep( 100 ); // You can check a timer to nomalize the looping speed (FPS).
     }
 
     return 0;

@@ -1,18 +1,21 @@
 #include "main.h"
 #include "send_packet.h"
-#include "speedup.h"
+
+#include <array>
+
+#include "tank.h"
 
 #ifdef _DEBUG
 extern void log( char *szFormat, ... );
 #endif
 
 extern CatNet::ServerNetwork NetObj;
-extern _Ship g_ShipList[];
+extern std::array<Tank, MAX_CLIENT_CONNECTION + 1> g_Tanks;
 
 void SendPacketProcess_NewAccept( const int SessionID )
 {
-    // Add into ship ilst.
-    g_ShipList[SessionID].connected = true;
+    // Add into tank list.
+    g_Tanks[SessionID].connected = true;
 
     // Send welcome message.
     SendPacketProcess_NewAccept_SendWelcomeMessage( SessionID );
@@ -20,10 +23,10 @@ void SendPacketProcess_NewAccept( const int SessionID )
 
 void SendPacketProcess_FullGame(const int SessionID)
 {
-	struct CatNet::PacketMessage Packet;
-	struct PKT_S2C_FullGame PacketData;
+	CatNet::PacketMessage Packet;
+	PKT_S2C_FullGame PacketData;
 	int PacketID = PACKET_ID_S2C_FULLGAME;
-	PacketData.ShipID = SessionID;
+	PacketData.client_id = SessionID;
 
 	Packet << PacketID;
 	Packet << PacketData;
@@ -32,99 +35,39 @@ void SendPacketProcess_FullGame(const int SessionID)
 
 void SendPacketProcess_NewAccept_SendWelcomeMessage( const int SessionID )
 {
-    // Send Welcome packet with spaceship ID.
-    struct CatNet::PacketMessage Packet;       // Create the _PacketMessage structure object.
-    struct PKT_S2C_WelcomeMessage PacketData;
+    // Send Welcome packet with ID.
+    CatNet::PacketMessage Packet;       // Create the _PacketMessage structure object.
+    PKT_S2C_WelcomeMessage PacketData;
     int PacketID = PACKET_ID_S2C_WELCOMEMESSAGE;
-    PacketData.ShipID = SessionID;
+    PacketData.client_id = SessionID;
 
     Packet << PacketID;
     Packet << PacketData;
     NetObj.SendPacket( SessionID, Packet );
 #ifdef _DEBUG
-    log( "\nSend [PACKET_ID_S2C_WELCOMEMESSAGE] ID:%d", PacketData.ShipID );
+    log( "\nSend [PACKET_ID_S2C_WELCOMEMESSAGE] ID:%d", PacketData.client_id );
 #endif
 }
 
-void SendPacketProcess_EnemyShipDisconnect( const int SessionID )
+void SendPacketProcess_Disconnect( const int SessionID )
 {
-    g_ShipList[SessionID].connected = false;
+    //g_ShipList[SessionID].connected = false;
 
     struct CatNet::PacketMessage Packet;
-    int PacketID = PACKET_ID_S2C_DISCONNECTENEMYSHIP;
+    int PacketID = PACKET_ID_S2C_DISCONNECT_CLIENT;
     Packet << PacketID;
     Packet << SessionID;
-
-    int Index;
-    for( Index = 1; Index <= MAX_CLIENT_CONNECTION; ++Index )
+    
+    for(int i = 1; i <= MAX_CLIENT_CONNECTION; ++i)
     {
-        if( true == g_ShipList[Index].connected )
+        if( true == g_Tanks[i].connected )
         {
-            if( SessionID == Index ) continue;
+            if( SessionID == i) continue;
 
-            NetObj.SendPacket( Index, Packet );
+            NetObj.SendPacket(i, Packet );
 #ifdef _DEBUG
-            log( "\n Disconnect packet sent to ClientID:%d", Index );
+            log( "\n Disconnect packet sent to ClientID:%d", i);
 #endif
         }
     }
-}
-
-void SendPacketProcess_AsteroidMovement( _Asteroid *asteroid )
-{
-    struct CatNet::PacketMessage Packet;
-    int PacketID = PACKET_ID_S2C_ASTEROIDMOVEMENT;
-
-    struct PKT_S2C_AsteroidMovement PacketData;
-    PacketData.AsteroidID = asteroid->get_ID();
-    PacketData.server_x = asteroid->get_x();
-    PacketData.server_y = asteroid->get_y();
-    PacketData.velocity_x = asteroid->get_velocity_x();
-    PacketData.velocity_y = asteroid->get_velocity_y();
-    PacketData.angular_velocity = asteroid->get_angular_velocity();
-
-    Packet << PacketID;
-    Packet << PacketData;
-    NetObj.SendPacketToAll( Packet );
-}
-
-void SendPacketProcess_AsteroidCollided(_Asteroid* asteroid)
-{
-	struct CatNet::PacketMessage Packet;
-	int PacketID = PACKET_ID_S2C_ASTEROIDCOLLIDED;
-
-	struct PKT_S2C_AsteroidMovement PacketData;
-	PacketData.AsteroidID = asteroid->get_ID();
-	PacketData.server_x = asteroid->get_x();
-	PacketData.server_y = asteroid->get_y();
-	PacketData.velocity_x = asteroid->get_velocity_x();
-	PacketData.velocity_y = asteroid->get_velocity_y();
-	PacketData.angular_velocity = asteroid->get_angular_velocity();
-	Packet << PacketID;
-	Packet << PacketData;
-	NetObj.SendPacketToAll(Packet);
-}
-
-void SendPacketProcess_NewSpeedUp(SpeedUp * speedup)
-{
-	struct CatNet::PacketMessage Packet;
-	int PacketID = PACKET_ID_S2C_NEWSPEEDUP;
-	struct PKT_S2C_NewSpeedUp PacketData;
-	PacketData.SpeedUpID = speedup->get_ID();
-	PacketData.server_x = speedup->get_x();
-	PacketData.server_y = speedup->get_y();
-	PacketData.velocity_x = speedup->get_velocity_x();
-	PacketData.velocity_y = speedup->get_velocity_y();
-	PacketData.angular_velocity = speedup->get_angular_velocity();
-	Packet << PacketID;
-	Packet << PacketData;
-	NetObj.SendPacketToAll(Packet);
-}
-
-void SendPacketProcess_SpeedUpMovement(SpeedUp * speedup)
-{
-}
-
-void SendPacketProcess_DestroySpeedUp(SpeedUp * speedup)
-{
 }

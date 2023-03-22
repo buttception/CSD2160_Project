@@ -24,14 +24,8 @@
     <ClCompile Include="..\Shares\timer\timer.cpp" />
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\movables\asteroid.cpp" />
-    <ClCompile Include="src\movables\Boom.cpp" />
-    <ClCompile Include="src\movables\mine.cpp" />
-    <ClCompile Include="src\movables\missile.cpp" />
-    <ClCompile Include="src\movables\movables.cpp" />
-    <ClCompile Include="src\movables\ship.cpp" />
-    <ClCompile Include="src\movables\SpeedUp.cpp" />
-    <ClCompile Include="src\movables\TimeBomb.cpp" />
+    <ClCompile Include="src\movables\Movable.cpp" />
+    <ClCompile Include="src\movables\Tank.cpp" />
     <ClCompile Include="src\net\process_packet.cpp" />
     <ClCompile Include="src\net\send_packet.cpp" />
   </ItemGroup>
@@ -46,14 +40,8 @@
     <ClInclude Include="..\Shares\timer\timer.h" />
     <ClInclude Include="src\application.h" />
     <ClInclude Include="src\globals.h" />
-    <ClInclude Include="src\movables\asteroid.h" />
-    <ClInclude Include="src\movables\Boom.h" />
-    <ClInclude Include="src\movables\mine.h" />
-    <ClInclude Include="src\movables\missile.h" />
-    <ClInclude Include="src\movables\movables.h" />
-    <ClInclude Include="src\movables\ship.h" />
-    <ClInclude Include="src\movables\SpeedUp.h" />
-    <ClInclude Include="src\movables\TimeBomb.h" />
+    <ClInclude Include="src\movables\Movable.h" />
+    <ClInclude Include="src\movables\Tank.h" />
     <ClInclude Include="src\net\process_packet.h" />
     <ClInclude Include="src\net\send_packet.h" />
   </ItemGroup>

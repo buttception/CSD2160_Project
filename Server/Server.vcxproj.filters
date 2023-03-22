@@ -39,20 +39,17 @@
     <ClCompile Include="src\send_packet.cpp">
       <Filter>SendProcess</Filter>
     </ClCompile>
-    <ClCompile Include="src\asteroid.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Shares\timer\timer.cpp">
       <Filter>Timer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\speedup.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\CatNet\ClientNetwork.cpp">
       <Filter>CatNet</Filter>
     </ClCompile>
     <ClCompile Include="..\CatNet\ServerNetwork.cpp">
       <Filter>CatNet</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tank.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -61,12 +58,6 @@
     </ClInclude>
     <ClInclude Include="src\send_packet.h">
       <Filter>SendProcess</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Ship.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\asteroid.h">
-      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Shares\packets\Packets_s2c.h">
       <Filter>Shares</Filter>
@@ -78,9 +69,6 @@
       <Filter>Timer</Filter>
     </ClInclude>
     <ClInclude Include="src\main.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\speedup.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\CatNet\ClientNetwork.h">
@@ -97,6 +85,9 @@
     </ClInclude>
     <ClInclude Include="..\CatNet\SessionNode.h">
       <Filter>CatNet</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tank.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

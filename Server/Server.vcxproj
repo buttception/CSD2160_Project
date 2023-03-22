@@ -22,11 +22,10 @@
     <ClCompile Include="..\CatNet\ClientNetwork.cpp" />
     <ClCompile Include="..\CatNet\ServerNetwork.cpp" />
     <ClCompile Include="..\Shares\timer\timer.cpp" />
-    <ClCompile Include="src\asteroid.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\process_packet.cpp" />
     <ClCompile Include="src\send_packet.cpp" />
-    <ClCompile Include="src\speedup.cpp" />
+    <ClCompile Include="src\tank.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\CatNet\ClientNetwork.h" />
@@ -37,12 +36,10 @@
     <ClInclude Include="..\Shares\packets\packets_c2s.h" />
     <ClInclude Include="..\Shares\packets\Packets_s2c.h" />
     <ClInclude Include="..\Shares\timer\timer.h" />
-    <ClInclude Include="src\asteroid.h" />
     <ClInclude Include="src\main.h" />
     <ClInclude Include="src\process_packet.h" />
     <ClInclude Include="src\send_packet.h" />
-    <ClInclude Include="src\Ship.h" />
-    <ClInclude Include="src\speedup.h" />
+    <ClInclude Include="src\tank.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{37D6AECB-ECE0-44AC-997C-774CBC2B148D}</ProjectGuid>
