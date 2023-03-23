@@ -76,7 +76,8 @@ bool Application::Init()
     srand( (unsigned int)time(NULL) );
 
     // Initialize and prepare the game data & systems.
-    
+    player = Tank();
+
 
     // Initialize the network with Network Library.
     if( !(Net::InitNetwork()) )
