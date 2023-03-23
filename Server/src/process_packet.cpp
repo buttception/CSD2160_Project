@@ -46,6 +46,7 @@ void ReceivedPacketProcess_EnterGame( struct CatNet::ProcessSession *ToProcessSe
 
     ToProcessSession->m_PacketMessage >> Data;
     g_Tanks[client_id].connected = true;
+    g_Tanks[client_id].client_id = client_id;
     g_Tanks[client_id].x = Data.x;
     g_Tanks[client_id].y = Data.y;
 
@@ -69,18 +70,16 @@ void ReceivedPacketProcess_Movement( struct CatNet::ProcessSession *ToProcessSes
     PKT_C2S_Movement movement_data;
     ToProcessSession->m_PacketMessage >> movement_data;
 
-#define ROT_SPEED 1.f;
-#define THROTTLE_SPEED 100.f;
+#define ROT_SPEED 1.f
+#define THROTTLE_SPEED 1000.f
 
     if (movement_data.rotate == -1)
     {
 	    g_Tanks[client_id].angular_velocity = -ROT_SPEED;
-        std::cout << "\nturn left";
     }
     else if (movement_data.rotate == 1)
     {
 	    g_Tanks[client_id].angular_velocity = ROT_SPEED;
-        std::cout << "\nturn right";
     }
     else
     {
@@ -89,11 +88,13 @@ void ReceivedPacketProcess_Movement( struct CatNet::ProcessSession *ToProcessSes
 
     if (movement_data.throttle == -1)
     {
-        std::cout << "\ngo backwards";
+        g_Tanks[client_id].velocity_x = -cos(g_Tanks[client_id].w) * THROTTLE_SPEED;
+        g_Tanks[client_id].velocity_y = -sin(g_Tanks[client_id].w) * THROTTLE_SPEED;
     }
     else if (movement_data.throttle == 1)
     {
-        std::cout << "\ngo forward";
+        g_Tanks[client_id].velocity_x = cos(g_Tanks[client_id].w) * THROTTLE_SPEED;
+        g_Tanks[client_id].velocity_y = sin(g_Tanks[client_id].w) * THROTTLE_SPEED;
     }
     else
     {

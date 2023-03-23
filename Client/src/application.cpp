@@ -115,6 +115,8 @@ bool Application::Update()
         if( hge_->Input_GetKeyState( HGEK_ESCAPE ) )
             return true;
 
+        player.Update(timedelta, player.sprite_->GetWidth(), player.sprite_->GetHeight());
+
         if (hge_->Input_GetKeyState(HGEK_A))
         {
             player.rotate = -1;

@@ -13,6 +13,7 @@
 #include "tank.h"
 
 #include <array>
+#include <thread>
 
 #ifdef _DEBUG
 #include <io.h>
@@ -42,20 +43,70 @@ void log( char *szFormat, ... )
 }
 #endif
 
-bool init_game_server( void )
-{ 
-    
+std::thread g_game_thread;
 
-    return true;
+void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>* tanks_ptr)
+{
+    constexpr float frame_time = 1.f / 60.f;
+    constexpr float tickrate = 1.f / 30.f;
+    float timer{}, server_timer{};
+    std::array<Tank, MAX_CLIENT_CONNECTION + 1>& tanks = *tanks_ptr;
+    _Timer framet = *framet_ptr;
+    while(1)
+    {
+        timer += framet.GetTimer_sec();
+        if(timer > frame_time)
+        {
+            //lock the mutex then work on updating all the clients
+            for(auto& it : tanks)
+            {
+                if(it.connected)
+                {
+	                it.x += it.velocity_x * timer;
+                	it.y += it.velocity_y * timer;
+                	it.w += it.angular_velocity * timer;
+
+                    //update the xy if out of screen to wrap
+                }
+            }
+            timer = 0.f;
+        }
+        server_timer += framet.GetTimer_sec();
+        if(server_timer > tickrate)
+        {
+            //send update packets to all clients
+            for(const auto& it : tanks)
+            {
+	            if(it.connected)
+	            {
+                    CatNet::PacketMessage movement_update_packet;
+                    int id = PACKET_ID_S2C_MOVEMENT;
+                    movement_update_packet << id;
+                    PKT_S2C_Movement movement;
+                    movement.client_id = it.client_id;
+                    movement.x = it.x;
+                    movement.y = it.y;
+                    movement.w = it.w;
+                    movement.vx = it.velocity_x;
+                    movement.vy = it.velocity_y;
+                    movement_update_packet << movement;
+                    std::cout << "\nupdating y to " << it.y;
+                    NetObj.SendPacket(it.client_id, movement_update_packet);
+	            }
+            }
+            server_timer = 0.f;
+        }
+    }
+}
+
+void init_game_server( void )
+{
+    g_game_thread = std::thread{ GameUpdate, &g_LoopTimer, &g_Tanks };
 }
 
 int main( void )
 {
-    if( false == init_game_server() )
-    {
-        return 0;
-    }
-
+    init_game_server();
     if( false == NetObj.InitNet(1, 1, 5050 ) )
     {
 #ifdef _DEBUG

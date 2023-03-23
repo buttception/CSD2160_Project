@@ -41,7 +41,6 @@ namespace CatNet
                     if(index > -1)
                     {
                         SessionNode* newClient = new SessionNode();
-                        std::cout << "new client daddy " << client << std::endl;
                         newClient->SetNewConnectedSession(client, server->serverAddr);
                         newClient->SetIndex(index);
                         server->GetSessionList()->AddSession(newClient);
