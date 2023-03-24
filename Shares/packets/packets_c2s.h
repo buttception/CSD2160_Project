@@ -26,7 +26,6 @@ struct PKT_C2S_Movement {
     int rotate, throttle;
 };
 
-
 #pragma pack(pop) // Return back to default memory alignment.
 
 

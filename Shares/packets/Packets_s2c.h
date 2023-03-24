@@ -45,6 +45,7 @@ struct PKT_S2C_Movement {
 	float vx, vy;
 };
 
+
 #pragma pack(pop) // Return back to default memory alignment.
 
 

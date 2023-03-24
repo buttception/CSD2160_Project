@@ -1,8 +1,27 @@
 #include "ServerNetwork.h"
+#include <packets/packets_c2s.h>
 
 
 namespace CatNet
 {
+    int c2sSize(int id)
+    {
+        switch (id)
+        {
+        case PACKET_ID_C2S_EMPTY:
+            return 0;
+            break;
+        case PACKET_ID_C2S_ENTERGAME:
+            return sizeof(PKT_C2S_EnterGame);
+            break;
+        case PACKET_ID_C2S_MOVEMENT:
+            return sizeof(PKT_C2S_Movement);
+            break;
+        case PACKET_ID_C2S_END:
+            return 0;
+            break;
+        }
+    }
     DWORD WINAPI ServerRecvThread(void* arg)
     {
         ServerNetwork* server{ static_cast<ServerNetwork*>(arg) };
