@@ -19,16 +19,16 @@
 #ifdef _DEBUG
 void log( char *szFormat, ... )
 {
-    char Buff[1024];
-    char Msg[1024];
-    va_list arg;
+	char Buff[1024];
+	char Msg[1024];
+	va_list arg;
 
-    va_start( arg, szFormat );
-    _vsnprintf_s( Msg, 1024, szFormat, arg );
-    va_end( arg );
+	va_start( arg, szFormat );
+	_vsnprintf_s( Msg, 1024, szFormat, arg );
+	va_end( arg );
 
-    sprintf_s( Buff, 1024, "%s", Msg );
-    _write( 1, Buff, strlen( Buff ) );
+	sprintf_s( Buff, 1024, "%s", Msg );
+	_write( 1, Buff, strlen( Buff ) );
 }
 #endif
 
@@ -39,10 +39,9 @@ void log( char *szFormat, ... )
 *
 * Creates an instance of the graphics engine and network engine
 */
-Application::Application() : 
-	hge_(hgeCreate(HGE_VERSION))
+Application::Application() : hge_(hgeCreate(HGE_VERSION))
 {
-    SetGameState( GAMESTATE_NONE );
+	SetGameState( GAMESTATE_NONE );
 }
 
 /**
@@ -66,27 +65,27 @@ bool Application::Init()
 	hge_->System_SetState(HGE_USESOUND, false);
 	hge_->System_SetState(HGE_TITLE, "TankShooter");
 	hge_->System_SetState(HGE_LOGFILE, "TankShooter.log");
-    hge_->System_SetState( HGE_DONTSUSPEND, true );
+	hge_->System_SetState( HGE_DONTSUSPEND, true );
 	
-    if( false == hge_->System_Initiate() )
-    {
-        return false;
-    }
-    
-    srand( (unsigned int)time(NULL) );
+	if( false == hge_->System_Initiate() )
+	{
+		return false;
+	}
+	
+	srand( (unsigned int)time(NULL) );
 
-    // Initialize and prepare the game data & systems.
-    player = Tank();
+	// Initialize and prepare the game data & systems.
+	player = Tank();
 
 
-    // Initialize the network with Network Library.
-    if( !(Net::InitNetwork()) )
-    {
-        return false;
-    }
-    SetGameState( GAMESTATE_INITIALIZING );
+	// Initialize the network with Network Library.
+	if( !(Net::InitNetwork()) )
+	{
+		return false;
+	}
+	SetGameState( GAMESTATE_INITIALIZING );
 
-    return true;
+	return true;
 }
 
 /**
@@ -103,48 +102,59 @@ bool Application::Init()
 */
 bool Application::Update()
 {
-    float timedelta = hge_->Timer_GetDelta();
+	float timedelta = hge_->Timer_GetDelta();
 
-    // Process the packet received from server.
-    Net::ProcessPacket( this );
+	// Process the packet received from server.
+	Net::ProcessPacket(this);
 
-    if( GAMESTATE_INPLAY == GetGameState() )
-    {
-		// Update my space ship.
-		bool AmIMoving = true;
-        // Check key inputs and process the movements of spaceship.
-        if( hge_->Input_GetKeyState( HGEK_ESCAPE ) )
-            return true;
+	if (GAMESTATE_INPLAY != GetGameState())
+		return false;
 
-        player.Update(timedelta, player.sprite_->GetWidth(), player.sprite_->GetHeight());
+	// Check key inputs and process the movements of spaceship.
+	if (hge_->Input_GetKeyState(HGEK_ESCAPE))
+		return true;
 
-        if (hge_->Input_GetKeyState(HGEK_A))
-        {
-            player.rotate = -1;
-        }
-        else if (hge_->Input_GetKeyState(HGEK_D))
-        {
-            player.rotate = 1;
-        }
-        else
-            player.rotate = 0;
-        if (hge_->Input_GetKeyState(HGEK_S))
-        {
-            player.throttle = -1;
-        }
-        else if (hge_->Input_GetKeyState(HGEK_W))
-        {
-            player.throttle = 1;
-        }
-        else
-            player.throttle = 0;
+	player.Update(timedelta, player.sprite_->GetWidth(), player.sprite_->GetHeight());
 
-        Net::send_packet_movement( player );
-    }
+	float mouseX, mouseY;
+	hge_->Input_GetMousePos(&mouseX, &mouseY);
+	// TODO: Aim turret with mouse cursor.
+
+	// Rotate tank left/right.
+	if (hge_->Input_GetKeyState(HGEK_A))
+	{
+		player.rotate = -1;
+	}
+	else if (hge_->Input_GetKeyState(HGEK_D))
+	{
+		player.rotate = 1;
+	}
+	else
+	{
+		player.rotate = 0;
+	}
+
+	// Move tank forward/back.
+	if (hge_->Input_GetKeyState(HGEK_S))
+	{
+		player.throttle = -1;
+	}
+	else if (hge_->Input_GetKeyState(HGEK_W))
+	{
+		player.throttle = 1;
+	}
+	else
+	{
+		player.throttle = 0;
+	}
+
+	Net::send_packet_movement(player); // <- Server should handle the movement, client only sends input data.
+
+	// TODO: Queue key inputs into a buffer between each server position update!
+	// TODO: Implement client-server reconciliation!
 
 	return false;
 }
-
 
 /**
 * Render Cycle
@@ -156,9 +166,9 @@ void Application::Render()
 	hge_->Gfx_BeginScene();
 	hge_->Gfx_Clear(0);
 
-    // Render me.
+	// Render me.
 	if (player.active)
-        player.Render();
+		player.Render();
 
 	hge_->Gfx_EndScene();
 }
@@ -203,36 +213,36 @@ void Application::Start()
 template <typename T1, typename T2>
 bool Application::HasCollided( T1 &object, T2 &movable )
 {
-    hgeRect object_collidebox;
-    hgeRect movable_Collidebox;
+	hgeRect object_collidebox;
+	hgeRect movable_Collidebox;
 
-    object->sprite_->GetBoundingBox( object->get_x(), object->get_y(), &object_collidebox );
-    movable->sprite_->GetBoundingBox( movable->get_x(), movable->get_y(), &movable_Collidebox );
-    return object_collidebox.Intersect( &movable_Collidebox );
+	object->sprite_->GetBoundingBox( object->get_x(), object->get_y(), &object_collidebox );
+	movable->sprite_->GetBoundingBox( movable->get_x(), movable->get_y(), &movable_Collidebox );
+	return object_collidebox.Intersect( &movable_Collidebox );
 }
 
 template <typename Mov, typename Tgt>
 bool Application::CheckCollision( Mov &moving_object, Tgt &other, float timedelta )
 {
-    if( HasCollided( moving_object, other ) )
-    {
-        other->set_velocity_x( moving_object->get_velocity_x() );
-        other->set_velocity_y( moving_object->get_velocity_y() );
-        other->set_server_velocity_x( moving_object->get_server_velocity_x() );
-        other->set_server_velocity_y( moving_object->get_server_velocity_y() );
-        other->Update( timedelta, other->sprite_->GetWidth(), other->sprite_->GetHeight() );
+	if( HasCollided( moving_object, other ) )
+	{
+		other->set_velocity_x( moving_object->get_velocity_x() );
+		other->set_velocity_y( moving_object->get_velocity_y() );
+		other->set_server_velocity_x( moving_object->get_server_velocity_x() );
+		other->set_server_velocity_y( moving_object->get_server_velocity_y() );
+		other->Update( timedelta, other->sprite_->GetWidth(), other->sprite_->GetHeight() );
 
-        moving_object->set_velocity_x( moving_object->get_velocity_x() );
-        moving_object->set_velocity_y( -moving_object->get_velocity_y() );
-        moving_object->set_server_velocity_x( -moving_object->get_server_velocity_x() );
-        moving_object->set_server_velocity_y( -moving_object->get_server_velocity_y() );
-        moving_object->restore_xy();
-        moving_object->Update( timedelta, moving_object->sprite_->GetWidth(), moving_object->sprite_->GetHeight() );
+		moving_object->set_velocity_x( moving_object->get_velocity_x() );
+		moving_object->set_velocity_y( -moving_object->get_velocity_y() );
+		moving_object->set_server_velocity_x( -moving_object->get_server_velocity_x() );
+		moving_object->set_server_velocity_y( -moving_object->get_server_velocity_y() );
+		moving_object->restore_xy();
+		moving_object->Update( timedelta, moving_object->sprite_->GetWidth(), moving_object->sprite_->GetHeight() );
 
-        if( (void *)moving_object == (void *)myship_ )
-        { // If I collided with others, need to send the message to the server.
-            Net::send_packet_collided( (Ship *)moving_object );
-        }
+		if( (void *)moving_object == (void *)myship_ )
+		{ // If I collided with others, need to send the message to the server.
+			Net::send_packet_collided( (Ship *)moving_object );
+		}
 		else if (MOVABLE_OBJECT_TYPE_ASTEROID == moving_object->get_object_type()) {
 			Net::send_packet_asteroid_collided((Asteroid*)moving_object);
 		}
@@ -240,8 +250,8 @@ bool Application::CheckCollision( Mov &moving_object, Tgt &other, float timedelt
 		if (MOVABLE_OBJECT_TYPE_ASTEROID == other->get_object_type()) {
 			Net::send_packet_asteroid_collided((Asteroid*)other);
 		}
-        return true;
-    }
+		return true;
+	}
 
-    return false;
+	return false;
 }

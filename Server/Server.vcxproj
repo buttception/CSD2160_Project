@@ -34,8 +34,9 @@
     <ClInclude Include="..\CatNet\ServerNetwork.h" />
     <ClInclude Include="..\CatNet\SessionNode.h" />
     <ClInclude Include="..\Shares\packets\packets_c2s.h" />
-    <ClInclude Include="..\Shares\packets\Packets_s2c.h" />
+    <ClInclude Include="..\Shares\packets\packets_s2c.h" />
     <ClInclude Include="..\Shares\timer\timer.h" />
+    <ClInclude Include="src\HGEKeyCodes.h" />
     <ClInclude Include="src\main.h" />
     <ClInclude Include="src\process_packet.h" />
     <ClInclude Include="src\send_packet.h" />

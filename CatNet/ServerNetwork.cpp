@@ -14,13 +14,15 @@ namespace CatNet
         case PACKET_ID_C2S_ENTERGAME:
             return sizeof(PKT_C2S_EnterGame);
             break;
-        case PACKET_ID_C2S_MOVEMENT:
-            return sizeof(PKT_C2S_Movement);
+        case PACKET_ID_C2S_TANKMOVEMENT:
+            return sizeof(PKT_C2S_TankMovement);
             break;
         case PACKET_ID_C2S_END:
             return 0;
             break;
         }
+
+        return -1;
     }
     DWORD WINAPI ServerRecvThread(void* arg)
     {

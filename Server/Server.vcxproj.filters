@@ -59,7 +59,7 @@
     <ClInclude Include="src\send_packet.h">
       <Filter>SendProcess</Filter>
     </ClInclude>
-    <ClInclude Include="..\Shares\packets\Packets_s2c.h">
+    <ClInclude Include="..\Shares\packets\packets_s2c.h">
       <Filter>Shares</Filter>
     </ClInclude>
     <ClInclude Include="..\Shares\packets\packets_c2s.h">
@@ -87,6 +87,9 @@
       <Filter>CatNet</Filter>
     </ClInclude>
     <ClInclude Include="src\tank.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HGEKeyCodes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

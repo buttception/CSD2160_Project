@@ -1,11 +1,10 @@
 #ifndef _PROCESS_PACKET_H
 #define _PROCESS_PACKET_H
-#pragma once
-
 
 // Function declarations.
-void ReceivedPacketProcess( struct CatNet::ProcessSession *ToProcessSession );
-void ReceivedPacketProcess_EnterGame( struct CatNet::ProcessSession *ToProcessSession );
-void ReceivedPacketProcess_Movement( struct CatNet::ProcessSession *ToProcessSession );
+void ReceivedPacketProcess(CatNet::ProcessSession* ToProcessSession);
+void ReceivedPacketProcess_EnterGame(CatNet::ProcessSession* ToProcessSession);
+void ReceivedPacketProcess_TankMovement(CatNet::ProcessSession* ToProcessSession);
+void ReceivedPacketProcess_TankTurret(CatNet::ProcessSession* ToProcessSession);
 
 #endif

@@ -19,13 +19,10 @@
 #include <io.h>
 #endif
 
-//using namespace std;
-
 CatNet::ServerNetwork NetObj;
 std::array<Tank, MAX_CLIENT_CONNECTION + 1> g_Tanks;
 
 _Timer g_LoopTimer;
-
 
 #ifdef _DEBUG
 void log( char *szFormat, ... )
@@ -79,19 +76,7 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
             {
 	            if(it.connected)
 	            {
-                    CatNet::PacketMessage movement_update_packet;
-                    int id = PACKET_ID_S2C_MOVEMENT;
-                    movement_update_packet << id;
-                    PKT_S2C_Movement movement;
-                    movement.client_id = it.client_id;
-                    movement.x = it.x;
-                    movement.y = it.y;
-                    movement.w = it.w;
-                    movement.vx = it.velocity_x;
-                    movement.vy = it.velocity_y;
-                    movement_update_packet << movement;
-                    std::cout << "\nupdating y to " << it.y;
-                    NetObj.SendPacket(it.client_id, movement_update_packet);
+                    SendPacketProcess_TankMovement(it);
 	            }
             }
             server_timer = 0.f;
@@ -133,9 +118,9 @@ int main( void )
 #ifdef _DEBUG
                     log( "\n New connection connected: Index:%d. Total Connection now:%d", ToProcessSession->m_SessionIndex, NetObj.GetConnectedCount() );
 #endif
-					///TODO: Check if more than 3, then need deny
-					//check if there is already 3 players
-					//deny accept if alr got 3 players
+					// TODO: Check if more than 3, then need deny
+					// check if there is already 3 players
+					// deny accept if alr got 3 players
 					if (NetObj.GetConnectedCount() > 3)
 					{
 						//deny access

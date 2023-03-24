@@ -10,9 +10,9 @@
 // Function prototypes.
 namespace Net
 {
-    void send_packet_enter_game( Tank& tank );
-    void send_packet_movement( Tank& tank );
+    void send_packet_enter_game(Tank& tank);
+    void send_packet_movement(Tank& tank);
+    void send_packet_turret_angle(Tank& me, const int& angle);
 }
-
 
 #endif
