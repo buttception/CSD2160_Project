@@ -238,6 +238,13 @@ bool Application::Update()
 	if (turretPkt.sequence_id != INT_MIN)
 		QueuedPlayerTurret.push_back(turretPkt);
 
+
+	// OTHER CLIENTS
+	for (auto& tank : clients)
+	{
+		tank.Update(timedelta, tank.sprite_->GetWidth(), tank.sprite_->GetHeight());
+	}
+
 	return false;
 }
 
@@ -254,6 +261,11 @@ void Application::Render()
 	// Render me.
 	if (player.active)
 		player.Render();
+
+	for (auto& tank : clients)
+	{
+		tank.Render();
+	}
 
 	hge_->Gfx_EndScene();
 }

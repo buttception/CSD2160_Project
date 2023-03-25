@@ -37,7 +37,7 @@ private:
 	void Shutdown();
 
 public:
-	std::list<PKT_C2S_TankMovement> QueuedPlayerMovements; // Buffer of un-acknowledged player movement packets.
+	std::list<PKT_C2S_TankMovement> QueuedPlayerMovements;	// Buffer of un-acknowledged player movement packets.
 	std::list<PKT_C2S_TankTurret> QueuedPlayerTurret;		// Buffer of un-acknowledged player turret packets.
 
 	Application();

@@ -49,11 +49,9 @@ namespace Net
 				case PACKET_ID_S2C_WELCOMEMESSAGE:
 					WelcomeMessage(thisapp, ToProcessSession);
 					break;
-
 				case PACKET_ID_S2C_ENTERGAMEOK:
 					thisapp->SetGameState(GAMESTATE_INPLAY);
 					break;
-
 				case PACKET_ID_S2C_FULLGAME:
 					std::cout << "\nGame is full\n";
 					break;
@@ -66,6 +64,9 @@ namespace Net
 				switch (PacketID)
 				{
 				case PACKET_ID_S2C_NEW_CLIENT:
+					NewClient(thisapp, ToProcessSession);
+					break;
+				case PACKET_ID_S2C_OLD_CLIENT:
 					NewClient(thisapp, ToProcessSession);
 					break;
 				case PACKET_ID_S2C_DISCONNECT_CLIENT:
@@ -90,64 +91,50 @@ namespace Net
 	}
 
 	//-------------------------------------------------------------------------
-	void WelcomeMessage( Application *thisapp, CatNet::ProcessSession *ToProcessSession )
+	void WelcomeMessage(Application* thisapp, CatNet::ProcessSession* ToProcessSession)
 	{
 		struct PKT_S2C_WelcomeMessage welcome_message_data;
 		ToProcessSession->m_PacketMessage >> welcome_message_data;
 		thisapp->GetPlayer().tank_id = welcome_message_data.client_id;
 #ifdef _DEBUG
-		log( "\nReceived: PACKET_ID_S2C_WELCOMEMESSAGE. ShipID:%d\n", welcome_message_data.client_id );
+		log("\nReceived: PACKET_ID_S2C_WELCOMEMESSAGE. ShipID:%d\n", welcome_message_data.client_id);
 #endif
 		// Send my spaceship info to server for synchronization.
-		Net::send_packet_enter_game( thisapp->GetPlayer() );
+		Net::send_packet_enter_game(thisapp->GetPlayer());
 	}
 
 	//-------------------------------------------------------------------------
-	void NewClient( Application *thisapp, CatNet::ProcessSession *ToProcessSession )
+	void NewClient(Application* thisapp, CatNet::ProcessSession* ToProcessSession)
 	{
-		//struct PKT_S2C_EnemyShip EnemyshipPacketData;
-		PKT_S2C_NewClient new_client_packet;
+		PKT_S2C_ClientPos data;
+		ToProcessSession->m_PacketMessage >> data;
+		if (thisapp->GetPlayer().tank_id == data.client_id)
+			return;
 
-		ToProcessSession->m_PacketMessage >> new_client_packet;
+		std::string enemy_name = "Enemy" + std::to_string(data.client_id);
 
-		std::string enemy_name = "Enemy" + std::to_string( new_client_packet.client_id );
-		//create and push the new enemy tank into the vector
-
-		/*Ship *EnemyShip = new Ship( new_client_packet.ShipType, EnemyShipName, new_client_packet.x, new_client_packet.y );
-
-		EnemyShip->SetShipID( new_client_packet.ShipID );
-		EnemyShip->SetShipName( EnemyShipName );
-		EnemyShip->SetShipType( new_client_packet.ShipType );
-		EnemyShip->set_x( new_client_packet.x );
-		EnemyShip->set_y( new_client_packet.y );
-		EnemyShip->set_w( new_client_packet.w );
-		EnemyShip->set_velocity_x( new_client_packet.velocity_x );
-		EnemyShip->set_velocity_y( new_client_packet.velocity_y );
-		EnemyShip->set_angular_velocity( new_client_packet.angular_velocity );
-
-		thisapp->GetEnemyShipList()->push_back( EnemyShip );*/
-#ifdef _DEBUG
-		log( "\nReceived: PACKET_ID_S2C_ENEMYSHIP or PACKET_ID_S2C_NEWENEMYSHIP. ShipID:%d", new_client_packet.client_id);
-#endif
+		Tank enemy;
+		enemy.player_name = enemy_name;
+		enemy.tank_id = data.client_id;
+		enemy.set_x(data.x);
+		enemy.set_y(data.y);
+		thisapp->GetClients().push_back(enemy);
 	}
 
 	//-------------------------------------------------------------------------
-	void DisconnectClient( Application *thisapp, CatNet::ProcessSession *ToProcessSessoin )
+	void DisconnectClient(Application* thisapp, CatNet::ProcessSession* ToProcessSessoin)
 	{
-		PKT_S2C_Disconnect client_disconnect_data;
-		ToProcessSessoin->m_PacketMessage >> client_disconnect_data;
+		PKT_S2C_Disconnect data;
+		ToProcessSessoin->m_PacketMessage >> data;
 		//clear the enemy tank that got disconnected
-		for(auto i = thisapp->GetClients().begin(); i != thisapp->GetClients().end(); ++i)
+		for (auto i = thisapp->GetClients().begin(); i != thisapp->GetClients().end(); ++i)
 		{
-			if(i->tank_id == client_disconnect_data.client_id)
+			if (i->tank_id == data.client_id)
 			{
 				thisapp->GetClients().erase(i);
 			}
 		}
-#ifdef _DEBUG
-		log("\nReceived: PACKET_ID_S2C_DISCONNECT. ShipID: %d", client_disconnect_data.client_id);
-#endif
-		}
+	}
 
 	//-------------------------------------------------------------------------
 	void UpdateTankMovement(Application* thisapp, CatNet::ProcessSession* ToProcessSession)

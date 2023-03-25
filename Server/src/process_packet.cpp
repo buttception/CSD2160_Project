@@ -59,8 +59,34 @@ void ReceivedPacketProcess_EnterGame(CatNet::ProcessSession* ToProcessSession)
 	CatNet::PacketMessage EnterGameAckPacket;
 	int EnterGameAckPacketID = PACKET_ID_S2C_ENTERGAMEOK;
 	EnterGameAckPacket << EnterGameAckPacketID;
-	//SendPacketProcess_FullGame(client_id);
 	NetObj.SendPacket(client_id, EnterGameAckPacket);
+
+#ifdef _DEBUG
+	log("\nSend [PACKET_ID_S2C_ENTERGAMEOK] TO:%d", client_id);
+#endif
+
+
+	// Send info about older clients.
+	for (auto& enemy : g_Tanks)
+	{
+		if (!enemy.connected || client_id == enemy.client_id)
+			continue;
+
+		CatNet::PacketMessage Packet;       // Create the _PacketMessage structure object.
+		PKT_S2C_ClientPos PacketData;
+		int PacketID = PACKET_ID_S2C_OLD_CLIENT;
+		PacketData.client_id = enemy.client_id;
+		PacketData.x = enemy.x;
+		PacketData.y = enemy.y;
+
+		Packet << PacketID;
+		Packet << PacketData;
+		NetObj.SendPacket(client_id, Packet);
+
+#ifdef _DEBUG
+		log("\nSend [PACKET_ID_S2C_OLD_CLIENT] TO:%d DATA-ID:%d", client_id, PacketData.client_id);
+#endif
+	}
 }
 
 void ReceivedPacketProcess_TankMovement(CatNet::ProcessSession* ToProcessSession)
@@ -71,42 +97,6 @@ void ReceivedPacketProcess_TankMovement(CatNet::ProcessSession* ToProcessSession
 
 	// Store packet sequence ID.
 	g_Tanks[client_id].input_queue.push({data.sequence_id, data.rotate, data.throttle, data.frameTime});
-
-	// Rotate tank.
-	//if (data.rotate == -1)
-	//{
-	//	g_Tanks[client_id].angular_velocity = -TANK_ROT_SPEED;
-	//}
-	//else if (data.rotate == 1)
-	//{
-	//	g_Tanks[client_id].angular_velocity = TANK_ROT_SPEED;
-	//}
-	//else
-	//{
-	//	g_Tanks[client_id].angular_velocity = 0.f;
-	//}
-
-	//// Translate tank.
-	//if (data.throttle == -1)
-	//{
-	//	g_Tanks[client_id].velocity_x = -cos(g_Tanks[client_id].w) * TANK_MOV_SPEED;
-	//	g_Tanks[client_id].velocity_y = -sin(g_Tanks[client_id].w) * TANK_MOV_SPEED;
-	//}
-	//else if (data.throttle == 1)
-	//{
-	//	g_Tanks[client_id].velocity_x = cos(g_Tanks[client_id].w) * TANK_MOV_SPEED;
-	//	g_Tanks[client_id].velocity_y = sin(g_Tanks[client_id].w) * TANK_MOV_SPEED;
-	//}
-	//else
-	//{
-	//	g_Tanks[client_id].velocity_x = g_Tanks[client_id].velocity_y = 0.f;
-	//}
-
-	// right now the assumption is that the server can receive, and process client inputs
-	// before the client can send a second packet.
-
-	// once change to queuing client inputs, i'll need to change the sequence processing
-	// to a queue of sequence numbers as well.
 }
 
 void ReceivedPacketProcess_TankTurret(CatNet::ProcessSession* ToProcessSession)

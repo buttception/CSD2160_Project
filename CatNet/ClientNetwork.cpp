@@ -20,7 +20,10 @@ namespace CatNet
 			return 0;
 			break;
 		case PACKET_ID_S2C_NEW_CLIENT:
-			return sizeof(PKT_S2C_NewClient);
+			return sizeof(PKT_S2C_ClientPos);
+			break;
+		case PACKET_ID_S2C_OLD_CLIENT:
+			return sizeof(PKT_S2C_ClientPos);
 			break;
 		case PACKET_ID_S2C_DISCONNECT_CLIENT:
 			return sizeof(PKT_S2C_Disconnect);

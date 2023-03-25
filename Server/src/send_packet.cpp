@@ -19,6 +19,22 @@ void SendPacketProcess_NewAccept(const int& sessionID)
 
 	// Send welcome message.
 	SendPacketProcess_NewAccept_SendWelcomeMessage(sessionID);
+
+	// Send new client to all other clients.
+	CatNet::PacketMessage Packet;       // Create the _PacketMessage structure object.
+	PKT_S2C_ClientPos PacketData;
+	int PacketID = PACKET_ID_S2C_NEW_CLIENT;
+	PacketData.client_id = sessionID;
+	PacketData.x = g_Tanks[sessionID].x;
+	PacketData.y = g_Tanks[sessionID].y;
+
+	Packet << PacketID;
+	Packet << PacketData;
+	NetObj.SendPacketToAll(Packet);
+
+#ifdef _DEBUG
+	log("\nSend [PACKET_ID_S2C_NEW_CLIENT] TO:%d DATA-ID:%d", sessionID, PacketData.client_id);
+#endif
 }
 
 void SendPacketProcess_FullGame(const int& sessionID)
@@ -44,8 +60,9 @@ void SendPacketProcess_NewAccept_SendWelcomeMessage(const int& sessionID)
 	Packet << PacketID;
 	Packet << PacketData;
 	NetObj.SendPacket(sessionID, Packet);
+
 #ifdef _DEBUG
-	log("\nSend [PACKET_ID_S2C_WELCOMEMESSAGE] ID:%d", PacketData.client_id);
+	log("\nSend [PACKET_ID_S2C_WELCOMEMESSAGE] TO:%d DATA-ID:%d", sessionID, PacketData.client_id);
 #endif
 }
 
@@ -87,5 +104,5 @@ void SendPacketProcess_TankMovement(const Tank& tank)
 	movement.vx = tank.velocity_x;
 	movement.vy = tank.velocity_y;
 	movement_update_packet << movement;
-	NetObj.SendPacket(tank.client_id, movement_update_packet);
+	NetObj.SendPacketToAll(movement_update_packet);
 }
