@@ -84,7 +84,7 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 						if (it.y > CLIENT_SCREEN_HEIGHT)
 							it.y -= CLIENT_SCREEN_HEIGHT;
 						else if (it.y < 0)
-							it.y = CLIENT_SCREEN_HEIGHT - it.x;
+							it.y = CLIENT_SCREEN_HEIGHT - it.y;
 						it.latest_sequence_ID = data.movement_sequence_ID;
 						it.input_queue.pop();
 					}
