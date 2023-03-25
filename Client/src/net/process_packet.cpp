@@ -162,13 +162,13 @@ namespace Net
 			tank = &thisapp->GetPlayer();
 
 			// Discard outdated inputs.
-			std::cout << "\nDiscarding outdated input packets after " << data.sequence_id << "... BufSize: " << thisapp->QueuedPlayerMovements.size() << std::endl;
+			//std::cout << "\nDiscarding outdated input packets after " << data.sequence_id << "... BufSize: " << thisapp->QueuedPlayerMovements.size() << std::endl;
 			for (int i = thisapp->QueuedPlayerMovements.size(); i > 0; --i)
 			{
 				PKT_C2S_TankMovement temp = thisapp->QueuedPlayerMovements.front();
 				if (temp.sequence_id == INT_MIN || temp.sequence_id <= data.sequence_id)
 				{
-					std::cout << "PKT ID: " << temp.sequence_id << " I: "<< i << std::endl;
+					//std::cout << "DISCARDED PKT ID: " << temp.sequence_id << " I: "<< i << std::endl;
 					thisapp->QueuedPlayerMovements.pop_front();
 				}
 			}
@@ -178,8 +178,8 @@ namespace Net
 			tank->set_server_y(data.y);
 			tank->set_server_w(data.w);
 
-			std::cout << "Setting Pos: [" << tank->get_client_x() << ", " << tank->get_client_y() << ", " << tank->get_client_w()
-					  << "] to [" << tank->get_server_x() << ", " << tank->get_server_y() << ", " << tank->get_server_w() << "]\n";
+			//std::cout << "Setting Pos: [" << tank->get_client_x() << ", " << tank->get_client_y() << ", " << tank->get_client_w()
+			//		  << "] to [" << tank->get_server_x() << ", " << tank->get_server_y() << ", " << tank->get_server_w() << "]\n";
 		}
 		else
 		{ 
