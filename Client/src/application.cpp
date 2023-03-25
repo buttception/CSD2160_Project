@@ -111,7 +111,8 @@ bool Application::Init()
 bool Application::Update()
 {
 	float timedelta = hge_->Timer_GetDelta();
-	static float elapsedTime = 0.f;
+	static float elapsedTimeX = 0.f;
+	static float elapsedTimeY = 0.f;
 
 	// Process the packet received from server.
 	Net::ProcessPacket(this);
@@ -128,18 +129,35 @@ bool Application::Update()
 	// Interpolate player's old predicted position to new predicted position.
 	float newX = player.get_server_x();
 	float newY = player.get_server_y();
-	if (abs(player.get_client_x() - player.get_server_x()) > FLT_EPSILON ||
-		abs(player.get_client_y() - player.get_server_y()) > FLT_EPSILON)
+	if (abs(player.get_client_x() - player.get_server_x()) > FLT_EPSILON)
 	{
-		float tempX = player.get_server_x();
-		float tempY = player.get_server_y();
-		newX = Interpolate(player.get_client_x(), player.get_server_x(), elapsedTime);
-		newY = Interpolate(player.get_client_y(), player.get_server_y(), elapsedTime);
-		elapsedTime += timedelta;
+		newX = Interpolate(player.get_client_x(), player.get_server_x(), elapsedTimeX);
+		elapsedTimeX += timedelta;
+
+		// Safety
+		if (elapsedTimeX > 1.f)
+			elapsedTimeX = 1.f;
+		if (elapsedTimeX < 0.f)
+			elapsedTimeX = 0.f;
 	}
 	else
 	{
-		elapsedTime = 0.f;
+		elapsedTimeX = 0.f;
+	}
+	if (abs(player.get_client_y() - player.get_server_y()) > FLT_EPSILON)
+	{
+		newY = Interpolate(player.get_client_y(), player.get_server_y(), elapsedTimeY);
+		elapsedTimeY += timedelta;
+
+		// Safety
+		if (elapsedTimeY > 1.f)
+			elapsedTimeY = 1.f;
+		if (elapsedTimeY < 0.f)
+			elapsedTimeY = 0.f;
+	}
+	else
+	{
+		elapsedTimeY = 0.f;
 	}
 	player.set_x(newX);
 	player.set_y(newY);
