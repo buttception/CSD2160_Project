@@ -102,7 +102,7 @@ namespace Net
 		ToProcessSession->m_PacketMessage >> welcome_message_data;
 		thisapp->GetPlayer().tank_id = welcome_message_data.client_id;
 #ifdef _DEBUG
-		log( "\nReceived: PACKET_ID_S2C_WELCOMEMESSAGE. ShipID:%d", welcome_message_data.client_id );
+		log( "\nReceived: PACKET_ID_S2C_WELCOMEMESSAGE. ShipID:%d\n", welcome_message_data.client_id );
 #endif
 		// Send my spaceship info to server for synchronization.
 		Net::send_packet_enter_game( thisapp->GetPlayer() );
@@ -168,7 +168,7 @@ namespace Net
 			tank = &thisapp->GetPlayer();
 
 			// Discard outdated inputs.
-			std::cout << "\nDiscarding outdated input packets after " << data.sequence_id << "... Data ID: " << data.sequence_id << " BufSize: " << thisapp->QueuedPlayerMovements.size() << std::endl;
+			std::cout << "\nDiscarding outdated input packets after " << data.sequence_id << "... BufSize: " << thisapp->QueuedPlayerMovements.size() << std::endl;
 			for (int i = thisapp->QueuedPlayerMovements.size(); i > 0; --i)
 			{
 				PKT_C2S_TankMovement temp = thisapp->QueuedPlayerMovements.front();
@@ -178,42 +178,29 @@ namespace Net
 					thisapp->QueuedPlayerMovements.pop_front();
 				}
 			}
+
 			// Apply reconciliation.
+			float velX, velY;
+			float posX, posY;
+			posX = data.y;	// Extrapolate client's position based off server's authoritative "you are here" position.
+			posY = data.x;	// Extrapolate client's position based off server's authoritative "you are here" position.
 			for (const auto& temp : thisapp->QueuedPlayerMovements)
 			{
-				// Rotate tank.
-				if (temp.rotate == -1)
-				{
-					tank->set_angular_velocity(-TANK_ROT_SPEED);
-				}
-				else if (temp.rotate == 1)
-				{
-					tank->set_angular_velocity(TANK_ROT_SPEED);
-				}
-				else
-				{
-					tank->set_angular_velocity(0.f);
-				}
-
-				// Translate tank.
-				if (temp.throttle == -1)
-				{
-					tank->set_server_velocity_x(-cos(tank->get_server_w()) * TANK_MOV_SPEED);
-					tank->set_server_velocity_y(-sin(tank->get_server_w()) * TANK_MOV_SPEED);
-				}
-				else if (temp.throttle == 1)
-				{
-					tank->set_server_velocity_x(cos(tank->get_server_w()) * TANK_MOV_SPEED);
-					tank->set_server_velocity_y(sin(tank->get_server_w()) * TANK_MOV_SPEED);
-				}
-				else
-				{
-					tank->set_server_velocity_x(0.f);
-					tank->set_server_velocity_y(0.f);
-				}
-
-				tank->do_interpolate_update();
+				velX = (float)temp.rotate * TANK_ROT_SPEED * temp.frameTime;
+				velY = (float)temp.rotate * TANK_ROT_SPEED * temp.frameTime;
+				posX += (float)temp.throttle * velX * TANK_MOV_SPEED * temp.frameTime;
+				posY += (float)temp.throttle * velY * TANK_MOV_SPEED * temp.frameTime;
 			}
+
+			// Use client's old predicted position.
+			tank->set_client_x(tank->get_x());
+			tank->set_client_y(tank->get_y());
+
+			// Set client's updated predicted position.
+			tank->set_server_x(posX);
+			tank->set_server_y(posY);
+
+			std::cout << "Setting Pos: [" << tank->get_client_x() << ", " << tank->get_client_y() << "] to [" << tank->get_server_x() << ", " << tank->get_server_y() << "]\n";
 		}
 		else
 		{ 

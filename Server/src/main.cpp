@@ -26,23 +26,23 @@ _Timer g_LoopTimer;
 
 namespace
 {
-    constexpr float TANK_ROT_SPEED = 5.f;
-    constexpr float TANK_MOV_SPEED = 500.f;
+	constexpr float TANK_ROT_SPEED = 5.f;
+	constexpr float TANK_MOV_SPEED = 500.f;
 }
 
 #ifdef _DEBUG
 void log( char *szFormat, ... )
 {
-    char Buff[1024];
-    char Msg[1024];
-    va_list arg;
+	char Buff[1024];
+	char Msg[1024];
+	va_list arg;
 
-    va_start( arg, szFormat );
-    _vsnprintf_s( Msg, 1024, szFormat, arg );
-    va_end( arg );
+	va_start( arg, szFormat );
+	_vsnprintf_s( Msg, 1024, szFormat, arg );
+	va_end( arg );
 
-    sprintf_s( Buff, 1024, "%s", Msg );
-    _write( 1, Buff, strlen( Buff ) );
+	sprintf_s( Buff, 1024, "%s", Msg );
+	_write( 1, Buff, strlen( Buff ) );
 }
 #endif
 
@@ -50,95 +50,97 @@ std::thread g_game_thread;
 
 void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>* tanks_ptr)
 {
-    constexpr float frame_time = 1.f / 60.f;
-    constexpr float tickrate = 1.f / 30.f;
-    float timer{}, server_timer{};
-    std::array<Tank, MAX_CLIENT_CONNECTION + 1>& tanks = *tanks_ptr;
-    _Timer framet = *framet_ptr;
-    while(1)
-    {
-        timer += framet.GetTimer_sec();
-        if(timer > frame_time)
-        {
-            //lock the mutex then work on updating all the clients
-            for(auto& it : tanks)
-            {
-                if(it.connected)
-                {
-                    //update the clients based on their input queues
-                    while(!it.input_queue.empty())
-                    {
-                        //just clear the queue and teleport the player
-                        Tank::InputData data = it.input_queue.front();
-                        it.velocity_x = (float)data.rotate * TANK_ROT_SPEED * data.frametime;
-                        it.velocity_y = (float)data.rotate * TANK_ROT_SPEED * data.frametime;
-                        it.x += (float)data.throttle * it.velocity_x * TANK_MOV_SPEED * data.frametime;
-                        it.y += (float)data.throttle * it.velocity_x * TANK_MOV_SPEED * data.frametime;
-                        //wrap the positions
-                        if (it.x > CLIENT_SCREEN_WIDTH)
-                            it.x -= CLIENT_SCREEN_WIDTH;
-                        else if (it.x < 0)
-                            it.x = CLIENT_SCREEN_WIDTH - it.x;
-                        if (it.y > CLIENT_SCREEN_HEIGHT)
-                            it.y -= CLIENT_SCREEN_HEIGHT;
-                        else if (it.y < 0)
-                            it.y = CLIENT_SCREEN_HEIGHT - it.x;
-                        it.latest_sequence_ID = data.movement_sequence_ID;
-                        it.input_queue.pop();
-                    }
-                }
-            }
-            timer = 0.f;
-        }
-        server_timer += framet.GetTimer_sec();
-        if(server_timer > tickrate)
-        {
-            //send update packets to all clients
-            for(const auto& it : tanks)
-            {
-	            if(it.connected)
-	            {
-                    SendPacketProcess_TankMovement(it);
-	            }
-            }
-            server_timer = 0.f;
-        }
-    }
+	constexpr float frame_time = 1.f / 60.f;
+	constexpr float tickrate = 1.f / 30.f;
+	float timer{}, server_timer{};
+	std::array<Tank, MAX_CLIENT_CONNECTION + 1>& tanks = *tanks_ptr;
+	_Timer framet = *framet_ptr;
+	while(1)
+	{
+		timer += framet.GetTimer_sec();
+		if(timer > frame_time)
+		{
+			//lock the mutex then work on updating all the clients
+			for(auto& it : tanks)
+			{
+				if(it.connected)
+				{
+					//update the clients based on their input queues
+					while(!it.input_queue.empty())
+					{
+						//just clear the queue and teleport the player
+						Tank::InputData data = it.input_queue.front();
+						std::cout << "Setting client pos from [" << it.x << ", " << it.y << "] to "; // OLD POSITION
+						it.velocity_x = (float)data.rotate * TANK_ROT_SPEED * data.frametime;
+						it.velocity_y = (float)data.rotate * TANK_ROT_SPEED * data.frametime;
+						it.x += (float)data.throttle * it.velocity_x * TANK_MOV_SPEED * data.frametime;
+						it.y += (float)data.throttle * it.velocity_x * TANK_MOV_SPEED * data.frametime;
+						//wrap the positions
+						if (it.x > CLIENT_SCREEN_WIDTH)
+							it.x -= CLIENT_SCREEN_WIDTH;
+						else if (it.x < 0)
+							it.x = CLIENT_SCREEN_WIDTH - it.x;
+						if (it.y > CLIENT_SCREEN_HEIGHT)
+							it.y -= CLIENT_SCREEN_HEIGHT;
+						else if (it.y < 0)
+							it.y = CLIENT_SCREEN_HEIGHT - it.x;
+						it.latest_sequence_ID = data.movement_sequence_ID;
+						std::cout << "[" << it.x << ", " << it.y << "]\n"; // NEW POSITION
+						it.input_queue.pop();
+					}
+				}
+			}
+			timer = 0.f;
+		}
+		server_timer += framet.GetTimer_sec();
+		if(server_timer > tickrate)
+		{
+			//send update packets to all clients
+			for(const auto& it : tanks)
+			{
+				if(it.connected)
+				{
+					SendPacketProcess_TankMovement(it);
+				}
+			}
+			server_timer = 0.f;
+		}
+	}
 }
 
 void init_game_server( void )
 {
-    g_game_thread = std::thread{ GameUpdate, &g_LoopTimer, &g_Tanks };
+	g_game_thread = std::thread{ GameUpdate, &g_LoopTimer, &g_Tanks };
 }
 
 int main( void )
 {
-    init_game_server();
-    if( false == NetObj.InitNet(1, 1, 5050 ) )
-    {
+	init_game_server();
+	if( false == NetObj.InitNet(1, 1, 5050 ) )
+	{
 #ifdef _DEBUG
-        log( "%s", NetObj.GetErrorMessage() );
+		log( "%s", NetObj.GetErrorMessage() );
 #endif
-        return 0;
-    }
+		return 0;
+	}
 #ifdef _DEBUG
-    log( "%s", "\n Server network initialized!" );
-    log( "%s", "\n Network thread started! Ready to accept & receive the message." );
+	log( "%s", "\n Server network initialized!" );
+	log( "%s", "\n Network thread started! Ready to accept & receive the message." );
 #endif
-    Sleep( 1000 ); // Wait for a while to make sure everything is ok.
+	Sleep( 1000 ); // Wait for a while to make sure everything is ok.
 
-    g_LoopTimer.GetTimer_sec(); // To initialize the timer.
-    struct CatNet::ProcessSession *ToProcessSession;
-    while( 1 )
-    {
-        while( nullptr != ( ToProcessSession = NetObj.GetProcessList()->GetFirstSession() ) )
-        {
-            switch( ToProcessSession->m_SessionState )
-            {
-                case CatNet::SESSION_STATE_NEWCONNECTION:
-                { // New connection request arrived.
+	g_LoopTimer.GetTimer_sec(); // To initialize the timer.
+	struct CatNet::ProcessSession *ToProcessSession;
+	while( 1 )
+	{
+		while( nullptr != ( ToProcessSession = NetObj.GetProcessList()->GetFirstSession() ) )
+		{
+			switch( ToProcessSession->m_SessionState )
+			{
+				case CatNet::SESSION_STATE_NEWCONNECTION:
+				{ // New connection request arrived.
 #ifdef _DEBUG
-                    log( "\n New connection connected: Index:%d. Total Connection now:%d", ToProcessSession->m_SessionIndex, NetObj.GetConnectedCount() );
+					log( "\n New connection connected: Index:%d. Total Connection now:%d", ToProcessSession->m_SessionIndex, NetObj.GetConnectedCount() );
 #endif
 					// TODO: Check if more than 3, then need deny
 					// check if there is already 3 players
@@ -152,30 +154,30 @@ int main( void )
 					{
 						SendPacketProcess_NewAccept(ToProcessSession->m_SessionIndex);
 					}
-                }
-                break;
+				}
+				break;
 
-                case CatNet::SESSION_STATE_CLOSEREDY:
-                { // Connection closed arrived or communication error.
+				case CatNet::SESSION_STATE_CLOSEREDY:
+				{ // Connection closed arrived or communication error.
 #ifdef _DEBUG
-                    log( "\n Received: Index %d wants to close or already closed.\n Total Connection now:%d",
-                            ToProcessSession->m_SessionIndex, NetObj.GetConnectedCount() );
+					log( "\n Received: Index %d wants to close or already closed.\n Total Connection now:%d",
+							ToProcessSession->m_SessionIndex, NetObj.GetConnectedCount() );
 #endif
-                    SendPacketProcess_Disconnect( ToProcessSession->m_SessionIndex);
-                }
-                break;
+					SendPacketProcess_Disconnect( ToProcessSession->m_SessionIndex);
+				}
+				break;
 
-                case CatNet::SESSION_STATE_READPACKET:
-                { // Any packet data received.
-                    ReceivedPacketProcess( ToProcessSession );
-                }
-                break;
-            }
+				case CatNet::SESSION_STATE_READPACKET:
+				{ // Any packet data received.
+					ReceivedPacketProcess( ToProcessSession );
+				}
+				break;
+			}
 
-            NetObj.GetProcessList()->DeleteFirstSession();
-        }
-        Sleep( 100 ); // You can check a timer to nomalize the looping speed (FPS).
-    }
+			NetObj.GetProcessList()->DeleteFirstSession();
+		}
+		Sleep( 100 ); // You can check a timer to nomalize the looping speed (FPS).
+	}
 
-    return 0;
+	return 0;
 }

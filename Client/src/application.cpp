@@ -34,6 +34,14 @@ void log( char *szFormat, ... )
 
 #define ABS(n) ( (n < 0) ? (-n) : (n) )
 
+namespace
+{
+	float Interpolate(float start, float end, float t)
+	{
+		return start + (end - start) * t;
+	}
+}
+
 /** 
 * Constuctor
 *
@@ -103,6 +111,7 @@ bool Application::Init()
 bool Application::Update()
 {
 	float timedelta = hge_->Timer_GetDelta();
+	static float elapsedTime = 0.f;
 
 	// Process the packet received from server.
 	Net::ProcessPacket(this);
@@ -114,7 +123,26 @@ bool Application::Update()
 	if (hge_->Input_GetKeyState(HGEK_ESCAPE))
 		return true;
 
-	player.Update(timedelta, player.sprite_->GetWidth(), player.sprite_->GetHeight());
+	//player.Update(timedelta, player.sprite_->GetWidth(), player.sprite_->GetHeight());
+
+	// Interpolate player's old predicted position to new predicted position.
+	float newX = player.get_server_x();
+	float newY = player.get_server_y();
+	if (abs(player.get_client_x() - player.get_server_x()) > FLT_EPSILON ||
+		abs(player.get_client_y() - player.get_server_y()) > FLT_EPSILON)
+	{
+		float tempX = player.get_server_x();
+		float tempY = player.get_server_y();
+		newX = Interpolate(player.get_client_x(), player.get_server_x(), elapsedTime);
+		newY = Interpolate(player.get_client_y(), player.get_server_y(), elapsedTime);
+		elapsedTime += timedelta;
+	}
+	else
+	{
+		elapsedTime = 0.f;
+	}
+	player.set_x(newX);
+	player.set_y(newY);
 
 	// TODO: Aim turret with mouse cursor.
 	float mouseX, mouseY;
