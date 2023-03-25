@@ -44,7 +44,7 @@ namespace Net
 
 		// 100ms delay to limit number of packets sent to the server.
 		timer_net_movement_update += net_timer.GetTimer_msec();
-		if (timer_net_movement_update > 33)
+		if (timer_net_movement_update > 10)
 		{
 
 			PKT_C2S_TankMovement data;

@@ -16,6 +16,12 @@
 #include <io.h>
 #endif
 
+namespace
+{
+	constexpr float TANK_ROT_SPEED = 5.f;
+	constexpr float TANK_MOV_SPEED = 100.f;
+}
+
 #ifdef _DEBUG
 void log( char *szFormat, ... )
 {
@@ -116,9 +122,6 @@ bool Application::Init()
 bool Application::Update()
 {
 	float timedelta = hge_->Timer_GetDelta();
-	static float elapsedTimeX = 0.f;
-	static float elapsedTimeY = 0.f;
-	static float elapsedTimeW = 0.f;
 
 	// Process the packet received from server.
 	Net::ProcessPacket(this);
@@ -130,41 +133,49 @@ bool Application::Update()
 	if (hge_->Input_GetKeyState(HGEK_ESCAPE))
 		return true;
 
-	//player.Update(timedelta, player.sprite_->GetWidth(), player.sprite_->GetHeight());
 
-	// Interpolate player's old predicted position to new predicted position.
-	float newX = player.get_server_x();
-	float newY = player.get_server_y();
-	float newW = player.get_server_w();
-	// X-axis.
-	if (abs(player.get_client_x() - player.get_server_x()) > FLT_EPSILON)
+	// Apply reconciliation.
+	float rotW;
+	float velX, velY;
+	float posX, posY;
+	posX = player.get_server_x();	// Extrapolate client's position based off server's authoritative "you are here" position.
+	posY = player.get_server_y();	// Extrapolate client's position based off server's authoritative "you are here" position.
+	rotW = player.get_server_w();	// Extrapolate client's rotation based off server's authoritative "you are here" rotation.
+	for (const auto& temp : this->QueuedPlayerMovements)
 	{
-		newX = Interpolate(player.get_client_x(), player.get_server_x(), 0.1f);
-		elapsedTimeX += timedelta;
+		rotW += (float)temp.rotate * TANK_ROT_SPEED * temp.frameTime;
+		velX = cos(rotW) * (float)temp.throttle;
+		velY = sin(rotW) * (float)temp.throttle;
+		posX += velX * TANK_MOV_SPEED * temp.frameTime;
+		posY += velY * TANK_MOV_SPEED * temp.frameTime;
 	}
-	else
+
+	// This will be the new client prediction
+	player.set_client_x(posX);
+	player.set_client_y(posY);
+	player.set_client_w(rotW);
+
+	// old predicted position is the current player position
+	float newX = player.get_x();
+	float newY = player.get_y();
+	float newW = player.get_w();
+	// X-axis.
+	if (abs(newX - player.get_client_x()) > FLT_EPSILON)
 	{
-		elapsedTimeX = 0.f;
+		newX = Interpolate(player.get_client_x(), player.get_server_x(), 0.2f);
+		player.set_client_x(newX);
 	}
 	// Y-Axis.
-	if (abs(player.get_client_y() - player.get_server_y()) > FLT_EPSILON)
+	if (abs(newY - player.get_client_y()) > FLT_EPSILON)
 	{
-		newY = Interpolate(player.get_client_y(), player.get_server_y(), 0.1f);
-		elapsedTimeY += timedelta;
-	}
-	else
-	{
-		elapsedTimeY = 0.f;
+		newY = Interpolate(player.get_client_y(), player.get_server_y(), 0.2f);
+		player.set_client_y(newY);
 	}
 	// Rotation.
-	if (abs(player.get_client_y() - player.get_server_y()) > FLT_EPSILON)
+	if (abs(newW - player.get_client_w()) > FLT_EPSILON)
 	{
-		newW = Interpolate(player.get_client_w(), player.get_server_w(), 0.1f);
-		elapsedTimeW += timedelta;
-	}
-	else
-	{
-		elapsedTimeW = 0.f;
+		newW = Interpolate(newW, player.get_client_w(), 0.2f);
+		player.set_client_w(newW);
 	}
 	player.set_x(newX);
 	player.set_y(newY);
