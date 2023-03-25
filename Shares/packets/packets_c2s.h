@@ -25,6 +25,7 @@ struct PKT_C2S_INPUTBASE : PKT_C2S_BASE
 {
 	int sequence_id;	// Sequence number of the packet that is incremented every time a packet is sent.
 	int64_t timestamp;	// Timestamp in seconds since UNIX epoch (01-01-1970 0000hrs)
+	float frameTime;	// Frametime of the frame when the packet was sent.
 };
 //-- END Base Structures
 
