@@ -17,12 +17,6 @@ extern void log( char *szFormat, ... );
 extern CatNet::ServerNetwork NetObj;
 extern std::array<Tank, MAX_CLIENT_CONNECTION + 1> g_Tanks;
 
-namespace
-{
-	constexpr float TANK_ROT_SPEED = 5.f;
-	constexpr float TANK_MOV_SPEED = 500.f;
-}
-
 void ReceivedPacketProcess( struct CatNet::ProcessSession *ToProcessSession )
 {
 	int PacketID;
@@ -76,37 +70,37 @@ void ReceivedPacketProcess_TankMovement(CatNet::ProcessSession* ToProcessSession
 	ToProcessSession->m_PacketMessage >> data;
 
 	// Store packet sequence ID.
-	g_Tanks[client_id].movement_sequence_IDs.push(data.sequence_id);
+	g_Tanks[client_id].input_queue.push({data.sequence_id, data.rotate, data.throttle, data.frameTime});
 
 	// Rotate tank.
-	if (data.rotate == -1)
-	{
-		g_Tanks[client_id].angular_velocity = -TANK_ROT_SPEED;
-	}
-	else if (data.rotate == 1)
-	{
-		g_Tanks[client_id].angular_velocity = TANK_ROT_SPEED;
-	}
-	else
-	{
-		g_Tanks[client_id].angular_velocity = 0.f;
-	}
+	//if (data.rotate == -1)
+	//{
+	//	g_Tanks[client_id].angular_velocity = -TANK_ROT_SPEED;
+	//}
+	//else if (data.rotate == 1)
+	//{
+	//	g_Tanks[client_id].angular_velocity = TANK_ROT_SPEED;
+	//}
+	//else
+	//{
+	//	g_Tanks[client_id].angular_velocity = 0.f;
+	//}
 
-	// Translate tank.
-	if (data.throttle == -1)
-	{
-		g_Tanks[client_id].velocity_x = -cos(g_Tanks[client_id].w) * TANK_MOV_SPEED;
-		g_Tanks[client_id].velocity_y = -sin(g_Tanks[client_id].w) * TANK_MOV_SPEED;
-	}
-	else if (data.throttle == 1)
-	{
-		g_Tanks[client_id].velocity_x = cos(g_Tanks[client_id].w) * TANK_MOV_SPEED;
-		g_Tanks[client_id].velocity_y = sin(g_Tanks[client_id].w) * TANK_MOV_SPEED;
-	}
-	else
-	{
-		g_Tanks[client_id].velocity_x = g_Tanks[client_id].velocity_y = 0.f;
-	}
+	//// Translate tank.
+	//if (data.throttle == -1)
+	//{
+	//	g_Tanks[client_id].velocity_x = -cos(g_Tanks[client_id].w) * TANK_MOV_SPEED;
+	//	g_Tanks[client_id].velocity_y = -sin(g_Tanks[client_id].w) * TANK_MOV_SPEED;
+	//}
+	//else if (data.throttle == 1)
+	//{
+	//	g_Tanks[client_id].velocity_x = cos(g_Tanks[client_id].w) * TANK_MOV_SPEED;
+	//	g_Tanks[client_id].velocity_y = sin(g_Tanks[client_id].w) * TANK_MOV_SPEED;
+	//}
+	//else
+	//{
+	//	g_Tanks[client_id].velocity_x = g_Tanks[client_id].velocity_y = 0.f;
+	//}
 
 	// right now the assumption is that the server can receive, and process client inputs
 	// before the client can send a second packet.

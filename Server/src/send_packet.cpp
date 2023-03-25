@@ -74,17 +74,12 @@ void SendPacketProcess_Disconnect(const int& sessionID)
 
 void SendPacketProcess_TankMovement(const Tank& tank)
 {
-	// Don't send if nothing processed yet.
-	if (tank.movement_sequence_IDs.empty())
-		return;
-
 	CatNet::PacketMessage movement_update_packet;
 	int id = PACKET_ID_S2C_TANKMOVEMENT;
 	movement_update_packet << id;
 
 	PKT_S2C_TankMovement movement;
-	movement.sequence_id = tank.movement_sequence_IDs.front();
-	tank.movement_sequence_IDs.pop();
+	movement.sequence_id = tank.latest_sequence_ID;
 	movement.client_id = tank.client_id;
 	movement.x = tank.x;
 	movement.y = tank.y;
