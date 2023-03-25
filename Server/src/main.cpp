@@ -65,27 +65,26 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
             {
                 if(it.connected)
                 {
-                    if(!it.input_queue.empty())
+                    //update the clients based on their input queues
+                    while(!it.input_queue.empty())
                     {
-                    	//update the clients based on their input queues
-                        while(it.input_queue.empty())
-                        {
-	                        //just clear the queue and teleport the player
-                            Tank::InputData data = it.input_queue.front();
-                            it.velocity_x = (float)data.rotate * TANK_ROT_SPEED * data.frametime;
-                            it.velocity_y = (float)data.rotate * TANK_ROT_SPEED * data.frametime;
-                            it.x += (float)data.throttle * it.velocity_x * TANK_MOV_SPEED * data.frametime;
-                            it.y += (float)data.throttle * it.velocity_x * TANK_MOV_SPEED * data.frametime;
-                            //wrap the positions
-                            if (it.x > CLIENT_SCREEN_WIDTH)
-                                it.x -= CLIENT_SCREEN_WIDTH;
-                            else if (it.x < 0)
-                                it.x = CLIENT_SCREEN_WIDTH - it.x;
-                            if (it.y > CLIENT_SCREEN_HEIGHT)
-                                it.y -= CLIENT_SCREEN_HEIGHT;
-                            else if (it.y < 0)
-                                it.y = CLIENT_SCREEN_HEIGHT - it.x;
-                        }
+                        //just clear the queue and teleport the player
+                        Tank::InputData data = it.input_queue.front();
+                        it.velocity_x = (float)data.rotate * TANK_ROT_SPEED * data.frametime;
+                        it.velocity_y = (float)data.rotate * TANK_ROT_SPEED * data.frametime;
+                        it.x += (float)data.throttle * it.velocity_x * TANK_MOV_SPEED * data.frametime;
+                        it.y += (float)data.throttle * it.velocity_x * TANK_MOV_SPEED * data.frametime;
+                        //wrap the positions
+                        if (it.x > CLIENT_SCREEN_WIDTH)
+                            it.x -= CLIENT_SCREEN_WIDTH;
+                        else if (it.x < 0)
+                            it.x = CLIENT_SCREEN_WIDTH - it.x;
+                        if (it.y > CLIENT_SCREEN_HEIGHT)
+                            it.y -= CLIENT_SCREEN_HEIGHT;
+                        else if (it.y < 0)
+                            it.y = CLIENT_SCREEN_HEIGHT - it.x;
+                        it.latest_sequence_ID = data.movement_sequence_ID;
+                        it.input_queue.pop();
                     }
                 }
             }

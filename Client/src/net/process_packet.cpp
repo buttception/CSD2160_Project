@@ -168,7 +168,7 @@ namespace Net
 			tank = &thisapp->GetPlayer();
 
 			// Discard outdated inputs.
-			std::cout << "\nDiscarding outdated input packets... Data ID: " << data.sequence_id << " BufSize: " << thisapp->QueuedPlayerMovements.size() << std::endl;
+			std::cout << "\nDiscarding outdated input packets after " << data.sequence_id << "... Data ID: " << data.sequence_id << " BufSize: " << thisapp->QueuedPlayerMovements.size() << std::endl;
 			for (int i = thisapp->QueuedPlayerMovements.size(); i > 0; --i)
 			{
 				PKT_C2S_TankMovement temp = thisapp->QueuedPlayerMovements.front();
