@@ -27,7 +27,7 @@ _Timer g_LoopTimer;
 namespace
 {
 	constexpr float TANK_ROT_SPEED = 5.f;
-	constexpr float TANK_MOV_SPEED = 500.f;
+	constexpr float TANK_MOV_SPEED = 100.f;
 }
 
 #ifdef _DEBUG
@@ -70,11 +70,12 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 					{
 						//just clear the queue and teleport the player
 						Tank::InputData data = it.input_queue.front();
-						std::cout << "Setting client pos from [" << it.x << ", " << it.y << "] to "; // OLD POSITION
-						it.velocity_x = (float)data.rotate * TANK_ROT_SPEED * data.frametime;
-						it.velocity_y = (float)data.rotate * TANK_ROT_SPEED * data.frametime;
-						it.x += (float)data.throttle * it.velocity_x * TANK_MOV_SPEED * data.frametime;
-						it.y += (float)data.throttle * it.velocity_x * TANK_MOV_SPEED * data.frametime;
+						it.angular_velocity = (float)data.rotate * TANK_ROT_SPEED * data.frametime;
+						it.w += it.angular_velocity * data.frametime;
+						it.velocity_x = cos(it.w) * (float)data.throttle;
+						it.velocity_y = sin(it.w) * (float)data.throttle;
+						it.x += it.velocity_x * TANK_MOV_SPEED * data.frametime;
+						it.y += it.velocity_y * TANK_MOV_SPEED * data.frametime;
 						//wrap the positions
 						if (it.x > CLIENT_SCREEN_WIDTH)
 							it.x -= CLIENT_SCREEN_WIDTH;
@@ -85,7 +86,6 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 						else if (it.y < 0)
 							it.y = CLIENT_SCREEN_HEIGHT - it.x;
 						it.latest_sequence_ID = data.movement_sequence_ID;
-						std::cout << "[" << it.x << ", " << it.y << "]\n"; // NEW POSITION
 						it.input_queue.pop();
 					}
 				}

@@ -44,9 +44,8 @@ namespace Net
 
 		// 100ms delay to limit number of packets sent to the server.
 		timer_net_movement_update += net_timer.GetTimer_msec();
-		if (timer_net_movement_update > 100)
+		if (timer_net_movement_update > 33)
 		{
-			timer_net_movement_update = 0;
 
 			PKT_C2S_TankMovement data;
 			data.user_id = me.tank_id;
@@ -54,7 +53,8 @@ namespace Net
 			data.throttle = me.throttle;
 			data.sequence_id = currSequenceID++;
 			data.timestamp = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-			data.frameTime = deltaTime;
+			data.frameTime = timer_net_movement_update / 1000.f;
+			timer_net_movement_update = 0;
 			pkt = data;
 
 			CatNet::PacketMessage Packet;

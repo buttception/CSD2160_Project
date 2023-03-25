@@ -182,8 +182,8 @@ namespace Net
 			// Apply reconciliation.
 			float velX, velY;
 			float posX, posY;
-			posX = data.y;	// Extrapolate client's position based off server's authoritative "you are here" position.
-			posY = data.x;	// Extrapolate client's position based off server's authoritative "you are here" position.
+			posX = data.x;	// Extrapolate client's position based off server's authoritative "you are here" position.
+			posY = data.y;	// Extrapolate client's position based off server's authoritative "you are here" position.
 			for (const auto& temp : thisapp->QueuedPlayerMovements)
 			{
 				velX = (float)temp.rotate * TANK_ROT_SPEED * temp.frameTime;
