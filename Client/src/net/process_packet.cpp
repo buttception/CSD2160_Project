@@ -180,27 +180,33 @@ namespace Net
 			}
 
 			// Apply reconciliation.
+			float rotW;
 			float velX, velY;
 			float posX, posY;
 			posX = data.x;	// Extrapolate client's position based off server's authoritative "you are here" position.
 			posY = data.y;	// Extrapolate client's position based off server's authoritative "you are here" position.
+			rotW = data.w;	// Extrapolate client's rotation based off server's authoritative "you are here" rotation.
 			for (const auto& temp : thisapp->QueuedPlayerMovements)
 			{
-				velX = (float)temp.rotate * TANK_ROT_SPEED * temp.frameTime;
-				velY = (float)temp.rotate * TANK_ROT_SPEED * temp.frameTime;
-				posX += (float)temp.throttle * velX * TANK_MOV_SPEED * temp.frameTime;
-				posY += (float)temp.throttle * velY * TANK_MOV_SPEED * temp.frameTime;
+				rotW += ((float)temp.rotate * TANK_ROT_SPEED) * temp.frameTime;
+				velX = cos(rotW) * (float)temp.throttle;
+				velY = sin(rotW) * (float)temp.throttle;
+				posX += velX * TANK_MOV_SPEED * temp.frameTime;
+				posY += velY * TANK_MOV_SPEED * temp.frameTime;
 			}
 
 			// Use client's old predicted position.
 			tank->set_client_x(tank->get_x());
 			tank->set_client_y(tank->get_y());
+			tank->set_client_w(tank->get_w());
 
 			// Set client's updated predicted position.
 			tank->set_server_x(posX);
 			tank->set_server_y(posY);
+			tank->set_server_w(rotW);
 
-			std::cout << "Setting Pos: [" << tank->get_client_x() << ", " << tank->get_client_y() << "] to [" << tank->get_server_x() << ", " << tank->get_server_y() << "]\n";
+			std::cout << "Setting Pos: [" << tank->get_client_x() << ", " << tank->get_client_y() << ", " << tank->get_client_w()
+					  << "] to [" << tank->get_server_x() << ", " << tank->get_server_y() << ", " << tank->get_server_w() << "]\n";
 		}
 		else
 		{ 

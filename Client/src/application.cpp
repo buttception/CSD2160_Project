@@ -118,6 +118,7 @@ bool Application::Update()
 	float timedelta = hge_->Timer_GetDelta();
 	static float elapsedTimeX = 0.f;
 	static float elapsedTimeY = 0.f;
+	static float elapsedTimeW = 0.f;
 
 	// Process the packet received from server.
 	Net::ProcessPacket(this);
@@ -134,26 +135,40 @@ bool Application::Update()
 	// Interpolate player's old predicted position to new predicted position.
 	float newX = player.get_server_x();
 	float newY = player.get_server_y();
+	float newW = player.get_server_w();
+	// X-axis.
 	if (abs(player.get_client_x() - player.get_server_x()) > FLT_EPSILON)
 	{
-		newX = Interpolate(player.get_client_x(), player.get_server_x(), elapsedTimeX);
+		newX = Interpolate(player.get_client_x(), player.get_server_x(), 0.1f);
 		elapsedTimeX += timedelta;
 	}
 	else
 	{
 		elapsedTimeX = 0.f;
 	}
+	// Y-Axis.
 	if (abs(player.get_client_y() - player.get_server_y()) > FLT_EPSILON)
 	{
-		newY = Interpolate(player.get_client_y(), player.get_server_y(), elapsedTimeY);
+		newY = Interpolate(player.get_client_y(), player.get_server_y(), 0.1f);
 		elapsedTimeY += timedelta;
 	}
 	else
 	{
 		elapsedTimeY = 0.f;
 	}
+	// Rotation.
+	if (abs(player.get_client_y() - player.get_server_y()) > FLT_EPSILON)
+	{
+		newW = Interpolate(player.get_client_w(), player.get_server_w(), 0.1f);
+		elapsedTimeW += timedelta;
+	}
+	else
+	{
+		elapsedTimeW = 0.f;
+	}
 	player.set_x(newX);
 	player.set_y(newY);
+	player.set_w(newW);
 
 	// TODO: Aim turret with mouse cursor.
 	float mouseX, mouseY;

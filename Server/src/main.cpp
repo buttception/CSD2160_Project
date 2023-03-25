@@ -70,7 +70,7 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 					{
 						//just clear the queue and teleport the player
 						Tank::InputData data = it.input_queue.front();
-						it.angular_velocity = (float)data.rotate * TANK_ROT_SPEED * data.frametime;
+						it.angular_velocity = (float)data.rotate * TANK_ROT_SPEED;
 						it.w += it.angular_velocity * data.frametime;
 						it.velocity_x = cos(it.w) * (float)data.throttle;
 						it.velocity_y = sin(it.w) * (float)data.throttle;
