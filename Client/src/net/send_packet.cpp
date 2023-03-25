@@ -3,6 +3,9 @@
 #endif
 
 #include "send_packet.h"
+#include <chrono>
+
+using namespace std::chrono;
 
 #ifdef _DEBUG
 void log( char *szFormat, ... );
@@ -44,16 +47,17 @@ namespace Net
 		{
 			timer_net_movement_update = 0;
 
-			PKT_C2S_TankMovement movement_data;
-			movement_data.user_id = me.tank_id;
-			movement_data.rotate = me.rotate;
-			movement_data.throttle = me.throttle;
-			movement_data.sequence_id = currSequenceID++;
-
+			PKT_C2S_TankMovement data;
+			data.user_id = me.tank_id;
+			data.rotate = me.rotate;
+			data.throttle = me.throttle;
+			data.sequence_id = currSequenceID++;
+			data.timestamp = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+			
 			CatNet::PacketMessage Packet;
 			int PacketID = PACKET_ID_C2S_TANKMOVEMENT;
 			Packet << PacketID;
-			Packet << movement_data;
+			Packet << data;
 			NetObj.SendPacket( Packet );
 		}
 	}
@@ -62,16 +66,17 @@ namespace Net
 	{
 		static int currSequenceID = 0;
 
-		PKT_C2S_TankTurret turret_data;
-		turret_data.user_id = me.tank_id;
-		turret_data.angle = angle;
-		turret_data.timestamp = static_cast<int64_t>(time(nullptr));
-		turret_data.sequence_id = currSequenceID++;
+		PKT_C2S_TankTurret data;
+		data.user_id = me.tank_id;
+		data.angle = angle;
+		data.timestamp = static_cast<int64_t>(time(nullptr));
+		data.sequence_id = currSequenceID++;
+		data.timestamp = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 
 		CatNet::PacketMessage Packet;
 		int PacketID = PACKET_ID_C2S_TANKTURRET;
 		Packet << PacketID;
-		Packet << turret_data;
+		Packet << data;
 		NetObj.SendPacket(Packet);
 	}
 }
