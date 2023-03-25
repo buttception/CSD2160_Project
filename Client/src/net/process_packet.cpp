@@ -15,6 +15,11 @@ CatNet::ClientNetwork NetObj;
 extern void log( char *szFormat, ... );
 #endif
 
+namespace
+{
+	constexpr float TANK_ROT_SPEED = 5.f;
+	constexpr float TANK_MOV_SPEED = 500.f;
+}
 
 namespace Net
 {
@@ -25,61 +30,62 @@ namespace Net
 	}
 
 	//-------------------------------------------------------------------------
-	void ProcessPacket( Application *thisapp )
+	void ProcessPacket(Application* thisapp)
 	{
 		// Check any message from network! You can try to make this message processing with another thread but becareful with synchronization.
 		// NetLib Step 6. Prepare the pointer of _ProcessSession and buffer structure of _PacketMessage.
 		//         _ProcessSession pointer will give you the session information if there is any network communication from any client.
 		//         _PacketMessage is for fetch the each of the actual data inside the packet buffer.
-		struct CatNet::ProcessSession *ToProcessSession;
+		CatNet::ProcessSession* ToProcessSession;
 		// NetLib Step 7. Message Loop.
 		//         Check any message from server and process.
-		while( nullptr != ( ToProcessSession = NetObj.GetProcessList()->GetFirstSession() ) )
-		{ // Something recevied from network.
+		while (nullptr != (ToProcessSession = NetObj.GetProcessList()->GetFirstSession()))
+		{ 
+			// Something recevied from network.
 			int PacketID;
 			CatNet::PacketMessage temp;
-			
+
 			ToProcessSession->m_PacketMessage >> PacketID;
-			switch( thisapp->GetGameState() )
+			switch (thisapp->GetGameState())
 			{
-				case GAMESTATE_INITIALIZING:
+			case GAMESTATE_INITIALIZING:
+			{
+				switch (PacketID)
 				{
-					switch( PacketID )
-					{
-						case PACKET_ID_S2C_WELCOMEMESSAGE:
-							WelcomeMessage( thisapp, ToProcessSession );
-							break;
+				case PACKET_ID_S2C_WELCOMEMESSAGE:
+					WelcomeMessage(thisapp, ToProcessSession);
+					break;
 
-						case PACKET_ID_S2C_ENTERGAMEOK:
-							thisapp->SetGameState( GAMESTATE_INPLAY );
-							break;
+				case PACKET_ID_S2C_ENTERGAMEOK:
+					thisapp->SetGameState(GAMESTATE_INPLAY);
+					break;
 
-						case PACKET_ID_S2C_FULLGAME:
-							std::cout << "\nGame is full\n";
-							break;
-					}
+				case PACKET_ID_S2C_FULLGAME:
+					std::cout << "\nGame is full\n";
+					break;
 				}
-				break;
+			}
+			break;
 
-				case GAMESTATE_INPLAY:
+			case GAMESTATE_INPLAY:
+			{
+				switch (PacketID)
 				{
-					switch( PacketID )
-					{
-						case PACKET_ID_S2C_NEW_CLIENT:
-							NewClient( thisapp, ToProcessSession );
-							break;
-						case PACKET_ID_S2C_DISCONNECT_CLIENT:
-							DisconnectClient( thisapp, ToProcessSession );
-							break;
-						case PACKET_ID_S2C_TANKMOVEMENT:
-							UpdateTankMovement( thisapp, ToProcessSession );
-							break;
-						case PACKET_ID_S2C_TANKTURRET:
-							UpdateTankTurret(thisapp, ToProcessSession);
-							break;
-					}
+				case PACKET_ID_S2C_NEW_CLIENT:
+					NewClient(thisapp, ToProcessSession);
+					break;
+				case PACKET_ID_S2C_DISCONNECT_CLIENT:
+					DisconnectClient(thisapp, ToProcessSession);
+					break;
+				case PACKET_ID_S2C_TANKMOVEMENT:
+					UpdateTankMovement(thisapp, ToProcessSession);
+					break;
+				case PACKET_ID_S2C_TANKTURRET:
+					UpdateTankTurret(thisapp, ToProcessSession);
+					break;
 				}
-				break;
+			}
+			break;
 
 			}
 
@@ -90,7 +96,7 @@ namespace Net
 	}
 
 	//-------------------------------------------------------------------------
-	void WelcomeMessage( Application *thisapp, struct CatNet::ProcessSession *ToProcessSession )
+	void WelcomeMessage( Application *thisapp, CatNet::ProcessSession *ToProcessSession )
 	{
 		struct PKT_S2C_WelcomeMessage welcome_message_data;
 		ToProcessSession->m_PacketMessage >> welcome_message_data;
@@ -103,7 +109,7 @@ namespace Net
 	}
 
 	//-------------------------------------------------------------------------
-	void NewClient( Application *thisapp, struct CatNet::ProcessSession *ToProcessSession )
+	void NewClient( Application *thisapp, CatNet::ProcessSession *ToProcessSession )
 	{
 		//struct PKT_S2C_EnemyShip EnemyshipPacketData;
 		PKT_S2C_NewClient new_client_packet;
@@ -132,7 +138,7 @@ namespace Net
 	}
 
 	//-------------------------------------------------------------------------
-	void DisconnectClient( Application *thisapp, struct CatNet::ProcessSession *ToProcessSessoin )
+	void DisconnectClient( Application *thisapp, CatNet::ProcessSession *ToProcessSessoin )
 	{
 		PKT_S2C_Disconnect client_disconnect_data;
 		ToProcessSessoin->m_PacketMessage >> client_disconnect_data;
@@ -150,34 +156,88 @@ namespace Net
 		}
 
 	//-------------------------------------------------------------------------
-	void UpdateTankMovement(Application* thisapp, struct CatNet::ProcessSession* ToProcessSession)
+	void UpdateTankMovement(Application* thisapp, CatNet::ProcessSession* ToProcessSession)
 	{
-		PKT_S2C_TankMovement movement_data;
-		ToProcessSession->m_PacketMessage >> movement_data;
+		PKT_S2C_TankMovement data;
+		ToProcessSession->m_PacketMessage >> data;
 
 		Tank* tank{};
-		if (thisapp->GetPlayer().tank_id == movement_data.client_id)
+		if (thisapp->GetPlayer().tank_id == data.client_id)
 		{ 
 			// Update my tank.
 			tank = &thisapp->GetPlayer();
-			std::cout << "Received positional set for packet ID [" << movement_data.sequence_id << "]\n";
+
+			// Discard outdated inputs.
+			std::cout << "\nDiscarding outdated input packets... Data ID: " << data.sequence_id << " BufSize: " << thisapp->QueuedPlayerMovements.size() << std::endl;
+			for (int i = thisapp->QueuedPlayerMovements.size(); i > 0; --i)
+			{
+				PKT_C2S_TankMovement temp = thisapp->QueuedPlayerMovements.front();
+				if (temp.sequence_id == INT_MIN || temp.sequence_id <= data.sequence_id)
+				{
+					std::cout << "PKT ID: " << temp.sequence_id << " I: "<< i << std::endl;
+					thisapp->QueuedPlayerMovements.pop_front();
+				}
+			}
+			// Apply reconciliation.
+			for (const auto& temp : thisapp->QueuedPlayerMovements)
+			{
+				// Rotate tank.
+				if (temp.rotate == -1)
+				{
+					tank->set_angular_velocity(-TANK_ROT_SPEED);
+				}
+				else if (temp.rotate == 1)
+				{
+					tank->set_angular_velocity(TANK_ROT_SPEED);
+				}
+				else
+				{
+					tank->set_angular_velocity(0.f);
+				}
+
+				// Translate tank.
+				if (temp.throttle == -1)
+				{
+					tank->set_server_velocity_x(-cos(tank->get_server_w()) * TANK_MOV_SPEED);
+					tank->set_server_velocity_y(-sin(tank->get_server_w()) * TANK_MOV_SPEED);
+				}
+				else if (temp.throttle == 1)
+				{
+					tank->set_server_velocity_x(cos(tank->get_server_w()) * TANK_MOV_SPEED);
+					tank->set_server_velocity_y(sin(tank->get_server_w()) * TANK_MOV_SPEED);
+				}
+				else
+				{
+					tank->set_server_velocity_x(0.f);
+					tank->set_server_velocity_y(0.f);
+				}
+
+				tank->do_interpolate_update();
+			}
 		}
 		else
 		{ 
-			// Update other tanks.
+			// Look for matching connected client.
 			for (auto& it : thisapp->GetClients())
 			{
-				if (it.tank_id == movement_data.client_id)
+				if (it.tank_id == data.client_id)
+				{
 					tank = &it;
+					break;
+				}
+			}
+
+			// Update other tank.
+			if (tank != nullptr)
+			{
+				tank->set_server_x(data.x);
+				tank->set_server_y(data.y);
+				tank->set_server_w(data.w);
+				tank->set_server_velocity_x(data.vx);
+				tank->set_server_velocity_y(data.vy);
+				tank->do_interpolate_update();
 			}
 		}
-
-		tank->set_server_x(movement_data.x);
-		tank->set_server_y(movement_data.y);
-		tank->set_server_w(movement_data.w);
-		tank->set_server_velocity_x(movement_data.vx);
-		tank->set_server_velocity_y(movement_data.vy);
-		//tank->do_interpolate_update();
 	}
 	
 	//-------------------------------------------------------------------------

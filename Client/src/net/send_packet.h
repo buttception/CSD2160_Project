@@ -11,8 +11,8 @@
 namespace Net
 {
     void send_packet_enter_game(Tank& tank);
-    void send_packet_movement(Tank& tank);
-    void send_packet_turret_angle(Tank& me, const int& angle);
+    void send_packet_movement(Tank& tank, PKT_C2S_TankMovement& pkt);
+    void send_packet_turret_angle(Tank& me, const int& angle, PKT_C2S_TankTurret& pkt);
 }
 
 #endif

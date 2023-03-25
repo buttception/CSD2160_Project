@@ -14,7 +14,8 @@
 * velocity and acceleration, as well as angular position and displacement.
 */
 
-enum MOVABLE_OBJECT_TYPE {
+enum MOVABLE_OBJECT_TYPE
+{
 	MOVABLE_OBJECT_TYPE_EMPTY = 0,
 
 	MOVABLE_OBJECT_TYPE_TANK,
@@ -27,7 +28,8 @@ class Movable
 {
 private:
 	int object_type_;
-	struct _values {
+	struct _values
+	{
 		// These variables are for local rendering
 		float x_; //!< The x-ordinate of the ship
 		float y_; //!< The y-ordinate of the ship

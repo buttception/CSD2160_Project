@@ -38,7 +38,7 @@ namespace Net
 	}
 
 	//-------------------------------------------------------------------------
-	void send_packet_movement(Tank& me)
+	void send_packet_movement(Tank& me, PKT_C2S_TankMovement& pkt)
 	{
 		static int currSequenceID = 0;
 
@@ -53,16 +53,18 @@ namespace Net
 			data.throttle = me.throttle;
 			data.sequence_id = currSequenceID++;
 			data.timestamp = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+			pkt = data;
 			
 			CatNet::PacketMessage Packet;
 			int PacketID = PACKET_ID_C2S_TANKMOVEMENT;
 			Packet << PacketID;
 			Packet << data;
-			NetObj.SendPacket( Packet );
+			NetObj.SendPacket(Packet);
 		}
 	}
 
-	void send_packet_turret_angle(Tank& me, const int& angle)
+	//-------------------------------------------------------------------------
+	void send_packet_turret_angle(Tank& me, const int& angle, PKT_C2S_TankTurret& pkt)
 	{
 		static int currSequenceID = 0;
 
@@ -72,6 +74,7 @@ namespace Net
 		data.timestamp = static_cast<int64_t>(time(nullptr));
 		data.sequence_id = currSequenceID++;
 		data.timestamp = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+		pkt = data;
 
 		CatNet::PacketMessage Packet;
 		int PacketID = PACKET_ID_C2S_TANKTURRET;

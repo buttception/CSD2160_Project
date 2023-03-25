@@ -116,9 +116,10 @@ bool Application::Update()
 
 	player.Update(timedelta, player.sprite_->GetWidth(), player.sprite_->GetHeight());
 
+	// TODO: Aim turret with mouse cursor.
 	float mouseX, mouseY;
 	hge_->Input_GetMousePos(&mouseX, &mouseY);
-	// TODO: Aim turret with mouse cursor.
+	float angle = 0.f;
 
 	// Rotate tank left/right.
 	if (hge_->Input_GetKeyState(HGEK_A))
@@ -148,10 +149,21 @@ bool Application::Update()
 		player.throttle = 0;
 	}
 
-	Net::send_packet_movement(player); // <- Server should handle the movement, client only sends input data.
+	// Store inputs into buffer.
+	PKT_C2S_TankMovement movePkt;
+	PKT_C2S_TankTurret turretPkt;
+	movePkt.sequence_id = INT_MIN;		// Set seq ID to invalid state, to check if send_packet has actually set it or not.
+	turretPkt.sequence_id = INT_MIN;	// Set seq ID to invalid state, to check if send_packet has actually set it or not.
+	
+	// Server should handle the simulation, client only sends input data.
+	Net::send_packet_movement(player, movePkt);
+	//Net::send_packet_turret_angle(player, angle, turretPkt);
 
-	// TODO: Queue key inputs into a buffer between each server position update!
-	// TODO: Implement client-server reconciliation!
+	// Store inputs for (Truth and) Reconciliation.
+	if(movePkt.sequence_id != INT_MIN)
+		QueuedPlayerMovements.push_back(movePkt);
+	if (turretPkt.sequence_id != INT_MIN)
+		QueuedPlayerTurret.push_back(turretPkt);
 
 	return false;
 }
