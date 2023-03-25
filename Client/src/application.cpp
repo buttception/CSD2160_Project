@@ -38,6 +38,11 @@ namespace
 {
 	float Interpolate(float start, float end, float t)
 	{
+		if (t > 1.f)
+			t = 1.f;
+		if (t < 0.f)
+			t = 0.f;
+
 		return start + (end - start) * t;
 	}
 }
@@ -133,12 +138,6 @@ bool Application::Update()
 	{
 		newX = Interpolate(player.get_client_x(), player.get_server_x(), elapsedTimeX);
 		elapsedTimeX += timedelta;
-
-		// Safety
-		if (elapsedTimeX > 1.f)
-			elapsedTimeX = 1.f;
-		if (elapsedTimeX < 0.f)
-			elapsedTimeX = 0.f;
 	}
 	else
 	{
@@ -148,12 +147,6 @@ bool Application::Update()
 	{
 		newY = Interpolate(player.get_client_y(), player.get_server_y(), elapsedTimeY);
 		elapsedTimeY += timedelta;
-
-		// Safety
-		if (elapsedTimeY > 1.f)
-			elapsedTimeY = 1.f;
-		if (elapsedTimeY < 0.f)
-			elapsedTimeY = 0.f;
 	}
 	else
 	{
