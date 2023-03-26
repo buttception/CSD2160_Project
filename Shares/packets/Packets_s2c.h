@@ -17,6 +17,7 @@ enum _PACKET_ID_SERVER_TO_CLIENT
 
 	PACKET_ID_S2C_TANKMOVEMENT,
 	PACKET_ID_S2C_TANKTURRET,
+	PACKET_ID_S2C_MISSILE,
 
 	PACKET_ID_S2C_END
 };
@@ -65,6 +66,14 @@ struct PKT_S2C_TankTurret : PKT_S2C_BASE
 	int sequence_id;
 
 	float angle;
+};
+
+struct PKT_S2C_Missile : PKT_S2C_BASE
+{
+	int sequence_id;
+
+	float x, y, w;
+	float vx, vy;
 };
 //-- END Messages
 

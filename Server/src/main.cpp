@@ -11,9 +11,12 @@
 #include "process_packet.h"
 #include "timer\timer.h"
 #include "tank.h"
+#include "missile.h"
 
 #include <array>
 #include <thread>
+
+#include "AABBcollision.h"
 
 #ifdef _DEBUG
 #include <io.h>
@@ -21,6 +24,7 @@
 
 CatNet::ServerNetwork NetObj;
 std::array<Tank, MAX_CLIENT_CONNECTION + 1> g_Tanks;
+std::vector<Missile> g_missiles;
 
 _Timer g_LoopTimer;
 
@@ -28,6 +32,7 @@ namespace
 {
 	constexpr float TANK_ROT_SPEED = 5.f;
 	constexpr float TANK_MOV_SPEED = 100.f;
+	constexpr float MISSILE_SPEED = 500.f;
 }
 
 #ifdef _DEBUG
@@ -76,6 +81,28 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 						it.velocity_y = sin(it.w) * (float)data.throttle;
 						it.x += it.velocity_x * TANK_MOV_SPEED * data.frametime;
 						it.y += it.velocity_y * TANK_MOV_SPEED * data.frametime;
+
+						// check collision with every single missile
+						auto missile = g_missiles.begin();
+						while (missile != g_missiles.end())
+						{
+							if (missile->owner_id == it.client_id)
+								continue;
+
+							// check collision
+							// TODO: test values
+							AABBcollision::AABB tankAABB = {};
+							AABBcollision::AABB missileAABB = {};
+							if (AABBcollision::CheckCollision(tankAABB, missileAABB))
+							{
+								// if collided then set tanks's connected to false + remove collided missile from missiles container
+								missile = g_missiles.erase(missile);
+								it.connected = false; // tank destroyed
+							}
+							else
+								++missile;
+						}
+
 						//wrap the positions
 						if (it.x > CLIENT_SCREEN_WIDTH)
 							it.x -= CLIENT_SCREEN_WIDTH;
@@ -93,11 +120,31 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 					{
 						Tank::TurretInputData data = it.turret_input_queue.front();
 						it.turret_rotation = data.angle;
+						it.missile_shot = data.missile_shot;
+
+						float missile_velX = cos(data.angle) * MISSILE_SPEED;
+						float missile_velY = sin(data.angle) * MISSILE_SPEED;
+
+						// if client shot missile
+						if (it.missile_shot)
+							g_missiles.push_back(Missile(it.x, it.y, it.w,
+								missile_velX, missile_velY, it.client_id));
+						
 						it.latest_turret_seq_ID = data.turret_sequence_ID;
 						it.turret_input_queue.pop();
 					}
 				}
 			}
+
+			// UPDATE MISSILES POS HERE
+			for (auto& missile : g_missiles)
+			{
+				// update position of missile
+				missile.x += missile.velocity_x * timer;
+				missile.y += missile.velocity_y * timer;
+				// no need to update w because missile will not change direction
+			}
+
 			timer = 0.f;
 		}
 		server_timer += framet.GetTimer_sec();
@@ -110,8 +157,13 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 				{
 					SendPacketProcess_TankMovement(it);
 					SendPacketProcess_TankTurret(it);
+
+					// send packet for missiles to client
+					for (const auto& it : g_missiles)
+						SendPacketProcess_Missile(it);
 				}
 			}
+
 			server_timer = 0.f;
 		}
 	}

@@ -78,6 +78,9 @@ namespace Net
 				case PACKET_ID_S2C_TANKTURRET:
 					UpdateTankTurret(thisapp, ToProcessSession);
 					break;
+				case PACKET_ID_S2C_MISSILE:
+					UpdateMissile(thisapp, ToProcessSession);
+					break;
 				}
 			}
 			break;
@@ -238,6 +241,16 @@ namespace Net
 				tank->turret_rotation = data.angle;
 			}
 		}
+	}
+
+	void UpdateMissile(Application* thisapp, CatNet::ProcessSession* ToProcessSession)
+	{
+		PKT_S2C_Missile data;
+		ToProcessSession->m_PacketMessage >> data;
+
+		std::cout << "update missile\n";
+		// Add to missiles vector, missiles vector cleared at beginning of every udate
+		//thisapp->PushBackMissile(Missile(data.x, data.y, data.w, data.vx, data.vy, data.client_id));
 	}
 }
 

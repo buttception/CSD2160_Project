@@ -73,6 +73,7 @@ namespace Net
 		PKT_C2S_TankTurret data;
 		data.user_id = me.tank_id;
 		data.angle = angle;
+		data.missile_shot = me.missile_shot;
 		data.timestamp = static_cast<int64_t>(time(nullptr));
 		data.sequence_id = currSequenceID++;
 		data.timestamp = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();

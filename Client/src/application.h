@@ -5,6 +5,7 @@
 #include <list>
 
 #include "movables/Tank.h"
+#include "movables/Missile.h"
 #include "packets/packets_c2s.h"
 
 enum _GAMESTATE
@@ -31,6 +32,7 @@ private:
 
 	Tank player;
 	std::vector<Tank> clients;
+	std::vector<Missile> missiles;
 	hgeSprite* button;
 	hgeFont* buttonFont;
 
@@ -71,6 +73,9 @@ public:
 
 	Tank& GetPlayer() { return player; }
 	std::vector<Tank>& GetClients() { return clients; }
+	std::vector<Missile>& GetMissiles() { return missiles; }
+	void ClearMissiles() { missiles.clear(); }
+	void PushBackMissile(Missile& missile) { missiles.push_back(missile); }
 };
 
 #endif

@@ -20,6 +20,7 @@ public:
 	int tank_id;
 	int rotate, throttle;
 	bool active;
+	bool missile_shot;
 	std::string player_name;
 
 	void Render();

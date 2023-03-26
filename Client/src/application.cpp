@@ -147,6 +147,8 @@ bool Application::Update()
 {
 	float timedelta = hge_->Timer_GetDelta();
 
+	missiles.clear();
+
 	// Process the packet received from server.
 	Net::ProcessPacket(this);
 
@@ -275,6 +277,16 @@ bool Application::Update()
 		player.throttle = 0;
 	}
 
+	// Missile shot
+	if (hge_->Input_GetKeyState(HGEK_SPACE))
+	{
+		player.missile_shot = true;
+	}
+	else
+	{
+		player.missile_shot = false;
+	}
+
 	// Store inputs into buffer.
 	PKT_C2S_TankMovement movePkt;
 	PKT_C2S_TankTurret turretPkt;
@@ -318,6 +330,11 @@ void Application::Render()
 	for (auto& tank : clients)
 	{
 		tank.Render();
+	}
+
+	for (auto& missile : missiles)
+	{
+		missile.Render();
 	}
 
 	// draw the buttons (client prediction, reconciliation, entity interpolation)

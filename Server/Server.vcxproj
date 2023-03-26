@@ -22,6 +22,7 @@
     <ClCompile Include="..\CatNet\ClientNetwork.cpp" />
     <ClCompile Include="..\CatNet\ServerNetwork.cpp" />
     <ClCompile Include="..\Shares\timer\timer.cpp" />
+    <ClCompile Include="src\AABBcollision.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\process_packet.cpp" />
     <ClCompile Include="src\send_packet.cpp" />
@@ -36,8 +37,10 @@
     <ClInclude Include="..\Shares\packets\packets_c2s.h" />
     <ClInclude Include="..\Shares\packets\packets_s2c.h" />
     <ClInclude Include="..\Shares\timer\timer.h" />
+    <ClInclude Include="src\AABBcollision.h" />
     <ClInclude Include="src\HGEKeyCodes.h" />
     <ClInclude Include="src\main.h" />
+    <ClInclude Include="src\missile.h" />
     <ClInclude Include="src\process_packet.h" />
     <ClInclude Include="src\send_packet.h" />
     <ClInclude Include="src\tank.h" />

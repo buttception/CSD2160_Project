@@ -16,6 +16,7 @@ struct Tank
 	{
 		int turret_sequence_ID;
 		float angle;
+		bool missile_shot;
 	};
 
 	bool connected;
@@ -30,6 +31,7 @@ struct Tank
 	float velocity_x, velocity_y;
 	float angular_velocity;
 	float turret_rotation;
+	bool missile_shot;
 	float half_extends;
 
 	int hp;
