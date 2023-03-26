@@ -7,6 +7,7 @@
 #include "process_packet.h"
 #include "send_packet.h"
 #include "movables/Tank.h"
+#include "globals.h"
 
 // NetLib Step 2. Client network object to use network library.
 CatNet::ClientNetwork NetObj;
@@ -156,6 +157,7 @@ namespace Net
 				if (temp.sequence_id == INT_MIN || temp.sequence_id <= data.sequence_id)
 				{
 					//std::cout << "DISCARDED PKT ID: " << temp.sequence_id << " I: "<< i << std::endl;
+					//if(Global::application->isMechanism[Application::MCH_RECONCILIATION])
 					thisapp->QueuedPlayerMovements.pop_front();
 				}
 			}

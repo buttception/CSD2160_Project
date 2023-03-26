@@ -36,6 +36,13 @@ private:
 
 	// colour
 	DWORD red, green;
+
+	bool Init();
+	static bool Loop();
+	void Shutdown();
+
+public:
+
 	enum MECHANISMS
 	{
 		MCH_CLIENT_PREDICTION = 0,
@@ -43,15 +50,10 @@ private:
 		MCH_INTERPOLATE,
 		MCH_COUNT
 	};
-	bool isMechanism[MCH_COUNT];
 
-	bool Init();
-	static bool Loop();
-	void Shutdown();
-
-public:
 	std::list<PKT_C2S_TankMovement> QueuedPlayerMovements;	// Buffer of un-acknowledged player movement packets.
 	std::list<PKT_C2S_TankTurret> QueuedPlayerTurret;		// Buffer of un-acknowledged player turret packets.
+	bool isMechanism[MCH_COUNT];
 
 	Application();
 	~Application() throw();

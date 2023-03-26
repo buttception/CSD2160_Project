@@ -40,7 +40,12 @@ void ReceivedPacketProcess( struct CatNet::ProcessSession *ToProcessSession )
 		}
 		break;
 
-		// TODO: Handle client leaving 
+		// TODO: Handle client leaving
+		case PACKET_ID_C2S_DISCONNECT:
+		{
+			ReceivedPacketProcess_Disconnect(ToProcessSession);
+		}
+		break;
 	}
 }
 
@@ -106,7 +111,13 @@ void ReceivedPacketProcess_TankTurret(CatNet::ProcessSession* ToProcessSession)
 	ToProcessSession->m_PacketMessage >> data;
 	// Store packet sequence ID.
 	g_Tanks[client_id].turret_input_queue.push({ data.sequence_id,data.angle });
+}
 
-	// TODO: Rotate turret.
+void ReceivedPacketProcess_Disconnect(CatNet::ProcessSession* ToProcessSession)
+{
+	int client_id = ToProcessSession->m_SessionIndex;
+	PKT_C2S_Disconnect data;
+	ToProcessSession->m_PacketMessage >> data;
 
+	g_Tanks[client_id].connected = false;
 }
