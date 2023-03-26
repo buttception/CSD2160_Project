@@ -106,3 +106,18 @@ void SendPacketProcess_TankMovement(const Tank& tank)
 	movement_update_packet << movement;
 	NetObj.SendPacketToAll(movement_update_packet);
 }
+
+void SendPacketProcess_TankTurret(const Tank& tank)
+{
+	CatNet::PacketMessage turret_update_packet;
+	int id = PACKET_ID_S2C_TANKTURRET;
+	turret_update_packet << id;
+
+	PKT_S2C_TankTurret turret;
+	turret.sequence_id = tank.latest_turret_seq_ID;
+	turret.client_id = tank.client_id;
+	turret.angle = tank.turret_rotation;
+	turret_update_packet << turret;
+
+	NetObj.SendPacketToAll(turret_update_packet);
+}

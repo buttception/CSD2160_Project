@@ -104,9 +104,8 @@ void ReceivedPacketProcess_TankTurret(CatNet::ProcessSession* ToProcessSession)
 	int client_id = ToProcessSession->m_SessionIndex;
 	PKT_C2S_TankTurret data;
 	ToProcessSession->m_PacketMessage >> data;
-
 	// Store packet sequence ID.
-	g_Tanks[client_id].turret_sequence_IDs.push(data.sequence_id);
+	g_Tanks[client_id].turret_input_queue.push({ data.sequence_id,data.angle });
 
 	// TODO: Rotate turret.
 

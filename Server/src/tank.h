@@ -11,12 +11,20 @@ struct Tank
 		int throttle;
 		float frametime;
 	};
+
+	struct TurretInputData
+	{
+		int turret_sequence_ID;
+		float angle;
+	};
+
 	bool connected;
 	int client_id;
 	int latest_sequence_ID;
+	int latest_turret_seq_ID;
 
 	mutable std::queue<InputData> input_queue;	// Queue of all to-be-processed sequence IDs for tank movement.
-	mutable std::queue<int> turret_sequence_IDs;	// Queue of all to-be-processed sequence IDs for tank turret rotation.
+	mutable std::queue<TurretInputData> turret_input_queue;	// Queue of all to-be-processed sequence IDs for tank turret rotation.
 
 	float x, y, w;
 	float velocity_x, velocity_y;

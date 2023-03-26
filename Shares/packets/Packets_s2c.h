@@ -64,7 +64,7 @@ struct PKT_S2C_TankTurret : PKT_S2C_BASE
 {
 	int sequence_id;
 
-	int angle;
+	float angle;
 };
 //-- END Messages
 

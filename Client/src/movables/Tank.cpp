@@ -7,10 +7,15 @@ Tank::Tank()
 	set_object_type(MOVABLE_OBJECT_TYPE_TANK);
 
 	//std::string shipfilename = "ship" + std::to_string(shiptype_) + ".png";
-	tex_ = hge->Texture_Load("ship1.png");
+	tex_ = hge->Texture_Load("tank1.png");
 	//sprite_.reset(new hgeSprite(tex_, 0, 0, 64, 64));
 	sprite_ = new hgeSprite(tex_, 0, 0, 64, 64);
 	sprite_->SetHotSpot(32, 32);
+
+	// turret tex
+	turretTex_ = hge->Texture_Load("turret.png");
+	turretSprite_ = new hgeSprite(turretTex_, 0, 0, 64, 64);
+	turretSprite_->SetHotSpot(32, 32);
 
 	//font_.reset(new hgeFont("font1.fnt"));
 	font_ = new hgeFont("font1.fnt");
@@ -30,6 +35,7 @@ void Tank::Render()
 {
 	// render the ship.
 	sprite_->RenderEx(get_x(), get_y(), get_w());
+	turretSprite_->RenderEx(get_x(), get_y(), turret_rotation);
 	// print the ship name.
 	font_->printf(get_x(), get_y() + 20, HGETEXT_LEFT, "%s", player_name);
 }

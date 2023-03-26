@@ -12,5 +12,6 @@ void SendPacketProcess_FullGame(const int& sessionID);
 void SendPacketProcess_NewAccept_SendWelcomeMessage(const int& sessionID);
 void SendPacketProcess_Disconnect(const int& sessionID);
 void SendPacketProcess_TankMovement(const Tank& Tank);
+void SendPacketProcess_TankTurret(const Tank& tank);
 
 #endif

@@ -196,6 +196,47 @@ namespace Net
 	//-------------------------------------------------------------------------
 	void UpdateTankTurret(Application* thisapp, CatNet::ProcessSession* ToProcessSession)
 	{
+		PKT_S2C_TankTurret data;
+		ToProcessSession->m_PacketMessage >> data;
+
+		Tank* tank{};
+		if (thisapp->GetPlayer().tank_id == data.client_id)
+		{
+			// Update my tank.
+			tank = &thisapp->GetPlayer();
+
+			// Discard outdated inputs.
+			for (int i = thisapp->QueuedPlayerTurret.size(); i > 0; --i)
+			{
+				PKT_C2S_TankTurret temp = thisapp->QueuedPlayerTurret.front();
+				if (temp.sequence_id == INT_MIN || temp.sequence_id <= data.sequence_id)
+				{
+					//std::cout << "DISCARDED PKT ID: " << temp.sequence_id << " I: "<< i << std::endl;
+					thisapp->QueuedPlayerTurret.pop_front();
+				}
+			}
+
+			// Set client's turret rot
+			tank->turret_rotation = data.angle;
+		}
+		else
+		{
+			// Look for matching connected client.
+			for (auto& it : thisapp->GetClients())
+			{
+				if (it.tank_id == data.client_id)
+				{
+					tank = &it;
+					break;
+				}
+			}
+
+			// Update other tank.
+			if (tank != nullptr)
+			{
+				tank->turret_rotation = data.angle;
+			}
+		}
 	}
 }
 

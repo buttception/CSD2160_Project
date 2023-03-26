@@ -44,7 +44,7 @@ struct PKT_C2S_TankMovement : PKT_C2S_INPUTBASE
 
 struct PKT_C2S_TankTurret : PKT_C2S_INPUTBASE
 {
-	int angle;			// Angle in degrees of turret's orientation.
+	float angle;			// Angle in degrees of turret's orientation.
 };
 //-- END Messages
 

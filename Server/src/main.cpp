@@ -88,6 +88,14 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 						it.latest_sequence_ID = data.movement_sequence_ID;
 						it.input_queue.pop();
 					}
+					// update the turret rots
+					while(!it.turret_input_queue.empty())
+					{
+						Tank::TurretInputData data = it.turret_input_queue.front();
+						it.turret_rotation = data.angle;
+						it.latest_turret_seq_ID = data.turret_sequence_ID;
+						it.turret_input_queue.pop();
+					}
 				}
 			}
 			timer = 0.f;
@@ -101,6 +109,7 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 				if(it.connected)
 				{
 					SendPacketProcess_TankMovement(it);
+					SendPacketProcess_TankTurret(it);
 				}
 			}
 			server_timer = 0.f;

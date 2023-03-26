@@ -21,4 +21,8 @@ public:
 	std::string player_name;
 
 	void Render();
+
+private:
+	HTEXTURE turretTex_; //!< Handle to the sprite's texture
+	hgeSprite* turretSprite_;
 };

@@ -192,7 +192,8 @@ bool Application::Update()
 	// TODO: Aim turret with mouse cursor.
 	float mouseX, mouseY;
 	hge_->Input_GetMousePos(&mouseX, &mouseY);
-	float angle = 0.f;
+	player.turret_rotation = atan2f(mouseY - player.get_y(), mouseX - player.get_x());
+	const float angle = player.turret_rotation;
 
 	// Rotate tank left/right.
 	if (hge_->Input_GetKeyState(HGEK_A))
@@ -230,7 +231,7 @@ bool Application::Update()
 	
 	// Server should handle the simulation, client only sends input data.
 	Net::send_packet_movement(player, timedelta, movePkt);
-	//Net::send_packet_turret_angle(player, timedelta, angle, turretPkt);
+	Net::send_packet_turret_angle(player, timedelta, angle, turretPkt);
 
 	// Store inputs for (Truth and) Reconciliation.
 	if(movePkt.sequence_id != INT_MIN)

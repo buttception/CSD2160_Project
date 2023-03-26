@@ -66,7 +66,7 @@ namespace Net
 	}
 
 	//-------------------------------------------------------------------------
-	void send_packet_turret_angle(Tank& me, float deltaTime, const int& angle, PKT_C2S_TankTurret& pkt)
+	void send_packet_turret_angle(Tank& me, float deltaTime, const float& angle, PKT_C2S_TankTurret& pkt)
 	{
 		static int currSequenceID = 0;
 
