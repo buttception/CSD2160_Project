@@ -217,7 +217,8 @@ namespace Net
 			}
 
 			// Set client's turret rot
-			tank->turret_rotation = data.angle;
+			//tank->turret_rotation = data.angle;
+			tank->server_turret_rot = data.angle;
 		}
 		else
 		{
@@ -235,7 +236,9 @@ namespace Net
 			if (tank != nullptr)
 			{
 				// interpolate the rotate of turret
-				tank->turret_rotation = data.angle;
+				//tank->turret_rotation = data.angle;
+				tank->server_turret_rot = data.angle;
+				tank->client_turret_rot = tank->turret_rotation;
 			}
 		}
 	}

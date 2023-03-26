@@ -99,7 +99,7 @@ bool Application::Init()
 
 	// Initialize and prepare the game data & systems.
 	for (int i{}; i < MECHANISMS::MCH_COUNT; ++i)
-		isMechanism[i] = false;
+		isMechanism[i] = true;
 	red = green = 0;
 
 	red = SETR(red, 255);
@@ -246,6 +246,23 @@ bool Application::Update()
 	float mouseX, mouseY;
 	hge_->Input_GetMousePos(&mouseX, &mouseY);
 	const float angle = atan2f(mouseY - player.get_y(), mouseX - player.get_x());
+	// reconciliation
+	float turrRot = player.server_turret_rot;
+	for(const auto& temp : this->QueuedPlayerTurret)
+	{
+		turrRot = temp.angle;
+	}
+	// client predication
+	player.client_turret_rot = turrRot;
+
+	// old prediction
+	float newTurrRot = player.turret_rotation;
+	// Turret Rotation.
+	if (abs(newTurrRot - player.client_turret_rot) > FLT_EPSILON)
+	{
+		newTurrRot = Interpolate(newTurrRot, player.client_turret_rot, 0.2f);
+	}
+	player.turret_rotation = newTurrRot;
 
 	// Rotate tank left/right.
 	if (hge_->Input_GetKeyState(HGEK_A))
