@@ -234,6 +234,7 @@ namespace Net
 			// Update other tank.
 			if (tank != nullptr)
 			{
+				// interpolate the rotate of turret
 				tank->turret_rotation = data.angle;
 			}
 		}

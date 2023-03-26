@@ -31,6 +31,19 @@ private:
 
 	Tank player;
 	std::vector<Tank> clients;
+	hgeSprite* button;
+	hgeFont* buttonFont;
+
+	// colour
+	DWORD red, green;
+	enum MECHANISMS
+	{
+		MCH_CLIENT_PREDICTION = 0,
+		MCH_RECONCILIATION,
+		MCH_INTERPOLATE,
+		MCH_COUNT
+	};
+	bool isMechanism[MCH_COUNT];
 
 	bool Init();
 	static bool Loop();

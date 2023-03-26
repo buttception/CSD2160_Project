@@ -14,6 +14,8 @@ public:
 	~Tank() = default;
 
 	float turret_rotation;
+	float server_turret_rot;
+	float client_turret_rot;
 	float fire_rate, fire_timer;
 	int tank_id;
 	int rotate, throttle;

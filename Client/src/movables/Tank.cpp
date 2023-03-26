@@ -37,5 +37,5 @@ void Tank::Render()
 	sprite_->RenderEx(get_x(), get_y(), get_w());
 	turretSprite_->RenderEx(get_x(), get_y(), turret_rotation);
 	// print the ship name.
-	font_->printf(get_x(), get_y() + 20, HGETEXT_LEFT, "%s", player_name);
+	font_->printf(get_x(), get_y() + 30, HGETEXT_LEFT, "%s", player_name.c_str());
 }

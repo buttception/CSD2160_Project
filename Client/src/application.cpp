@@ -88,7 +88,8 @@ bool Application::Init()
 	hge_->System_SetState(HGE_TITLE, "TankShooter");
 	hge_->System_SetState(HGE_LOGFILE, "TankShooter.log");
 	hge_->System_SetState( HGE_DONTSUSPEND, true );
-	
+	hge_->System_SetState(HGE_HIDEMOUSE, false);
+
 	if( false == hge_->System_Initiate() )
 	{
 		return false;
@@ -97,6 +98,26 @@ bool Application::Init()
 	srand( (unsigned int)time(NULL) );
 
 	// Initialize and prepare the game data & systems.
+	for (int i{}; i < MECHANISMS::MCH_COUNT; ++i)
+		isMechanism[i] = false;
+	red = green = 0;
+
+	red = SETR(red, 255);
+	red = SETG(red, 0);
+	red = SETB(red, 0);
+	red = SETA(red, 255);
+
+	green = SETR(green, 0);
+	green = SETG(green, 255);
+	green = SETB(green, 0);
+	green = SETA(green, 255);
+
+	button = new hgeSprite(0, 0, 0, 64, 32);
+	button->SetTexture(0);
+
+	buttonFont = new hgeFont("font1.fnt");
+	buttonFont->SetScale(0.5);
+
 	player = Tank();
 
 
@@ -135,6 +156,38 @@ bool Application::Update()
 	// Check key inputs and process the movements of spaceship.
 	if (hge_->Input_GetKeyState(HGEK_ESCAPE))
 		return true;
+
+	// set the flags for client prediction/recon/interpo
+	static bool isDown1 = false;
+	static bool isDown2 = false;
+	static bool isDown3 = false;
+	if (hge_->Input_GetKeyState(HGEK_1) && !isDown1)
+	{
+		isMechanism[MCH_CLIENT_PREDICTION] ^= true;
+		isDown1 = true;
+	}
+	else if(isDown1 && !hge_->Input_GetKeyState(HGEK_1))
+	{
+		isDown1 = false;
+	}
+	if (hge_->Input_GetKeyState(HGEK_2) && !isDown2)
+	{
+		isMechanism[MCH_RECONCILIATION] ^= true;
+		isDown2 = true;
+	}
+	else if(isDown2 && !hge_->Input_GetKeyState(HGEK_2))
+	{
+		isDown2 = false;
+	}
+	if (hge_->Input_GetKeyState(HGEK_3) && !isDown3)
+	{
+		isMechanism[MCH_INTERPOLATE] ^= true;
+		isDown3 = true;
+	}
+	else if(isDown3 && !hge_->Input_GetKeyState(HGEK_3))
+	{
+		isDown3 = false;
+	}
 
 
 	// Apply reconciliation.
@@ -192,8 +245,7 @@ bool Application::Update()
 	// TODO: Aim turret with mouse cursor.
 	float mouseX, mouseY;
 	hge_->Input_GetMousePos(&mouseX, &mouseY);
-	player.turret_rotation = atan2f(mouseY - player.get_y(), mouseX - player.get_x());
-	const float angle = player.turret_rotation;
+	const float angle = atan2f(mouseY - player.get_y(), mouseX - player.get_x());
 
 	// Rotate tank left/right.
 	if (hge_->Input_GetKeyState(HGEK_A))
@@ -266,6 +318,24 @@ void Application::Render()
 	for (auto& tank : clients)
 	{
 		tank.Render();
+	}
+
+	// draw the buttons (client prediction, reconciliation, entity interpolation)
+	for(int i{}; i < 3; ++i)
+	{
+		if(isMechanism[i])
+			button->SetColor(green);
+		else
+			button->SetColor(red);
+
+		float x = static_cast<float>(10 * i + i * 64), y = 10;
+		button->RenderEx(x, y, 0);
+		if( i == MCH_CLIENT_PREDICTION)
+			buttonFont->printf(x, y, HGETEXT_LEFT, "Client \nPrediction");
+		else if( i == MCH_RECONCILIATION)
+			buttonFont->printf(x, y, HGETEXT_LEFT, "Reconci \n-liation");
+		else
+			buttonFont->printf(x, y, HGETEXT_LEFT, "Interpo \n-lation");
 	}
 
 	hge_->Gfx_EndScene();
