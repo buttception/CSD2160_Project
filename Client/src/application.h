@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <list>
+#include <unordered_map>
 
 #include "movables/Tank.h"
 #include "movables/Missile.h"
@@ -32,9 +33,11 @@ private:
 
 	Tank player;
 	std::vector<Tank> clients;
-	std::vector<Missile> missiles;
+	std::unordered_map<int, Missile> missiles;
 	hgeSprite* button;
 	hgeFont* buttonFont;
+
+	float missile_cooldown;
 
 	// colour
 	DWORD red, green;
@@ -73,9 +76,17 @@ public:
 
 	Tank& GetPlayer() { return player; }
 	std::vector<Tank>& GetClients() { return clients; }
-	std::vector<Missile>& GetMissiles() { return missiles; }
+	std::unordered_map<int, Missile>& GetMissiles() { return missiles; }
 	void ClearMissiles() { missiles.clear(); }
-	void PushBackMissile(Missile& missile) { missiles.push_back(missile); }
+	void EmplaceMissile(Missile& missile) { missiles.emplace(missile.missile_id, missile); }
+	Missile& GetMissile(const int& missile_id) { return missiles.find(missile_id)->second; }
+	bool IsExistingMissile(const int& missile_id)
+	{
+		if (missiles.find(missile_id) != missiles.end())
+			return true;
+		else
+			return false;
+	}
 };
 
 #endif

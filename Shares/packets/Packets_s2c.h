@@ -72,6 +72,8 @@ struct PKT_S2C_Missile : PKT_S2C_BASE
 {
 	int sequence_id;
 
+	bool alive;
+	int missile_id;
 	float x, y, w;
 	float vx, vy;
 };

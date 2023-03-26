@@ -129,6 +129,8 @@ void SendPacketProcess_Missile(const Missile& missile)
 	movement_update_packet << id;
 
 	PKT_S2C_Missile movement;
+	movement.alive = missile.alive;
+	movement.missile_id = missile.id;
 	movement.client_id = missile.owner_id;
 	movement.x = missile.x;
 	movement.y = missile.y;

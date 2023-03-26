@@ -23,6 +23,7 @@ namespace
 {
 	constexpr float TANK_ROT_SPEED = 5.f;
 	constexpr float TANK_MOV_SPEED = 100.f;
+	constexpr float MISSILE_COOLDOWN = 1.f;
 }
 
 #ifdef _DEBUG
@@ -120,6 +121,7 @@ bool Application::Init()
 
 	player = Tank();
 
+	missile_cooldown = MISSILE_COOLDOWN;
 
 	// Initialize the network with Network Library.
 	if( !(Net::InitNetwork()) )
@@ -147,7 +149,8 @@ bool Application::Update()
 {
 	float timedelta = hge_->Timer_GetDelta();
 
-	missiles.clear();
+	if (missile_cooldown <= MISSILE_COOLDOWN)
+		missile_cooldown += timedelta;
 
 	// Process the packet received from server.
 	Net::ProcessPacket(this);
@@ -278,9 +281,10 @@ bool Application::Update()
 	}
 
 	// Missile shot
-	if (hge_->Input_GetKeyState(HGEK_SPACE))
+	if (hge_->Input_GetKeyState(HGEK_SPACE) && missile_cooldown >= MISSILE_COOLDOWN)
 	{
 		player.missile_shot = true;
+		missile_cooldown = 0.f;
 	}
 	else
 	{
@@ -334,7 +338,7 @@ void Application::Render()
 
 	for (auto& missile : missiles)
 	{
-		missile.Render();
+		missile.second.Render();
 	}
 
 	// draw the buttons (client prediction, reconciliation, entity interpolation)

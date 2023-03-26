@@ -247,10 +247,23 @@ namespace Net
 	{
 		PKT_S2C_Missile data;
 		ToProcessSession->m_PacketMessage >> data;
-
-		std::cout << "update missile\n";
+		
 		// Add to missiles vector, missiles vector cleared at beginning of every udate
-		//thisapp->PushBackMissile(Missile(data.x, data.y, data.w, data.vx, data.vy, data.client_id));
+		if (!thisapp->IsExistingMissile(data.missile_id))
+			thisapp->EmplaceMissile(Missile(data.x, data.y, data.w,
+				data.vx, data.vy, data.missile_id, data.client_id));
+		else
+		{
+			if (!data.alive)
+				thisapp->GetMissiles().erase(data.missile_id);
+			else
+			{
+				Missile& missile = thisapp->GetMissile(data.missile_id);
+				missile.set_x(data.x);
+				missile.set_y(data.y);
+				missile.set_w(data.w);
+			}
+		}
 	}
 }
 

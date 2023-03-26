@@ -83,24 +83,20 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 						it.y += it.velocity_y * TANK_MOV_SPEED * data.frametime;
 
 						// check collision with every single missile
-						auto missile = g_missiles.begin();
-						while (missile != g_missiles.end())
+						for (auto& missile : g_missiles) 
 						{
-							if (missile->owner_id == it.client_id)
+							if (missile.owner_id == it.client_id)
 								continue;
-
+							
 							// check collision
 							// TODO: test values
 							AABBcollision::AABB tankAABB = {};
 							AABBcollision::AABB missileAABB = {};
 							if (AABBcollision::CheckCollision(tankAABB, missileAABB))
 							{
-								// if collided then set tanks's connected to false + remove collided missile from missiles container
-								missile = g_missiles.erase(missile);
+								missile.alive = false;
 								it.connected = false; // tank destroyed
 							}
-							else
-								++missile;
 						}
 
 						//wrap the positions
@@ -127,9 +123,11 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 
 						// if client shot missile
 						if (it.missile_shot)
-							g_missiles.push_back(Missile(it.x, it.y, it.w,
+						{
+							//std::cout << it.missile_shot << "<-missile shot\n";
+							g_missiles.push_back(Missile(it.x, it.y, it.turret_rotation,
 								missile_velX, missile_velY, it.client_id));
-						
+						}
 						it.latest_turret_seq_ID = data.turret_sequence_ID;
 						it.turret_input_queue.pop();
 					}
@@ -142,6 +140,16 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 				// update position of missile
 				missile.x += missile.velocity_x * timer;
 				missile.y += missile.velocity_y * timer;
+
+				if (missile.x > CLIENT_SCREEN_WIDTH)
+					missile.x -= CLIENT_SCREEN_WIDTH;
+				else if (missile.x < 0)
+					missile.x = CLIENT_SCREEN_WIDTH - missile.x;
+				if (missile.y > CLIENT_SCREEN_HEIGHT)
+					missile.y -= CLIENT_SCREEN_HEIGHT;
+				else if (missile.y < 0)
+					missile.y = CLIENT_SCREEN_HEIGHT - missile.y;
+
 				// no need to update w because missile will not change direction
 			}
 
@@ -162,6 +170,16 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 					for (const auto& it : g_missiles)
 						SendPacketProcess_Missile(it);
 				}
+			}
+
+			// remove destroyed missiles
+			auto missile = g_missiles.begin();
+			while (missile != g_missiles.end())
+			{
+				if (!missile->alive)
+					missile = g_missiles.erase(missile);
+				else
+					++missile;
 			}
 
 			server_timer = 0.f;
