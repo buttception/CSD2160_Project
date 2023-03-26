@@ -16,7 +16,7 @@
 #include <array>
 #include <thread>
 
-#include "AABBcollision.h"
+#include "collision.h"
 
 #ifdef _DEBUG
 #include <io.h>
@@ -89,11 +89,10 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 								continue;
 							
 							// check collision
-							// TODO: test values
-							AABBcollision::AABB tankAABB = {};
-							AABBcollision::AABB missileAABB = {};
-							if (AABBcollision::CheckCollision(tankAABB, missileAABB))
+							if (Collision::CheckCollision(Collision::Circle(it.x, it.y, 32.f ,it.velocity_x, it.velocity_y), 
+									Collision::Circle(missile.x, missile.y, 16.f, missile.velocity_x, missile.velocity_y)))
 							{
+								//std::cout << "collided\n";
 								missile.alive = false;
 								it.connected = false; // tank destroyed
 							}
