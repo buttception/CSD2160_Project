@@ -1,4 +1,5 @@
 #include "Movable.h"
+#include <globals.h>
 
 Movable::Movable()
 {
@@ -32,6 +33,9 @@ void Movable::stop_moving(void)
 
 void Movable::do_interpolate_update()
 {
+    if (!Global::application->isMechanism[Application::MCH_INTERPOLATE])
+        return;
+
     client_x_ = now_.x_;
     client_y_ = now_.y_;
     client_w_ = now_.w_;

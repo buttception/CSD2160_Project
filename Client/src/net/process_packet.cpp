@@ -157,7 +157,17 @@ namespace Net
 				if (temp.sequence_id == INT_MIN || temp.sequence_id <= data.sequence_id)
 				{
 					//std::cout << "DISCARDED PKT ID: " << temp.sequence_id << " I: "<< i << std::endl;
-					//if(Global::application->isMechanism[Application::MCH_RECONCILIATION])
+					if(!Global::application->isMechanism[Application::MCH_RECONCILIATION])
+					{
+						// for when the reconciliation is deactivated, clear the queue
+						// and save the same seq
+						if(temp.sequence_id == data.sequence_id)
+						{
+							thisapp->QueuedPlayerMovements.clear();
+							thisapp->QueuedPlayerMovements.push_back(temp);
+							break;
+						}
+					}
 					thisapp->QueuedPlayerMovements.pop_front();
 				}
 			}
@@ -214,6 +224,15 @@ namespace Net
 				if (temp.sequence_id == INT_MIN || temp.sequence_id <= data.sequence_id)
 				{
 					//std::cout << "DISCARDED PKT ID: " << temp.sequence_id << " I: "<< i << std::endl;
+					if (!Global::application->isMechanism[Application::MCH_RECONCILIATION])
+					{
+						if (temp.sequence_id == data.sequence_id)
+						{
+							thisapp->QueuedPlayerTurret.clear();
+							thisapp->QueuedPlayerTurret.push_back(temp);
+							break;
+						}
+					}
 					thisapp->QueuedPlayerTurret.pop_front();
 				}
 			}

@@ -164,6 +164,8 @@ bool Application::Update()
 	if (hge_->Input_GetKeyState(HGEK_1) && !isDown1)
 	{
 		isMechanism[MCH_CLIENT_PREDICTION] ^= true;
+		if (!isMechanism[MCH_CLIENT_PREDICTION])
+			isMechanism[MCH_RECONCILIATION] = false;
 		isDown1 = true;
 	}
 	else if(isDown1 && !hge_->Input_GetKeyState(HGEK_1))
