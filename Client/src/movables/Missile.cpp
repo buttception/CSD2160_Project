@@ -24,6 +24,7 @@ Missile::Missile(float _x, float _y, float _w, float _velX, float _velY, int _mi
 
 	missile_id = _missileID;
 	owner_id = _ownerID;
+	alive = true;
 }
 
 void Missile::Render()

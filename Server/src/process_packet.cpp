@@ -39,7 +39,6 @@ void ReceivedPacketProcess( struct CatNet::ProcessSession *ToProcessSession )
 			ReceivedPacketProcess_TankTurret(ToProcessSession);
 		}
 		break;
-
 		// TODO: Handle client leaving 
 	}
 }

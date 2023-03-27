@@ -148,7 +148,7 @@ bool Application::Init()
 bool Application::Update()
 {
 	float timedelta = hge_->Timer_GetDelta();
-
+	
 	if (missile_cooldown <= MISSILE_COOLDOWN)
 		missile_cooldown += timedelta;
 
@@ -338,7 +338,8 @@ void Application::Render()
 
 	for (auto& missile : missiles)
 	{
-		missile.second.Render();
+		if (missile.second.alive)
+			missile.second.Render();
 	}
 
 	// draw the buttons (client prediction, reconciliation, entity interpolation)

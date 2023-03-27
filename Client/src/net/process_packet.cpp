@@ -119,7 +119,7 @@ namespace Net
 
 		std::string enemy_name = "Enemy" + std::to_string(data.client_id);
 
-		Tank enemy;
+		Tank enemy("tank1.png");
 		enemy.player_name = enemy_name;
 		enemy.tank_id = data.client_id;
 		enemy.set_x(data.x);
@@ -263,15 +263,11 @@ namespace Net
 				data.vx, data.vy, data.missile_id, data.client_id));
 		else
 		{
-			if (!data.alive)
-				thisapp->GetMissiles().erase(data.missile_id);
-			else
-			{
-				Missile& missile = thisapp->GetMissile(data.missile_id);
-				missile.set_x(data.x);
-				missile.set_y(data.y);
-				missile.set_w(data.w);
-			}
+			Missile& missile = thisapp->GetMissile(data.missile_id);
+			missile.set_x(data.x);
+			missile.set_y(data.y);
+			missile.set_w(data.w);
+			missile.alive = data.alive;
 		}
 	}
 
@@ -287,8 +283,6 @@ namespace Net
 			// Update my tank.
 			tank = &thisapp->GetPlayer();
 			tank->active = data.active;
-			if (!tank->active)
-				thisapp->GetMissiles().clear();
 		}
 		else
 		{
@@ -306,8 +300,6 @@ namespace Net
 			if (tank != nullptr)
 			{
 				tank->active = data.active;
-				if (!tank->active)
-					thisapp->GetMissiles().clear();
 			}
 		}
 	}

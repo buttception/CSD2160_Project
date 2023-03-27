@@ -18,6 +18,13 @@ struct Tank
 		float angle;
 		bool missile_shot;
 	};
+	
+	struct MissileData
+	{
+		int turret_sequence_ID;
+		float angle;
+		bool missile_shot;
+	};
 
 	bool connected;
 	int client_id;
@@ -26,6 +33,7 @@ struct Tank
 
 	mutable std::queue<InputData> input_queue;	// Queue of all to-be-processed sequence IDs for tank movement.
 	mutable std::queue<TurretInputData> turret_input_queue;	// Queue of all to-be-processed sequence IDs for tank turret rotation.
+	mutable std::queue<MissileData> missile_queue;	// Queue of all to-be-processed sequence IDs for tank turret rotation.
 
 	float x, y, w;
 	float velocity_x, velocity_y;
