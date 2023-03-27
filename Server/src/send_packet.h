@@ -15,5 +15,6 @@ void SendPacketProcess_Disconnect(const int& sessionID);
 void SendPacketProcess_TankMovement(const Tank& Tank);
 void SendPacketProcess_TankTurret(const Tank& tank);
 void SendPacketProcess_Missile(const Missile& missile);
+void SendPacketProcess_TankState(const Tank& missile);
 
 #endif

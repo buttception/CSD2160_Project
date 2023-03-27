@@ -280,8 +280,8 @@ bool Application::Update()
 		player.throttle = 0;
 	}
 
-	// Missile shot
-	if (hge_->Input_GetKeyState(HGEK_LBUTTON) && missile_cooldown >= MISSILE_COOLDOWN)
+	// Missile shot CHANGED TO RMB FOR NOW JUST SO I CAN TEST PROPERLY
+	if (hge_->Input_GetKeyState(HGEK_RBUTTON) && missile_cooldown >= MISSILE_COOLDOWN)
 	{
 		player.missile_shot = true;
 		missile_cooldown = 0.f;

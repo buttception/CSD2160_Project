@@ -37,6 +37,9 @@ namespace CatNet
 		case PACKET_ID_S2C_MISSILE:
 			return sizeof(PKT_S2C_Missile);
 			break;
+		case PACKET_ID_S2C_TANKSTATE:
+			return sizeof(PKT_S2C_TankState);
+			break;
 		case PACKET_ID_S2C_END:
 			return 0;
 			break;

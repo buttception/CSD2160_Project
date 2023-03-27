@@ -130,3 +130,15 @@ void SendPacketProcess_Missile(const Missile& missile)
 	NetObj.SendPacketToAll(movement_update_packet);
 }
 
+void SendPacketProcess_TankState(const Tank& tank)
+{
+	CatNet::PacketMessage movement_update_packet;
+	int id = PACKET_ID_S2C_TANKSTATE;
+	movement_update_packet << id;
+
+	PKT_S2C_TankState movement;
+	movement.client_id = tank.client_id;
+	movement.active = tank.active;
+	movement_update_packet << movement;
+	NetObj.SendPacketToAll(movement_update_packet);
+}

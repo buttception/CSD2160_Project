@@ -54,6 +54,7 @@ void ReceivedPacketProcess_EnterGame(CatNet::ProcessSession* ToProcessSession)
 	g_Tanks[client_id].client_id = client_id;
 	g_Tanks[client_id].x = data.x;
 	g_Tanks[client_id].y = data.y;
+	g_Tanks[client_id].active = true;
 
 	// Send Ack.
 	CatNet::PacketMessage EnterGameAckPacket;

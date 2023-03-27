@@ -17,7 +17,7 @@ extern void log( char *szFormat, ... );
 
 namespace Net
 {
-	bool InitNetwork( void )
+	bool InitNetwork(void)
 	{
 		//return NetObj.InitNet( CatNet::APP_TYPE::APPTYPE_CLIENT, CatNet::PROTOCOL_TYPE::PROTOCOL_TCP, "127.0.0.1", 3456 );
 		return NetObj.InitNet(2, 1, "127.0.0.1", 5050);
@@ -34,7 +34,7 @@ namespace Net
 		// NetLib Step 7. Message Loop.
 		//         Check any message from server and process.
 		while (nullptr != (ToProcessSession = NetObj.GetProcessList()->GetFirstSession()))
-		{ 
+		{
 			// Something recevied from network.
 			int PacketID;
 			CatNet::PacketMessage temp;
@@ -80,6 +80,9 @@ namespace Net
 					break;
 				case PACKET_ID_S2C_MISSILE:
 					UpdateMissile(thisapp, ToProcessSession);
+					break;
+				case PACKET_ID_S2C_TANKSTATE:
+					UpdateTankState(thisapp, ToProcessSession);
 					break;
 				}
 			}
@@ -131,13 +134,13 @@ namespace Net
 		ToProcessSessoin->m_PacketMessage >> data;
 		//clear the enemy tank that got disconnected
 
-		for (auto i = thisapp->GetClients().begin(); i != thisapp->GetClients().end(); ) 
+		for (auto i = thisapp->GetClients().begin(); i != thisapp->GetClients().end(); )
 		{
-			if (i->tank_id == data.id) 
+			if (i->tank_id == data.id)
 			{
 				i = thisapp->GetClients().erase(i);
 			}
-			else 
+			else
 			{
 				++i;
 			}
@@ -152,7 +155,7 @@ namespace Net
 
 		Tank* tank{};
 		if (thisapp->GetPlayer().tank_id == data.client_id)
-		{ 
+		{
 			// Update my tank.
 			tank = &thisapp->GetPlayer();
 
@@ -177,7 +180,7 @@ namespace Net
 			//		  << "] to [" << tank->get_server_x() << ", " << tank->get_server_y() << ", " << tank->get_server_w() << "]\n";
 		}
 		else
-		{ 
+		{
 			// Look for matching connected client.
 			for (auto& it : thisapp->GetClients())
 			{
@@ -200,7 +203,7 @@ namespace Net
 			}
 		}
 	}
-	
+
 	//-------------------------------------------------------------------------
 	void UpdateTankTurret(Application* thisapp, CatNet::ProcessSession* ToProcessSession)
 	{
@@ -248,11 +251,12 @@ namespace Net
 		}
 	}
 
+	//-------------------------------------------------------------------------
 	void UpdateMissile(Application* thisapp, CatNet::ProcessSession* ToProcessSession)
 	{
 		PKT_S2C_Missile data;
 		ToProcessSession->m_PacketMessage >> data;
-		
+
 		// Add to missiles vector, missiles vector cleared at beginning of every udate
 		if (!thisapp->IsExistingMissile(data.missile_id))
 			thisapp->EmplaceMissile(Missile(data.x, data.y, data.w,
@@ -270,5 +274,41 @@ namespace Net
 			}
 		}
 	}
-}
 
+	//-------------------------------------------------------------------------
+	void UpdateTankState(Application* thisapp, CatNet::ProcessSession* ToProcessSession)
+	{
+		PKT_S2C_TankState data;
+		ToProcessSession->m_PacketMessage >> data;
+
+		Tank* tank{};
+		if (thisapp->GetPlayer().tank_id == data.client_id)
+		{
+			// Update my tank.
+			tank = &thisapp->GetPlayer();
+			tank->active = data.active;
+			if (!tank->active)
+				thisapp->GetMissiles().clear();
+		}
+		else
+		{
+			// Look for matching connected client.
+			for (auto& it : thisapp->GetClients())
+			{
+				if (it.tank_id == data.client_id)
+				{
+					tank = &it;
+					break;
+				}
+			}
+
+			// Update other tank.
+			if (tank != nullptr)
+			{
+				tank->active = data.active;
+				if (!tank->active)
+					thisapp->GetMissiles().clear();
+			}
+		}
+	}
+}

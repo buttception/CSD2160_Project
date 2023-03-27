@@ -95,7 +95,7 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 							{
 								//std::cout << "collided\n";
 								missile.alive = false;
-								it.connected = false; // tank destroyed
+								it.active = false; // tank destroyed
 							}
 						}
 
@@ -174,14 +174,21 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 					// send packet for missiles to client
 					for (const auto& it : g_missiles)
 						SendPacketProcess_Missile(it);
+					
+					SendPacketProcess_TankState(it);
+					if (!it.active)
+					{
+						it.connected = false;
+						SendPacketProcess_Disconnect(it.client_id);
+					}
 				}
 			}
 
-			// remove destroyed missiles
+			// remove destroyed missiles and missiles of disconnected clients
 			auto missile = g_missiles.begin();
 			while (missile != g_missiles.end())
 			{
-				if (!missile->alive)
+				if (!missile->alive || !NetObj.GetSessionList()->CheckIndex(missile->owner_id))
 					missile = g_missiles.erase(missile);
 				else
 					++missile;
