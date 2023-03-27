@@ -209,14 +209,6 @@ bool Application::Update()
 		velY = sin(rotW) * (float)temp.throttle;
 		posX += velX * TANK_MOV_SPEED * temp.frameTime;
 		posY += velY * TANK_MOV_SPEED * temp.frameTime;
-		if (posX > CLIENT_SCREEN_WIDTH)
-			posX -= CLIENT_SCREEN_WIDTH;
-		else if (posX < 0)
-			posX = CLIENT_SCREEN_WIDTH - posX;
-		if (posY > CLIENT_SCREEN_HEIGHT)
-			posY -= CLIENT_SCREEN_HEIGHT;
-		else if (posY < 0)
-			posY = CLIENT_SCREEN_HEIGHT - posY;
 	}
 
 	// This will be the new client prediction
@@ -231,17 +223,23 @@ bool Application::Update()
 	// X-axis.
 	if (abs(newX - player.get_client_x()) > FLT_EPSILON)
 	{
-		newX = Interpolate(newX, player.get_client_x(), 0.2f);
+		if (abs(newX - player.get_client_x()) < CLIENT_SCREEN_WIDTH)
+			newX = Interpolate(newX, player.get_client_x(), 0.1f);
+		else 
+			newX = player.get_client_x();
 	}
 	// Y-Axis.
 	if (abs(newY - player.get_client_y()) > FLT_EPSILON)
 	{
-		newY = Interpolate( newY, player.get_client_y(), 0.2f);
+		if (abs(newY - player.get_client_y()) < CLIENT_SCREEN_HEIGHT)
+			newY = Interpolate(newY, player.get_client_y(), 0.1f);
+		else
+			newY = player.get_client_y();
 	}
 	// Rotation.
 	if (abs(newW - player.get_client_w()) > FLT_EPSILON)
 	{
-		newW = Interpolate(newW, player.get_client_w(), 0.2f);
+		newW = Interpolate(newW, player.get_client_w(), 0.1f);
 	}
 	player.set_x(newX);
 	player.set_y(newY);
@@ -251,6 +249,7 @@ bool Application::Update()
 	float mouseX, mouseY;
 	hge_->Input_GetMousePos(&mouseX, &mouseY);
 	const float angle = atan2f(mouseY - player.get_y(), mouseX - player.get_x());
+	player.turret_rotation = angle;
 
 	// Rotate tank left/right.
 	if (hge_->Input_GetKeyState(HGEK_A))
@@ -312,6 +311,13 @@ bool Application::Update()
 	for (auto& tank : clients)
 	{
 		tank.Update(timedelta, tank.sprite_->GetWidth(), tank.sprite_->GetHeight());
+	}
+
+	// OTHER MISSILES
+	for(auto& missile : missiles)
+	{
+		if(missile.second.alive)
+			missile.second.Update(timedelta, missile.second.sprite_->GetWidth(), missile.second.sprite_->GetHeight());
 	}
 
 	return false;

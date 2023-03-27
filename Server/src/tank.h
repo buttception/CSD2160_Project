@@ -39,9 +39,9 @@ struct Tank
 	float velocity_x, velocity_y;
 	float angular_velocity;
 	float turret_rotation;
+	float sprite_size_x, sprite_size_y;
 	bool missile_shot;
 	bool active;
-	float half_extends;
 
 	int hp;
 	int max_hp;

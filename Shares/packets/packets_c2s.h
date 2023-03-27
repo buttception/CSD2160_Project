@@ -35,6 +35,7 @@ struct PKT_C2S_INPUTBASE : PKT_C2S_BASE
 struct PKT_C2S_EnterGame : PKT_C2S_BASE
 {
 	float x, y;
+	float sprite_size_x, sprite_size_y;
 };
 
 struct PKT_C2S_TankMovement : PKT_C2S_INPUTBASE

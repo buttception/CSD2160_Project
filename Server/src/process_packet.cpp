@@ -53,6 +53,8 @@ void ReceivedPacketProcess_EnterGame(CatNet::ProcessSession* ToProcessSession)
 	g_Tanks[client_id].client_id = client_id;
 	g_Tanks[client_id].x = data.x;
 	g_Tanks[client_id].y = data.y;
+	g_Tanks[client_id].sprite_size_x = data.sprite_size_x;
+	g_Tanks[client_id].sprite_size_y = data.sprite_size_y;
 	g_Tanks[client_id].active = true;
 
 	// Send Ack.

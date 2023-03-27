@@ -59,7 +59,9 @@ bool Movable::Update(float timedelta, float spritewidth, float spriteheight)
     if (get_client_w() > pi)   set_client_w(get_client_w() - pi);
     if (get_client_w() < 0.0f) set_client_w(get_client_w() + pi);
 
-    set_w((get_ratio() * get_server_w()) + ((1 - get_ratio()) * get_client_w()));
+    float x = get_ratio() * cos(get_server_w()) + (1 - get_ratio()) * cos(get_client_w());
+    float y = get_ratio() * sin(get_server_w()) + (1 - get_ratio()) * sin(get_client_w());
+    set_w(atan2f(y, x));
     if (get_w() > pi)   set_w(get_w() - pi);
     if (get_w() < 0.0f) set_w(get_w() + pi);
 

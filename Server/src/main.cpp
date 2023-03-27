@@ -22,6 +22,8 @@
 #include <io.h>
 #endif
 
+constexpr float pi_2 = 3.14159265359f * 2.f;
+
 CatNet::ServerNetwork NetObj;
 std::array<Tank, MAX_CLIENT_CONNECTION + 1> g_Tanks;
 std::vector<Missile> g_missiles;
@@ -78,6 +80,8 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 						Tank::InputData data = it.input_queue.front();
 						it.angular_velocity = (float)data.rotate * TANK_ROT_SPEED;
 						it.w += it.angular_velocity * data.frametime;
+						if (it.w > pi_2)   it.w -= pi_2;
+						if (it.w < 0.0f) it.w += pi_2;
 						it.velocity_x = cos(it.w) * (float)data.throttle;
 						it.velocity_y = sin(it.w) * (float)data.throttle;
 						it.x += it.velocity_x * TANK_MOV_SPEED * data.frametime;
@@ -100,14 +104,14 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 						}
 
 						//wrap the positions
-						if (it.x > CLIENT_SCREEN_WIDTH)
-							it.x -= CLIENT_SCREEN_WIDTH;
-						else if (it.x < 0)
-							it.x = CLIENT_SCREEN_WIDTH - it.x;
-						if (it.y > CLIENT_SCREEN_HEIGHT)
-							it.y -= CLIENT_SCREEN_HEIGHT;
-						else if (it.y < 0)
-							it.y = CLIENT_SCREEN_HEIGHT - it.y;
+						if (it.x > CLIENT_SCREEN_WIDTH + it.sprite_size_x / 2.f)
+							it.x -= CLIENT_SCREEN_WIDTH + it.sprite_size_x;
+						else if (it.x < - it.sprite_size_x / 2.f)
+							it.x += CLIENT_SCREEN_WIDTH + it.sprite_size_x;
+						if (it.y > CLIENT_SCREEN_HEIGHT + it.sprite_size_y / 2.f)
+							it.y -= CLIENT_SCREEN_HEIGHT + it.sprite_size_y;
+						else if (it.y < -it.sprite_size_y / 2.f)
+							it.y += CLIENT_SCREEN_HEIGHT + it.sprite_size_y;
 						it.latest_sequence_ID = data.movement_sequence_ID;
 						it.input_queue.pop();
 					}

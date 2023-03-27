@@ -264,9 +264,12 @@ namespace Net
 		else
 		{
 			Missile& missile = thisapp->GetMissile(data.missile_id);
-			missile.set_x(data.x);
-			missile.set_y(data.y);
-			missile.set_w(data.w);
+			missile.set_server_x(data.x);
+			missile.set_server_y(data.y);
+			missile.set_server_w(data.w);
+			missile.set_server_velocity_x(data.vx);
+			missile.set_server_velocity_y(data.vy);
+			missile.do_interpolate_update();
 			missile.alive = data.alive;
 		}
 	}
