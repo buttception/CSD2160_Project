@@ -31,6 +31,7 @@ Tank::Tank()
 	set_ratio(1.0f);
 
 	turret_rotation = server_turret_rot = client_turret_rot = 0.f;
+	active = false;
 }
 
 void Tank::Render()

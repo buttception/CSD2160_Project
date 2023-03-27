@@ -14,6 +14,7 @@ namespace Net
     void send_packet_movement(Tank& tank, float deltaTime, PKT_C2S_TankMovement& pkt);
     void send_packet_turret_angle(Tank& me, float deltaTime, const float& angle, PKT_C2S_TankTurret& pkt);
     void send_packet_disconnect(Tank& tank);
+    void send_packet_click_start(Tank& tank);
 }
 
 #endif

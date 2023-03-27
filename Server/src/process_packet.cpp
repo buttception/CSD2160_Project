@@ -39,11 +39,15 @@ void ReceivedPacketProcess( struct CatNet::ProcessSession *ToProcessSession )
 			ReceivedPacketProcess_TankTurret(ToProcessSession);
 		}
 		break;
-
 		// TODO: Handle client leaving
 		case PACKET_ID_C2S_DISCONNECT:
 		{
 			ReceivedPacketProcess_Disconnect(ToProcessSession);
+		}
+		break;
+		case PACKET_ID_C2S_CLICKSTART:
+		{
+			ReceivedPacketProcess_ClickStart(ToProcessSession);
 		}
 		break;
 	}
@@ -120,4 +124,14 @@ void ReceivedPacketProcess_Disconnect(CatNet::ProcessSession* ToProcessSession)
 	ToProcessSession->m_PacketMessage >> data;
 
 	g_Tanks[client_id].connected = false;
+}
+
+void ReceivedPacketProcess_ClickStart(CatNet::ProcessSession* ToProcessSession)
+{
+	int client_id = ToProcessSession->m_SessionIndex;
+	PKT_C2S_ClickStart data;
+	ToProcessSession->m_PacketMessage >> data;
+
+	g_Tanks[client_id].active = data.active;
+	SendPacketProcess_ClickStart(client_id, data.active);
 }

@@ -51,7 +51,8 @@ namespace Net
 					WelcomeMessage(thisapp, ToProcessSession);
 					break;
 				case PACKET_ID_S2C_ENTERGAMEOK:
-					thisapp->SetGameState(GAMESTATE_INPLAY);
+					//thisapp->SetGameState(GAMESTATE_INPLAY);
+					thisapp->SetGameState(GAMESTATE_MENU);
 					break;
 				case PACKET_ID_S2C_FULLGAME:
 					std::cout << "\nGame is full\n";
@@ -59,7 +60,7 @@ namespace Net
 				}
 			}
 			break;
-
+			case GAMESTATE_MENU:
 			case GAMESTATE_INPLAY:
 			{
 				switch (PacketID)
@@ -78,6 +79,9 @@ namespace Net
 					break;
 				case PACKET_ID_S2C_TANKTURRET:
 					UpdateTankTurret(thisapp, ToProcessSession);
+					break;
+				case PACKET_ID_S2C_CLICKSTART:
+					ClickedStart(thisapp, ToProcessSession);
 					break;
 				}
 			}
@@ -261,6 +265,20 @@ namespace Net
 				tank->server_turret_rot = data.angle;
 				if(Global::application->isMechanism[Application::MCH_INTERPOLATE])
 				tank->client_turret_rot = tank->turret_rotation;
+			}
+		}
+	}
+
+	void ClickedStart(Application* thisapp, CatNet::ProcessSession* ToProcessSession)
+	{
+		PKT_S2C_ClickStart data;
+		ToProcessSession->m_PacketMessage >> data;
+		//clear the enemy tank that got disconnected
+		for (auto i = thisapp->GetClients().begin(); i != thisapp->GetClients().end(); ++i)
+		{
+			if (i->tank_id == data.client_id)
+			{
+				i->active = data.active;
 			}
 		}
 	}

@@ -121,3 +121,17 @@ void SendPacketProcess_TankTurret(const Tank& tank)
 
 	NetObj.SendPacketToAll(turret_update_packet);
 }
+
+void SendPacketProcess_ClickStart(const int& sessionID, const bool& active)
+{
+	CatNet::PacketMessage click_start_packet;
+	int id = PACKET_ID_S2C_CLICKSTART;
+	click_start_packet << id;
+
+	PKT_S2C_ClickStart data;
+	data.client_id = sessionID;
+	data.active = active;
+	click_start_packet << data;
+
+	NetObj.SendPacketToAll(click_start_packet);
+}

@@ -18,6 +18,7 @@ struct Tank
 		float angle;
 	};
 
+	bool active;
 	bool connected;
 	int client_id;
 	int latest_sequence_ID;

@@ -112,11 +112,16 @@ bool Application::Init()
 	green = SETB(green, 0);
 	green = SETA(green, 255);
 
+	color = ARGB(255, 125, 0, 0);
+
 	button = new hgeSprite(0, 0, 0, 64, 32);
 	button->SetTexture(0);
 
 	buttonFont = new hgeFont("font1.fnt");
 	buttonFont->SetScale(0.5);
+
+	menuPos[0] = pos{ CLIENT_SCREEN_WIDTH * 0.5f, CLIENT_SCREEN_HEIGHT * 0.5f };
+	menuPos[1] = pos{ CLIENT_SCREEN_WIDTH * 0.5f, CLIENT_SCREEN_HEIGHT * 0.5f  + 64};
 
 	player = Tank();
 
@@ -153,208 +158,239 @@ bool Application::Update()
 	if (hge_->Input_GetKeyState(HGEK_ESCAPE))
 		return true;
 
+	static bool isLClick = false;
+	if (hge_->Input_GetKeyState(HGEK_LBUTTON) && !isLClick)
+	{
+		isLClick = true;
+		if(GAMESTATE_INPLAY == GetGameState())
+		{
+			for (int i{}; i < 3; ++i)
+			{
+				float x = static_cast<float>(10 * i + i * 64), y = 10;
+				if (ButtonCollision(x, y, 64, 32))
+				{
+					isMechanism[i] ^= true;
+					if (i == MCH_CLIENT_PREDICTION && !isMechanism[MCH_CLIENT_PREDICTION])
+						isMechanism[MCH_RECONCILIATION] = false;
+					else if (i == MCH_RECONCILIATION && isMechanism[MCH_RECONCILIATION])
+						isMechanism[MCH_CLIENT_PREDICTION] = true;
+				}
+			}
+		}
+		else if(GAMESTATE_MENU == GetGameState())
+		{
+			for(int i{}; i < 2; ++i)
+			{
+				if (ButtonCollision(menuPos[i].x, menuPos[i].y, 64, 32))
+				{
+					if(i == 0)
+					{
+						//enter game
+						player.active = true;
+						SetGameState(GAMESTATE_INPLAY);
+						//send to server to say this client is in play state
+						Net::send_packet_click_start(player);
+					}
+					else
+					{
+						return true; //quit
+					}
+				}
+			}
+		}
+	}
+	else if (!hge_->Input_GetKeyState(HGEK_LBUTTON) && isLClick)
+	{
+		isLClick = false;
+	}
+
 	if(GAMESTATE_MENU == GetGameState())
 	{
 		
 	}
-
-	if (GAMESTATE_INPLAY != GetGameState())
-		return false;
-
-	// set the flags for client prediction/recon/interpo
-	static bool isDown1 = false;
-	static bool isDown2 = false;
-	static bool isDown3 = false;
-	if (hge_->Input_GetKeyState(HGEK_1) && !isDown1)
+	else if (GAMESTATE_INPLAY == GetGameState())
 	{
-		isMechanism[MCH_CLIENT_PREDICTION] ^= true;
-		if (!isMechanism[MCH_CLIENT_PREDICTION])
-			isMechanism[MCH_RECONCILIATION] = false;
-		isDown1 = true;
-	}
-	else if(isDown1 && !hge_->Input_GetKeyState(HGEK_1))
-	{
-		isDown1 = false;
-	}
-	if (hge_->Input_GetKeyState(HGEK_2) && !isDown2)
-	{
-		isMechanism[MCH_RECONCILIATION] ^= true;
-		if (isMechanism[MCH_RECONCILIATION])
-			isMechanism[MCH_CLIENT_PREDICTION] = true;
-		isDown2 = true;
-	}
-	else if(isDown2 && !hge_->Input_GetKeyState(HGEK_2))
-	{
-		isDown2 = false;
-	}
-	if (hge_->Input_GetKeyState(HGEK_3) && !isDown3)
-	{
-		isMechanism[MCH_INTERPOLATE] ^= true;
-		isDown3 = true;
-	}
-	else if(isDown3 && !hge_->Input_GetKeyState(HGEK_3))
-	{
-		isDown3 = false;
-	}
-
-	if(hge_->Input_GetKeyState(HGEK_LBUTTON))
-	{
-		for(int i{}; i < 3; ++i)
+		// set the flags for client prediction/recon/interpo
+		static bool isDown1 = false;
+		static bool isDown2 = false;
+		static bool isDown3 = false;
+		if (hge_->Input_GetKeyState(HGEK_1) && !isDown1)
 		{
-			float x = static_cast<float>(10 * i + i * 64), y = 10;
-			if(ButtonCollision(x,y,64,32))
+			isMechanism[MCH_CLIENT_PREDICTION] ^= true;
+			if (!isMechanism[MCH_CLIENT_PREDICTION])
+				isMechanism[MCH_RECONCILIATION] = false;
+			isDown1 = true;
+		}
+		else if (isDown1 && !hge_->Input_GetKeyState(HGEK_1))
+		{
+			isDown1 = false;
+		}
+		if (hge_->Input_GetKeyState(HGEK_2) && !isDown2)
+		{
+			isMechanism[MCH_RECONCILIATION] ^= true;
+			if (isMechanism[MCH_RECONCILIATION])
+				isMechanism[MCH_CLIENT_PREDICTION] = true;
+			isDown2 = true;
+		}
+		else if (isDown2 && !hge_->Input_GetKeyState(HGEK_2))
+		{
+			isDown2 = false;
+		}
+		if (hge_->Input_GetKeyState(HGEK_3) && !isDown3)
+		{
+			isMechanism[MCH_INTERPOLATE] ^= true;
+			isDown3 = true;
+		}
+		else if (isDown3 && !hge_->Input_GetKeyState(HGEK_3))
+		{
+			isDown3 = false;
+		}
+
+		// Apply reconciliation.
+		float rotW;
+		float velX, velY;
+		float posX, posY;
+		posX = player.get_server_x();	// Extrapolate client's position based off server's authoritative "you are here" position.
+		posY = player.get_server_y();	// Extrapolate client's position based off server's authoritative "you are here" position.
+		rotW = player.get_server_w();	// Extrapolate client's rotation based off server's authoritative "you are here" rotation.
+
+		if (isMechanism[MCH_CLIENT_PREDICTION])
+		{
+			for (const auto& temp : this->QueuedPlayerMovements)
 			{
-				isMechanism[i] ^= true;
-				if (!isMechanism[MCH_CLIENT_PREDICTION])
-					isMechanism[MCH_RECONCILIATION] = false;
+				rotW += (float)temp.rotate * TANK_ROT_SPEED * temp.frameTime;
+				velX = cos(rotW) * (float)temp.throttle;
+				velY = sin(rotW) * (float)temp.throttle;
+				posX += velX * TANK_MOV_SPEED * temp.frameTime;
+				posY += velY * TANK_MOV_SPEED * temp.frameTime;
+				if (posX > CLIENT_SCREEN_WIDTH)
+					posX -= CLIENT_SCREEN_WIDTH;
+				else if (posX < 0)
+					posX = CLIENT_SCREEN_WIDTH - posX;
+				if (posY > CLIENT_SCREEN_HEIGHT)
+					posY -= CLIENT_SCREEN_HEIGHT;
+				else if (posY < 0)
+					posY = CLIENT_SCREEN_HEIGHT - posY;
 			}
 		}
-	}
 
-	// Apply reconciliation.
-	float rotW;
-	float velX, velY;
-	float posX, posY;
-	posX = player.get_server_x();	// Extrapolate client's position based off server's authoritative "you are here" position.
-	posY = player.get_server_y();	// Extrapolate client's position based off server's authoritative "you are here" position.
-	rotW = player.get_server_w();	// Extrapolate client's rotation based off server's authoritative "you are here" rotation.
+		// This will be the new client prediction
+		player.set_client_x(posX);
+		player.set_client_y(posY);
+		player.set_client_w(rotW);
 
-	if(isMechanism[MCH_CLIENT_PREDICTION])
-	{
-		for (const auto& temp : this->QueuedPlayerMovements)
+		float newX{ posX }, newY{ posY }, newW{ rotW };
+		// old predicted position is the current player position
+		if (isMechanism[MCH_INTERPOLATE])
 		{
-			rotW += (float)temp.rotate * TANK_ROT_SPEED * temp.frameTime;
-			velX = cos(rotW) * (float)temp.throttle;
-			velY = sin(rotW) * (float)temp.throttle;
-			posX += velX * TANK_MOV_SPEED * temp.frameTime;
-			posY += velY * TANK_MOV_SPEED * temp.frameTime;
-			if (posX > CLIENT_SCREEN_WIDTH)
-				posX -= CLIENT_SCREEN_WIDTH;
-			else if (posX < 0)
-				posX = CLIENT_SCREEN_WIDTH - posX;
-			if (posY > CLIENT_SCREEN_HEIGHT)
-				posY -= CLIENT_SCREEN_HEIGHT;
-			else if (posY < 0)
-				posY = CLIENT_SCREEN_HEIGHT - posY;
+			newX = player.get_x();
+			newY = player.get_y();
+			newW = player.get_w();
+
+			// X-axis.
+			if (abs(newX - player.get_client_x()) > FLT_EPSILON)
+			{
+				newX = Interpolate(newX, player.get_client_x(), 0.2f);
+			}
+			// Y-Axis.
+			if (abs(newY - player.get_client_y()) > FLT_EPSILON)
+			{
+				newY = Interpolate(newY, player.get_client_y(), 0.2f);
+			}
+			// Rotation.
+			if (abs(newW - player.get_client_w()) > FLT_EPSILON)
+			{
+				newW = Interpolate(newW, player.get_client_w(), 0.2f);
+			}
+		}
+
+		player.set_x(newX);
+		player.set_y(newY);
+		player.set_w(newW);
+
+		// TODO: Aim turret with mouse cursor.
+		float mouseX, mouseY;
+		hge_->Input_GetMousePos(&mouseX, &mouseY);
+		const float angle = atan2f(mouseY - player.get_y(), mouseX - player.get_x());
+		// reconciliation
+		float turrRot = player.server_turret_rot;
+		if (isMechanism[MCH_CLIENT_PREDICTION])
+		{
+			for (const auto& temp : this->QueuedPlayerTurret)
+			{
+				turrRot = temp.angle;
+			}
+		}
+
+		// client predication
+		player.client_turret_rot = turrRot;
+
+		// old prediction
+		//float newTurrRot = player.turret_rotation;
+		float newTurrRot = turrRot;
+		// Turret Rotation.
+		if (isMechanism[MCH_INTERPOLATE])
+		{
+			newTurrRot = player.turret_rotation;
+			if (abs(newTurrRot - player.client_turret_rot) > FLT_EPSILON)
+			{
+				newTurrRot = Interpolate(newTurrRot, player.client_turret_rot, 0.2f);
+			}
+		}
+		player.turret_rotation = newTurrRot;
+
+		// Rotate tank left/right.
+		if (hge_->Input_GetKeyState(HGEK_A))
+		{
+			player.rotate = -1;
+		}
+		else if (hge_->Input_GetKeyState(HGEK_D))
+		{
+			player.rotate = 1;
+		}
+		else
+		{
+			player.rotate = 0;
+		}
+
+		// Move tank forward/back.
+		if (hge_->Input_GetKeyState(HGEK_S))
+		{
+			player.throttle = -1;
+		}
+		else if (hge_->Input_GetKeyState(HGEK_W))
+		{
+			player.throttle = 1;
+		}
+		else
+		{
+			player.throttle = 0;
+		}
+
+		// Store inputs into buffer.
+		PKT_C2S_TankMovement movePkt;
+		PKT_C2S_TankTurret turretPkt;
+		movePkt.sequence_id = INT_MIN;		// Set seq ID to invalid state, to check if send_packet has actually set it or not.
+		turretPkt.sequence_id = INT_MIN;	// Set seq ID to invalid state, to check if send_packet has actually set it or not.
+
+		// Server should handle the simulation, client only sends input data.
+		Net::send_packet_movement(player, timedelta, movePkt);
+		Net::send_packet_turret_angle(player, timedelta, angle, turretPkt);
+
+		// Store inputs for (Truth and) Reconciliation.
+		if (movePkt.sequence_id != INT_MIN)
+			QueuedPlayerMovements.push_back(movePkt);
+		if (turretPkt.sequence_id != INT_MIN)
+			QueuedPlayerTurret.push_back(turretPkt);
+
+
+		// OTHER CLIENTS
+		for (auto& tank : clients)
+		{
+			if(tank.active)
+			tank.Update(timedelta, tank.sprite_->GetWidth(), tank.sprite_->GetHeight());
 		}
 	}
-
-	// This will be the new client prediction
-	player.set_client_x(posX);
-	player.set_client_y(posY);
-	player.set_client_w(rotW);
-
-	float newX{ posX }, newY{ posY }, newW{ rotW };
-	// old predicted position is the current player position
-	if(isMechanism[MCH_INTERPOLATE])
-	{
-		newX = player.get_x();
-		newY = player.get_y();
-		newW = player.get_w();
-
-		// X-axis.
-		if (abs(newX - player.get_client_x()) > FLT_EPSILON)
-		{
-			newX = Interpolate(newX, player.get_client_x(), 0.2f);
-		}
-		// Y-Axis.
-		if (abs(newY - player.get_client_y()) > FLT_EPSILON)
-		{
-			newY = Interpolate(newY, player.get_client_y(), 0.2f);
-		}
-		// Rotation.
-		if (abs(newW - player.get_client_w()) > FLT_EPSILON)
-		{
-			newW = Interpolate(newW, player.get_client_w(), 0.2f);
-		}
-	}
-
-	player.set_x(newX);
-	player.set_y(newY);
-	player.set_w(newW);
-
-	// TODO: Aim turret with mouse cursor.
-	float mouseX, mouseY;
-	hge_->Input_GetMousePos(&mouseX, &mouseY);
-	const float angle = atan2f(mouseY - player.get_y(), mouseX - player.get_x());
-	// reconciliation
-	float turrRot = player.server_turret_rot;
-	if(isMechanism[MCH_CLIENT_PREDICTION])
-	{
-		for (const auto& temp : this->QueuedPlayerTurret)
-		{
-			turrRot = temp.angle;
-		}
-	}
-	
-	// client predication
-	player.client_turret_rot = turrRot;
-
-	// old prediction
-	//float newTurrRot = player.turret_rotation;
-	float newTurrRot = turrRot;
-	// Turret Rotation.
-	if (isMechanism[MCH_INTERPOLATE])
-	{
-		newTurrRot = player.turret_rotation;
-		if (abs(newTurrRot - player.client_turret_rot) > FLT_EPSILON)
-		{
-			newTurrRot = Interpolate(newTurrRot, player.client_turret_rot, 0.2f);
-		}
-	}
-	player.turret_rotation = newTurrRot;
-
-	// Rotate tank left/right.
-	if (hge_->Input_GetKeyState(HGEK_A))
-	{
-		player.rotate = -1;
-	}
-	else if (hge_->Input_GetKeyState(HGEK_D))
-	{
-		player.rotate = 1;
-	}
-	else
-	{
-		player.rotate = 0;
-	}
-
-	// Move tank forward/back.
-	if (hge_->Input_GetKeyState(HGEK_S))
-	{
-		player.throttle = -1;
-	}
-	else if (hge_->Input_GetKeyState(HGEK_W))
-	{
-		player.throttle = 1;
-	}
-	else
-	{
-		player.throttle = 0;
-	}
-
-	// Store inputs into buffer.
-	PKT_C2S_TankMovement movePkt;
-	PKT_C2S_TankTurret turretPkt;
-	movePkt.sequence_id = INT_MIN;		// Set seq ID to invalid state, to check if send_packet has actually set it or not.
-	turretPkt.sequence_id = INT_MIN;	// Set seq ID to invalid state, to check if send_packet has actually set it or not.
-	
-	// Server should handle the simulation, client only sends input data.
-	Net::send_packet_movement(player, timedelta, movePkt);
-	Net::send_packet_turret_angle(player, timedelta, angle, turretPkt);
-
-	// Store inputs for (Truth and) Reconciliation.
-	if(movePkt.sequence_id != INT_MIN)
-		QueuedPlayerMovements.push_back(movePkt);
-	if (turretPkt.sequence_id != INT_MIN)
-		QueuedPlayerTurret.push_back(turretPkt);
-
-
-	// OTHER CLIENTS
-	for (auto& tank : clients)
-	{
-		tank.Update(timedelta, tank.sprite_->GetWidth(), tank.sprite_->GetHeight());
-	}
-
 	return false;
 }
 
@@ -368,31 +404,51 @@ void Application::Render()
 	hge_->Gfx_BeginScene();
 	hge_->Gfx_Clear(0);
 
-	// Render me.
-	if (player.active)
-		player.Render();
-
-	for (auto& tank : clients)
+	if (GAMESTATE_MENU == GetGameState())
 	{
-		tank.Render();
+		button->SetColor(color);
+		buttonFont->SetScale(1.f);
+		buttonFont->printf(CLIENT_SCREEN_WIDTH * 0.5f - 32, CLIENT_SCREEN_HEIGHT * 0.5f - 128, HGETEXT_LEFT, "Tank & Tank");
+		buttonFont->SetScale(0.75f);
+		button->RenderEx(menuPos[0].x, menuPos[0].y, 0);
+		button->RenderEx(menuPos[1].x, menuPos[1].y, 0);
+		buttonFont->printf(menuPos[0].x, menuPos[0].y, HGETEXT_LEFT, "START");
+		buttonFont->printf(menuPos[1].x, menuPos[1].y, HGETEXT_LEFT, "QUIT");
+		buttonFont->SetScale(0.5f);
 	}
-
-	// draw the buttons (client prediction, reconciliation, entity interpolation)
-	for(int i{}; i < 3; ++i)
+	else if(GAMESTATE_INPLAY == GetGameState())
 	{
-		if(isMechanism[i])
-			button->SetColor(green);
-		else
-			button->SetColor(red);
+		// Render me.
+		if (player.active)
+			player.Render();
 
-		float x = static_cast<float>(10 * i + i * 64), y = 10;
-		button->RenderEx(x, y, 0);
-		if( i == MCH_CLIENT_PREDICTION)
-			buttonFont->printf(x, y, HGETEXT_LEFT, "Client \nPrediction");
-		else if( i == MCH_RECONCILIATION)
-			buttonFont->printf(x, y, HGETEXT_LEFT, "Reconci \n-liation");
-		else
-			buttonFont->printf(x, y, HGETEXT_LEFT, "Interpo \n-lation");
+		for (auto& tank : clients)
+		{
+			if (tank.active)
+			tank.Render();
+		}
+
+		// draw the buttons (client prediction, reconciliation, entity interpolation)
+		for (int i{}; i < 3; ++i)
+		{
+			if (isMechanism[i])
+				button->SetColor(green);
+			else
+				button->SetColor(red);
+
+			float x = static_cast<float>(10 * i + i * 64), y = 10;
+			button->RenderEx(x, y, 0);
+			if (i == MCH_CLIENT_PREDICTION)
+				buttonFont->printf(x, y, HGETEXT_LEFT, "Client \nPrediction");
+			else if (i == MCH_RECONCILIATION)
+				buttonFont->printf(x, y, HGETEXT_LEFT, "Reconci \n-liation");
+			else
+				buttonFont->printf(x, y, HGETEXT_LEFT, "Interpo \n-lation");
+		}
+	}
+	else
+	{
+		buttonFont->printf(CLIENT_SCREEN_WIDTH * 0.5f, CLIENT_SCREEN_HEIGHT * 0.5f, HGETEXT_LEFT, "Not in any state. \n Game is either full or an error has occured.");
 	}
 
 	hge_->Gfx_EndScene();

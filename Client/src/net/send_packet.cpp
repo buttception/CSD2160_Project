@@ -98,4 +98,17 @@ namespace Net
 		Packet << data;
 		NetObj.SendPacket(Packet);
 	}
+
+	void send_packet_click_start(Tank& tank)
+	{
+		PKT_C2S_ClickStart data;
+		data.user_id = tank.tank_id;
+		data.active = tank.active;
+
+		CatNet::PacketMessage Packet;
+		int PacketID = PACKET_ID_C2S_CLICKSTART;
+		Packet << PacketID;
+		Packet << data;
+		NetObj.SendPacket(Packet);
+	}
 }

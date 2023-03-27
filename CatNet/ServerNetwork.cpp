@@ -17,6 +17,15 @@ namespace CatNet
         case PACKET_ID_C2S_TANKMOVEMENT:
             return sizeof(PKT_C2S_TankMovement);
             break;
+        case PACKET_ID_C2S_TANKTURRET:
+            return sizeof(PKT_C2S_TankTurret);
+            break;
+        case PACKET_ID_C2S_CLICKSTART:
+            return sizeof(PKT_C2S_ClickStart);
+            break;
+        case PACKET_ID_C2S_DISCONNECT:
+            return sizeof(PKT_C2S_Disconnect);
+            break;
         case PACKET_ID_C2S_END:
             return 0;
             break;

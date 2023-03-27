@@ -9,6 +9,7 @@ enum _PACKET_ID_CLIENT_TO_SERVER
 	PACKET_ID_C2S_TANKMOVEMENT,	// Client moving tank.
 	PACKET_ID_C2S_TANKTURRET,	// Client rotating turret.
 	PACKET_ID_C2S_DISCONNECT,   // Client disconnect
+	PACKET_ID_C2S_CLICKSTART,   // Client clicks start in main menu
 
 	PACKET_ID_C2S_END			// This is the indicator for the end of the list. Do not put any packet ID after this.
 };
@@ -51,6 +52,11 @@ struct PKT_C2S_TankTurret : PKT_C2S_INPUTBASE
 struct PKT_C2S_Disconnect : PKT_C2S_BASE
 {
 	
+};
+
+struct PKT_C2S_ClickStart : PKT_C2S_BASE
+{
+	bool active;
 };
 //-- END Messages
 

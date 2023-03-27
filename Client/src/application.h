@@ -36,7 +36,16 @@ private:
 	hgeFont* buttonFont;
 
 	// colour
-	DWORD red, green;
+	DWORD red, green, color;
+
+	struct pos
+	{
+		float x, y;
+		pos() : x{}, y{} {}
+		pos(float _x, float _y) : x{_x}, y{_y} {}
+	};
+
+	pos menuPos[2];
 
 	bool Init();
 	static bool Loop();
