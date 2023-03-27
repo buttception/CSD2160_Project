@@ -50,7 +50,7 @@ struct PKT_S2C_ClientPos : PKT_S2C_BASE
 
 struct PKT_S2C_Disconnect : PKT_S2C_BASE
 {
-
+	int id;
 };
 
 struct PKT_S2C_TankMovement : PKT_S2C_BASE

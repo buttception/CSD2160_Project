@@ -68,6 +68,7 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 			//lock the mutex then work on updating all the clients
 			for(auto& it : tanks)
 			{
+				
 				if(it.connected)
 				{
 					//update the clients based on their input queues
@@ -132,7 +133,7 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 					}
 				}
 			}
-
+			
 			// UPDATE MISSILES POS HERE
 			for (auto& missile : g_missiles)
 			{
@@ -158,8 +159,13 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 		if(server_timer > tickrate)
 		{
 			//send update packets to all clients
-			for(const auto& it : tanks)
+			for(auto& it : tanks)
 			{
+				if (!NetObj.GetSessionList()->CheckIndex(it.client_id) && it.connected)
+				{
+					it.connected = false;
+					SendPacketProcess_Disconnect(it.client_id);
+				}
 				if(it.connected)
 				{
 					SendPacketProcess_TankMovement(it);

@@ -86,4 +86,11 @@ namespace Net
 		Packet << data;
 		NetObj.SendPacket(Packet);
 	}
+	void send_packet_quit()
+	{
+		CatNet::PacketMessage Packet;
+		int PacketID = PACKET_ID_C2S_QUIT;
+		Packet << PacketID;
+		NetObj.SendPacket(Packet);
+	}
 }

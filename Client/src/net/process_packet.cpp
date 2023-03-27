@@ -130,11 +130,16 @@ namespace Net
 		PKT_S2C_Disconnect data;
 		ToProcessSessoin->m_PacketMessage >> data;
 		//clear the enemy tank that got disconnected
-		for (auto i = thisapp->GetClients().begin(); i != thisapp->GetClients().end(); ++i)
+
+		for (auto i = thisapp->GetClients().begin(); i != thisapp->GetClients().end(); ) 
 		{
-			if (i->tank_id == data.client_id)
+			if (i->tank_id == data.id) 
 			{
-				thisapp->GetClients().erase(i);
+				i = thisapp->GetClients().erase(i);
+			}
+			else 
+			{
+				++i;
 			}
 		}
 	}

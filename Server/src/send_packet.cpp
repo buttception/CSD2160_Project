@@ -69,24 +69,13 @@ void SendPacketProcess_NewAccept_SendWelcomeMessage(const int& sessionID)
 void SendPacketProcess_Disconnect(const int& sessionID)
 {
 	//g_ShipList[sessionID].connected = false;
-
+	PKT_S2C_Disconnect PacketData;
 	struct CatNet::PacketMessage Packet;
+	PacketData.id = sessionID;
 	int PacketID = PACKET_ID_S2C_DISCONNECT_CLIENT;
 	Packet << PacketID;
-	Packet << sessionID;
-
-	for (int i = 1; i <= MAX_CLIENT_CONNECTION; ++i)
-	{
-		if (true == g_Tanks[i].connected)
-		{
-			if (sessionID == i) continue;
-
-			NetObj.SendPacket(i, Packet);
-#ifdef _DEBUG
-			log("\n Disconnect packet sent to ClientID:%d", i);
-#endif
-		}
-	}
+	Packet << PacketData;
+	NetObj.SendPacketToAll(Packet);
 }
 
 void SendPacketProcess_TankMovement(const Tank& tank)

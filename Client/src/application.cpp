@@ -384,6 +384,7 @@ bool Application::Loop()
 */
 void Application::Shutdown()
 {
+	Net::send_packet_quit();
 	hge_->System_Shutdown();
 	hge_->Release();
 }

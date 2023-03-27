@@ -8,7 +8,7 @@ enum _PACKET_ID_CLIENT_TO_SERVER
 	PACKET_ID_C2S_ENTERGAME,	// Client entering server.
 	PACKET_ID_C2S_TANKMOVEMENT,	// Client moving tank.
 	PACKET_ID_C2S_TANKTURRET,	// Client rotating turret.
-
+	PACKET_ID_C2S_QUIT,
 	PACKET_ID_C2S_END			// This is the indicator for the end of the list. Do not put any packet ID after this.
 };
 
