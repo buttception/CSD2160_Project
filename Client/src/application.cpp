@@ -281,7 +281,7 @@ bool Application::Update()
 	}
 
 	// Missile shot
-	if (hge_->Input_GetKeyState(HGEK_SPACE) && missile_cooldown >= MISSILE_COOLDOWN)
+	if (hge_->Input_GetKeyState(HGEK_LBUTTON) && missile_cooldown >= MISSILE_COOLDOWN)
 	{
 		player.missile_shot = true;
 		missile_cooldown = 0.f;
