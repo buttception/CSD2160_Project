@@ -120,7 +120,6 @@ bool Application::Init()
 
 	player = Tank();
 
-
 	// Initialize the network with Network Library.
 	if( !(Net::InitNetwork()) )
 	{
@@ -150,12 +149,17 @@ bool Application::Update()
 	// Process the packet received from server.
 	Net::ProcessPacket(this);
 
-	if (GAMESTATE_INPLAY != GetGameState())
-		return false;
-
 	// Check key inputs and process the movements of spaceship.
 	if (hge_->Input_GetKeyState(HGEK_ESCAPE))
 		return true;
+
+	if(GAMESTATE_MENU == GetGameState())
+	{
+		
+	}
+
+	if (GAMESTATE_INPLAY != GetGameState())
+		return false;
 
 	// set the flags for client prediction/recon/interpo
 	static bool isDown1 = false;
@@ -175,6 +179,8 @@ bool Application::Update()
 	if (hge_->Input_GetKeyState(HGEK_2) && !isDown2)
 	{
 		isMechanism[MCH_RECONCILIATION] ^= true;
+		if (isMechanism[MCH_RECONCILIATION])
+			isMechanism[MCH_CLIENT_PREDICTION] = true;
 		isDown2 = true;
 	}
 	else if(isDown2 && !hge_->Input_GetKeyState(HGEK_2))
@@ -189,6 +195,20 @@ bool Application::Update()
 	else if(isDown3 && !hge_->Input_GetKeyState(HGEK_3))
 	{
 		isDown3 = false;
+	}
+
+	if(hge_->Input_GetKeyState(HGEK_LBUTTON))
+	{
+		for(int i{}; i < 3; ++i)
+		{
+			float x = static_cast<float>(10 * i + i * 64), y = 10;
+			if(ButtonCollision(x,y,64,32))
+			{
+				isMechanism[i] ^= true;
+				if (!isMechanism[MCH_CLIENT_PREDICTION])
+					isMechanism[MCH_RECONCILIATION] = false;
+			}
+		}
 	}
 
 	// Apply reconciliation.
@@ -458,6 +478,18 @@ bool Application::CheckCollision( Mov &moving_object, Tgt &other, float timedelt
 		}
 		return true;
 	}
+
+	return false;
+}
+
+bool Application::ButtonCollision(float px, float py, float w, float h)
+{
+	float mx, my;
+	hge_->Input_GetMousePos(&mx, &my);
+	//std::cout << mx << "," << my << "\n";
+	if (mx <= px + w && mx >= px &&
+		my <= py + h && my >= py)
+		return true;
 
 	return false;
 }

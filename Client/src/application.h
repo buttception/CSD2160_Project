@@ -11,6 +11,7 @@ enum _GAMESTATE
 {
 	GAMESTATE_NONE = 0,
 	GAMESTATE_INITIALIZING,
+	GAMESTATE_MENU,
 	GAMESTATE_INPLAY,
 	GAMESTATE_QUITGAME
 };
@@ -40,6 +41,8 @@ private:
 	bool Init();
 	static bool Loop();
 	void Shutdown();
+
+	bool ButtonCollision(float px, float py, float w, float h);
 
 public:
 

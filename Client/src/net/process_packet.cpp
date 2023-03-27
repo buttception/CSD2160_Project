@@ -259,6 +259,7 @@ namespace Net
 				// interpolate the rotate of turret
 				//tank->turret_rotation = data.angle;
 				tank->server_turret_rot = data.angle;
+				if(Global::application->isMechanism[Application::MCH_INTERPOLATE])
 				tank->client_turret_rot = tank->turret_rotation;
 			}
 		}
