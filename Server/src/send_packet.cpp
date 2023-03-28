@@ -160,6 +160,8 @@ void SendPacketProcess_TankState(const Tank& tank)
 	PKT_S2C_TankState movement;
 	movement.client_id = tank.client_id;
 	movement.active = tank.active;
+	movement.hp = tank.hp;
+	movement.score = tank.score;
 	movement_update_packet << movement;
 	NetObj.SendPacketToAll(movement_update_packet);
 }

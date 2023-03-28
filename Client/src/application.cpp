@@ -216,6 +216,13 @@ bool Application::Update()
 	}
 	else if (GAMESTATE_INPLAY == GetGameState())
 	{
+		if(!player.active)
+		{
+			player.respawn_timer -= timedelta;
+			if (player.respawn_timer <= 0.f)
+				player.respawn_timer = 2.f;
+		}
+
 		// set the flags for client prediction/recon/interpo
 		static bool isDown1 = false;
 		static bool isDown2 = false;
@@ -474,6 +481,14 @@ void Application::Render()
 				buttonFont->printf(x, y, HGETEXT_LEFT, "Reconci \n-liation");
 			else
 				buttonFont->printf(x, y, HGETEXT_LEFT, "Interpo \n-lation");
+		}
+		buttonFont->SetScale(0.7f);
+		buttonFont->printf(CLIENT_SCREEN_WIDTH * 0.5f - 32, 32, HGETEXT_LEFT, "Score: %d", player.score);
+		buttonFont->SetScale(0.5f);
+
+		if(!player.active)
+		{
+			buttonFont->printf(CLIENT_SCREEN_WIDTH * 0.5f - 32, 64, HGETEXT_LEFT, "Respawn: %.6f", player.respawn_timer);
 		}
 	}
 	else

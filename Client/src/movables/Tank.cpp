@@ -21,6 +21,7 @@ Tank::Tank(std::string tankSprite)
 	font_ = new hgeFont("font1.fnt");
 	font_->SetScale(0.5);
 	player_name = "Me";
+	respawn_timer = 2.f;
 	hge->Release();
 
 	set_x(400);
@@ -41,6 +42,7 @@ void Tank::Render()
 	turretSprite_->RenderEx(get_x(), get_y(), turret_rotation);
 	// print the ship name.
 	font_->printf(get_x(), get_y() + 30, HGETEXT_LEFT, "%s", player_name.c_str());
+	font_->printf(get_x(), get_y() + 50, HGETEXT_LEFT, "Hp: %d", hp);
 }
 
 bool Tank::Update(float timedelta, float spritewidth, float spriteheight)

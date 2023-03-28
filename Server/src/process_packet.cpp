@@ -64,7 +64,9 @@ void ReceivedPacketProcess_EnterGame(CatNet::ProcessSession* ToProcessSession)
 	g_Tanks[client_id].y = data.y;
 	g_Tanks[client_id].sprite_size_x = data.sprite_size_x;
 	g_Tanks[client_id].sprite_size_y = data.sprite_size_y;
-	g_Tanks[client_id].active = true;
+	g_Tanks[client_id].max_hp = 100;
+	g_Tanks[client_id].hp = g_Tanks[client_id].max_hp;
+	g_Tanks[client_id].active = false; //set to false first since in menu
 
 	// Send Ack.
 	CatNet::PacketMessage EnterGameAckPacket;

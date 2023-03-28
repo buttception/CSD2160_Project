@@ -90,6 +90,8 @@ struct PKT_S2C_TankState : PKT_S2C_BASE
 {
 	int sequence_id;
 	bool active;
+	int hp;
+	int score;
 };
 //-- END Messages
 

@@ -24,6 +24,10 @@ public:
 	bool missile_shot;
 	std::string player_name;
 
+	int hp;
+	int score;
+	float respawn_timer;
+
 	void Render();
 	bool Update(float timedelta, float spritewidth, float spriteheight);
 private:

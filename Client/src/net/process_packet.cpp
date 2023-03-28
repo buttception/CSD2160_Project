@@ -329,6 +329,8 @@ namespace Net
 			// Update my tank.
 			tank = &thisapp->GetPlayer();
 			tank->active = data.active;
+			tank->hp = data.hp;
+			tank->score = data.score;
 		}
 		else
 		{
@@ -346,6 +348,8 @@ namespace Net
 			if (tank != nullptr)
 			{
 				tank->active = data.active;
+				tank->hp = data.hp;
+				tank->score = data.score;
 			}
 		}
 	}

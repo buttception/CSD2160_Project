@@ -73,6 +73,15 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 				
 				if(it.connected)
 				{
+
+					if(!it.active && it.respawn_timer > 0.f)
+					{
+						it.respawn_timer -= timer;
+						if(it.respawn_timer <= 0.f)
+							it.active = true;
+						continue;
+					}
+
 					//update the clients based on their input queues
 					while(!it.input_queue.empty())
 					{
@@ -90,6 +99,9 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 						// check collision with every single missile
 						for (auto& missile : g_missiles) 
 						{
+							if (!missile.alive)
+								continue;
+
 							if (missile.owner_id == it.client_id)
 								continue;
 							
@@ -99,9 +111,27 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 							{
 								//std::cout << "collided\n";
 								missile.alive = false;
-								it.active = false; // tank destroyed
+								//it.active = false; // tank destroyed
+
+								it.hp -= 50;
+								if(it.hp <= 0)
+								{
+									g_Tanks[missile.owner_id].score += 10;
+								}
 							}
 						}
+
+						if(it.hp <= 0)
+						{
+							it.active = false;
+							//respawn tank
+							it.x = 400;
+							it.y = 300;
+							it.w = 0;
+							it.hp = it.max_hp;
+							it.respawn_timer = 1.f;
+						}
+							
 
 						//wrap the positions
 						if (it.x > CLIENT_SCREEN_WIDTH + it.sprite_size_x / 2.f)
@@ -173,11 +203,11 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 						SendPacketProcess_Missile(it);
 					
 					SendPacketProcess_TankState(it);
-					if (!it.active)
+					/*if (!it.active)
 					{
 						it.connected = false;
 						SendPacketProcess_Disconnect(it.client_id);
-					}
+					}*/
 				}
 			}
 
