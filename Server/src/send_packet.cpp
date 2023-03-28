@@ -27,7 +27,6 @@ void SendPacketProcess_NewAccept(const int& sessionID)
 	PacketData.client_id = sessionID;
 	PacketData.x = g_Tanks[sessionID].x;
 	PacketData.y = g_Tanks[sessionID].y;
-
 	Packet << PacketID;
 	Packet << PacketData;
 	NetObj.SendPacketToAll(Packet);

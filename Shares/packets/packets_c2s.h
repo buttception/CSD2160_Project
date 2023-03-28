@@ -51,6 +51,12 @@ struct PKT_C2S_TankTurret : PKT_C2S_INPUTBASE
 	bool missile_shot;
 };
 
+//struct PKT_C2S_TankState : PKT_C2S_INPUTBASE
+//{
+//	bool active;
+//	int hp;
+//};
+
 struct PKT_C2S_Disconnect : PKT_C2S_BASE
 {
 	

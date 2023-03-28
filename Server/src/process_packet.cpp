@@ -124,6 +124,18 @@ void ReceivedPacketProcess_TankTurret(CatNet::ProcessSession* ToProcessSession)
 
 }
 
+//void ReceivedPacketProcess_TankState(CatNet::ProcessSession* ToProcessSession)
+//{
+//	int client_id = ToProcessSession->m_SessionIndex;
+//	PKT_C2S_TankState data;
+//	ToProcessSession->m_PacketMessage >> data;
+//	// Store packet sequence ID.
+//	g_Tanks[client_id].tank_state_queue.push({data.hp,  data.active });
+//
+//	// TODO: Rotate turret.
+//
+//}
+
 void ReceivedPacketProcess_Disconnect(CatNet::ProcessSession* ToProcessSession)
 {
 	int client_id = ToProcessSession->m_SessionIndex;

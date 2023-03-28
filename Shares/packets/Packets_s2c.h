@@ -89,8 +89,9 @@ struct PKT_S2C_Missile : PKT_S2C_BASE
 struct PKT_S2C_TankState : PKT_S2C_BASE
 {
 	int sequence_id;
-	bool active;
 	int hp;
+	bool active;
+	//int hp;
 	int score;
 };
 //-- END Messages

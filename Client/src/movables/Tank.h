@@ -20,11 +20,12 @@ public:
 	float fire_rate, fire_timer;
 	int tank_id;
 	int rotate, throttle;
+	int hp;
 	bool active;
 	bool missile_shot;
 	std::string player_name;
 
-	int hp;
+	//int hp;
 	int score;
 	float respawn_timer;
 

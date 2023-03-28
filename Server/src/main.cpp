@@ -110,6 +110,14 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 									Collision::Circle(missile.x, missile.y, 16.f, missile.velocity_x, missile.velocity_y)))
 							{
 								//std::cout << "collided\n";
+								if (missile.alive)
+								{
+									it.hp -= 10;
+									if (it.hp <= 0)
+									{
+										it.active = false;
+									}
+								}
 								missile.alive = false;
 								//it.active = false; // tank destroyed
 
