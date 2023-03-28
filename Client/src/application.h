@@ -3,8 +3,10 @@
 
 #include <vector>
 #include <list>
+#include <unordered_map>
 
 #include "movables/Tank.h"
+#include "movables/Missile.h"
 #include "packets/packets_c2s.h"
 
 enum _GAMESTATE
@@ -32,8 +34,11 @@ private:
 
 	Tank player;
 	std::vector<Tank> clients;
+	std::unordered_map<int, Missile> missiles;
 	hgeSprite* button;
 	hgeFont* buttonFont;
+
+	float missile_cooldown;
 
 	// colour
 	DWORD red, green, color;
@@ -85,6 +90,17 @@ public:
 
 	Tank& GetPlayer() { return player; }
 	std::vector<Tank>& GetClients() { return clients; }
+	std::unordered_map<int, Missile>& GetMissiles() { return missiles; }
+	void ClearMissiles() { missiles.clear(); }
+	void EmplaceMissile(Missile& missile) { missiles.emplace(missile.missile_id, missile); }
+	Missile& GetMissile(const int& missile_id) { return missiles.find(missile_id)->second; }
+	bool IsExistingMissile(const int& missile_id)
+	{
+		if (missiles.find(missile_id) != missiles.end())
+			return true;
+		else
+			return false;
+	}
 };
 
 #endif

@@ -11,16 +11,22 @@
 #include "process_packet.h"
 #include "timer\timer.h"
 #include "tank.h"
+#include "missile.h"
 
 #include <array>
 #include <thread>
+
+#include "collision.h"
 
 #ifdef _DEBUG
 #include <io.h>
 #endif
 
+constexpr float pi_2 = 3.14159265359f * 2.f;
+
 CatNet::ServerNetwork NetObj;
 std::array<Tank, MAX_CLIENT_CONNECTION + 1> g_Tanks;
+std::vector<Missile> g_missiles;
 
 _Timer g_LoopTimer;
 
@@ -28,6 +34,7 @@ namespace
 {
 	constexpr float TANK_ROT_SPEED = 5.f;
 	constexpr float TANK_MOV_SPEED = 100.f;
+	constexpr float MISSILE_SPEED = 500.f;
 }
 
 #ifdef _DEBUG
@@ -63,6 +70,7 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 			//lock the mutex then work on updating all the clients
 			for(auto& it : tanks)
 			{
+				
 				if(it.connected)
 				{
 					//update the clients based on their input queues
@@ -72,19 +80,38 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 						Tank::InputData data = it.input_queue.front();
 						it.angular_velocity = (float)data.rotate * TANK_ROT_SPEED;
 						it.w += it.angular_velocity * data.frametime;
+						if (it.w > pi_2)   it.w -= pi_2;
+						if (it.w < 0.0f) it.w += pi_2;
 						it.velocity_x = cos(it.w) * (float)data.throttle;
 						it.velocity_y = sin(it.w) * (float)data.throttle;
 						it.x += it.velocity_x * TANK_MOV_SPEED * data.frametime;
 						it.y += it.velocity_y * TANK_MOV_SPEED * data.frametime;
+
+						// check collision with every single missile
+						for (auto& missile : g_missiles) 
+						{
+							if (missile.owner_id == it.client_id)
+								continue;
+							
+							// check collision
+							if (Collision::CheckCollision(Collision::Circle(it.x, it.y, 32.f ,it.velocity_x, it.velocity_y), 
+									Collision::Circle(missile.x, missile.y, 16.f, missile.velocity_x, missile.velocity_y)))
+							{
+								//std::cout << "collided\n";
+								missile.alive = false;
+								it.active = false; // tank destroyed
+							}
+						}
+
 						//wrap the positions
-						if (it.x > CLIENT_SCREEN_WIDTH)
-							it.x -= CLIENT_SCREEN_WIDTH;
-						else if (it.x < 0)
-							it.x = CLIENT_SCREEN_WIDTH - it.x;
-						if (it.y > CLIENT_SCREEN_HEIGHT)
-							it.y -= CLIENT_SCREEN_HEIGHT;
-						else if (it.y < 0)
-							it.y = CLIENT_SCREEN_HEIGHT - it.y;
+						if (it.x > CLIENT_SCREEN_WIDTH + it.sprite_size_x / 2.f)
+							it.x -= CLIENT_SCREEN_WIDTH + it.sprite_size_x;
+						else if (it.x < - it.sprite_size_x / 2.f)
+							it.x += CLIENT_SCREEN_WIDTH + it.sprite_size_x;
+						if (it.y > CLIENT_SCREEN_HEIGHT + it.sprite_size_y / 2.f)
+							it.y -= CLIENT_SCREEN_HEIGHT + it.sprite_size_y;
+						else if (it.y < -it.sprite_size_y / 2.f)
+							it.y += CLIENT_SCREEN_HEIGHT + it.sprite_size_y;
 						it.latest_sequence_ID = data.movement_sequence_ID;
 						it.input_queue.pop();
 					}
@@ -93,25 +120,77 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 					{
 						Tank::TurretInputData data = it.turret_input_queue.front();
 						it.turret_rotation = data.angle;
+						it.missile_shot = data.missile_shot;
+
+						float missile_velX = cos(data.angle) * MISSILE_SPEED;
+						float missile_velY = sin(data.angle) * MISSILE_SPEED;
+
+						// if client shot missile
+						if (it.missile_shot)
+						{
+							//std::cout << it.missile_shot << "<-missile shot\n";
+							g_missiles.push_back(Missile(it.x, it.y, it.turret_rotation,
+								missile_velX, missile_velY, it.client_id));
+						}
 						it.latest_turret_seq_ID = data.turret_sequence_ID;
 						it.turret_input_queue.pop();
 					}
 				}
 			}
+			
+			// UPDATE MISSILES POS HERE
+			for (auto& missile : g_missiles)
+			{
+				// update position of missile
+				missile.x += missile.velocity_x * timer;
+				missile.y += missile.velocity_y * timer;
+
+				if (missile.x > CLIENT_SCREEN_WIDTH || missile.x < 0 || missile.y > CLIENT_SCREEN_HEIGHT || missile.y < 0)
+					missile.alive = false;
+				// no need to update w because missile will not change direction
+			}
+
 			timer = 0.f;
 		}
 		server_timer += framet.GetTimer_sec();
 		if(server_timer > tickrate)
 		{
 			//send update packets to all clients
-			for(const auto& it : tanks)
+			for(auto& it : tanks)
 			{
+				if (!NetObj.GetSessionList()->CheckIndex(it.client_id) && it.connected)
+				{
+					it.connected = false;
+					SendPacketProcess_Disconnect(it.client_id);
+				}
 				if(it.connected)
 				{
 					SendPacketProcess_TankMovement(it);
 					SendPacketProcess_TankTurret(it);
+
+					// send packet for missiles to client
+					for (const auto& it : g_missiles)
+						SendPacketProcess_Missile(it);
+					
+					SendPacketProcess_TankState(it);
+					if (!it.active)
+					{
+						it.connected = false;
+						SendPacketProcess_Disconnect(it.client_id);
+					}
 				}
 			}
+
+			// remove destroyed missiles and missiles of disconnected clients
+			auto missile = g_missiles.begin();
+			while (missile != g_missiles.end())
+			{
+				if (!missile->alive || !NetObj.GetSessionList()->CheckIndex(missile->owner_id))
+					missile = g_missiles.erase(missile);
+				else
+					++missile;
+			}
+
 			server_timer = 0.f;
 		}
 	}

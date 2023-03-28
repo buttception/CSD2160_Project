@@ -36,6 +36,11 @@ namespace CatNet
 			break;
 		case PACKET_ID_S2C_CLICKSTART:
 			return sizeof(PKT_S2C_ClickStart);
+		case PACKET_ID_S2C_MISSILE:
+			return sizeof(PKT_S2C_Missile);
+			break;
+		case PACKET_ID_S2C_TANKSTATE:
+			return sizeof(PKT_S2C_TankState);
 			break;
 		case PACKET_ID_S2C_END:
 			return 0;
@@ -60,7 +65,7 @@ namespace CatNet
 
 			char m_RecvBuf[RECV_BUFSIZE];
 			client->GetSession()->ClearRecvBuffer();
-			int length = recv(client->GetSocket(), m_RecvBuf, SEND_BUFSIZE, 0);
+			int length = recv(client->GetSocket(), m_RecvBuf, RECV_BUFSIZE, 0);
 			int offset = 0;
 			if (length > 0)
 			{
@@ -73,7 +78,7 @@ namespace CatNet
 					client->GetProcessList()->Attach(client->GetSession(), SESSION_STATE_READPACKET, dataSize + 4, client->GetSession()->GetRecvBuffer());
 					offset += dataSize + 4;
 				}
-				_strset_s(m_RecvBuf, '\0');
+				memset(m_RecvBuf, '\0', RECV_BUFSIZE);
 			}
 				
 			else if (0 == client->CheckPacketRecevied())

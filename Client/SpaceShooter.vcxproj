@@ -24,6 +24,7 @@
     <ClCompile Include="..\Shares\timer\timer.cpp" />
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\movables\Missile.cpp" />
     <ClCompile Include="src\movables\Movable.cpp" />
     <ClCompile Include="src\movables\Tank.cpp" />
     <ClCompile Include="src\net\process_packet.cpp" />
@@ -40,6 +41,7 @@
     <ClInclude Include="..\Shares\timer\timer.h" />
     <ClInclude Include="src\application.h" />
     <ClInclude Include="src\globals.h" />
+    <ClInclude Include="src\movables\Missile.h" />
     <ClInclude Include="src\movables\Movable.h" />
     <ClInclude Include="src\movables\Tank.h" />
     <ClInclude Include="src\net\process_packet.h" />

@@ -37,6 +37,7 @@ struct PKT_C2S_INPUTBASE : PKT_C2S_BASE
 struct PKT_C2S_EnterGame : PKT_C2S_BASE
 {
 	float x, y;
+	float sprite_size_x, sprite_size_y;
 };
 
 struct PKT_C2S_TankMovement : PKT_C2S_INPUTBASE
@@ -47,6 +48,7 @@ struct PKT_C2S_TankMovement : PKT_C2S_INPUTBASE
 struct PKT_C2S_TankTurret : PKT_C2S_INPUTBASE
 {
 	float angle;			// Angle in degrees of turret's orientation.
+	bool missile_shot;
 };
 
 struct PKT_C2S_Disconnect : PKT_C2S_BASE

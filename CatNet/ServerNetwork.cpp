@@ -45,7 +45,6 @@ namespace CatNet
         {
             readySockets = connectedSockets;
             int readyCount = select(0, &readySockets, nullptr, nullptr, nullptr);
-
             for (SOCKET i = 0; i < static_cast<unsigned>(readyCount); ++i)
             {
                 SOCKET socket = readySockets.fd_array[i];
@@ -74,7 +73,7 @@ namespace CatNet
                         newClient->SetNewConnectedSession(client, server->serverAddr);
                         newClient->SetIndex(index);
                         server->GetSessionList()->AddSession(newClient);
-                        newClient->SetRecvBufferWritePos(recv(socket, newClient->GetRecvBuffer(), SEND_BUFSIZE, 0));
+                        newClient->SetRecvBufferWritePos(recv(socket, newClient->GetRecvBuffer(), RECV_BUFSIZE, 0));
                         server->GetProcessList()->Attach(newClient, SESSION_STATE_NEWCONNECTION, newClient->GetRecvBufferWritePos(), newClient->GetRecvBuffer());
                     }
                         
@@ -82,17 +81,52 @@ namespace CatNet
                 else
                 {
                     auto currClient = server->GetSessionList()->GetSessionNodeBySocket(socket);
-                    currClient->SetRecvBufferWritePos(recv(socket, currClient->GetRecvBuffer(), SEND_BUFSIZE, 0));
+                    char m_RecvBuf[RECV_BUFSIZE];
+                    currClient->ClearRecvBuffer();
+                    int length = recv(socket, m_RecvBuf, RECV_BUFSIZE, 0);
+                    int offset = 0;
+                    if (length > 0)
+                    {
+                        while (offset < length)
+                        {
+                            int id = *reinterpret_cast<int*>(m_RecvBuf + offset);
+                            //if(id == PACKET_ID_C2S_DISCONNECT)
+                            //{
+                            //    server->GetSessionList()->RemoveSession(server->GetSessionList()->GetSessionIndexBySocket(socket));
+                            //    currClient->CloseSession();
+                            //    FD_CLR(socket, &connectedSockets);
+                            //    break;
+                            //}
+                            int dataSize = c2sSize(id);
+                            currClient->ClearRecvBuffer();
+                            memcpy(currClient->GetRecvBuffer(), m_RecvBuf + offset, dataSize + 4);
+                            server->GetProcessList()->Attach(currClient, SESSION_STATE_READPACKET, dataSize + 4, currClient->GetRecvBuffer());
+                            offset += dataSize + 4;
+                        }
+                        memset(m_RecvBuf, '\0', RECV_BUFSIZE);
+                    }
+                    else
+                    {
+
+                        server->GetSessionList()->RemoveSession(server->GetSessionList()->GetSessionIndexBySocket(socket));
+                        currClient->CloseSession();
+                        FD_CLR(socket, &connectedSockets);
+                    }
+                    
+                   /* currClient->SetRecvBufferWritePos(recv(socket, currClient->GetRecvBuffer(), SEND_BUFSIZE, 0));
+                    int hi = WSAGetLastError();
                     if (currClient->GetRecvBufferWritePos() > 0)
                     {
                         server->GetProcessList()->Attach(currClient, SESSION_STATE_READPACKET, currClient->GetRecvBufferWritePos(), currClient->GetRecvBuffer());
                     }
-                    //else
-                    //{
-                    //    currClient->CloseSession();
-                    //    server->GetSessionList()->ActiveList.DetachNode(currClient);
-                    //    FD_CLR(socket, &connectedSockets);
-                    //}
+                    else if(currClient->GetRecvBufferWritePos() == 0)
+                    {
+
+                        server->GetSessionList()->RemoveSession(server->GetSessionList()->GetSessionIndexBySocket(socket));
+                        currClient->CloseSession();
+                        FD_CLR(socket, &connectedSockets);
+                    }*/
+                    
                 }
             }
         }
