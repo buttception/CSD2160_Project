@@ -20,8 +20,8 @@ namespace CatNet
         case PACKET_ID_C2S_TANKTURRET:
             return sizeof(PKT_C2S_TankTurret);
             break;
-        case PACKET_ID_C2S_QUIT:
-            return 0;
+        case PACKET_ID_C2S_DISCONNECT:
+            return sizeof(PKT_C2S_Disconnect);
             break;
         case PACKET_ID_C2S_END:
             return 0;
@@ -87,13 +87,13 @@ namespace CatNet
                         while (offset < length)
                         {
                             int id = *reinterpret_cast<int*>(m_RecvBuf + offset);
-                            if(id == PACKET_ID_C2S_QUIT)
-                            {
-                                server->GetSessionList()->RemoveSession(server->GetSessionList()->GetSessionIndexBySocket(socket));
-                                currClient->CloseSession();
-                                FD_CLR(socket, &connectedSockets);
-                                break;
-                            }
+                            //if(id == PACKET_ID_C2S_DISCONNECT)
+                            //{
+                            //    server->GetSessionList()->RemoveSession(server->GetSessionList()->GetSessionIndexBySocket(socket));
+                            //    currClient->CloseSession();
+                            //    FD_CLR(socket, &connectedSockets);
+                            //    break;
+                            //}
                             int dataSize = c2sSize(id);
                             currClient->ClearRecvBuffer();
                             memcpy(currClient->GetRecvBuffer(), m_RecvBuf + offset, dataSize + 4);
@@ -102,7 +102,13 @@ namespace CatNet
                         }
                         memset(m_RecvBuf, '\0', RECV_BUFSIZE);
                     }
+                    else
+                    {
 
+                        server->GetSessionList()->RemoveSession(server->GetSessionList()->GetSessionIndexBySocket(socket));
+                        currClient->CloseSession();
+                        FD_CLR(socket, &connectedSockets);
+                    }
                     
                    /* currClient->SetRecvBufferWritePos(recv(socket, currClient->GetRecvBuffer(), SEND_BUFSIZE, 0));
                     int hi = WSAGetLastError();

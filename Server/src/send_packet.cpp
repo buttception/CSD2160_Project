@@ -6,7 +6,7 @@
 #include "tank.h"
 
 #ifdef _DEBUG
-extern void log( char *szFormat, ... );
+extern void log(char* szFormat, ...);
 #endif
 
 extern CatNet::ServerNetwork NetObj;
@@ -69,13 +69,21 @@ void SendPacketProcess_NewAccept_SendWelcomeMessage(const int& sessionID)
 void SendPacketProcess_Disconnect(const int& sessionID)
 {
 	//g_ShipList[sessionID].connected = false;
-	PKT_S2C_Disconnect PacketData;
+
 	struct CatNet::PacketMessage Packet;
-	PacketData.id = sessionID;
 	int PacketID = PACKET_ID_S2C_DISCONNECT_CLIENT;
 	Packet << PacketID;
-	Packet << PacketData;
+	Packet << sessionID;
 	NetObj.SendPacketToAll(Packet);
+	//for (int i = 1; i <= MAX_CLIENT_CONNECTION; ++i)
+	//{
+	//	if (true == g_Tanks[i].connected)
+	//	{
+	//		if (sessionID == i) continue;
+
+	//		NetObj.SendPacket(i, Packet);
+	//	}
+	//}
 }
 
 void SendPacketProcess_TankMovement(const Tank& tank)

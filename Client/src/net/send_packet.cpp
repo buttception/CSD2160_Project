@@ -89,11 +89,15 @@ namespace Net
 		Packet << data;
 		NetObj.SendPacket(Packet);
 	}
-	void send_packet_quit()
+	void send_packet_disconnect(Tank& tank)
 	{
+		PKT_C2S_Disconnect data;
+		data.user_id = tank.tank_id;
+
 		CatNet::PacketMessage Packet;
-		int PacketID = PACKET_ID_C2S_QUIT;
+		int PacketID = PACKET_ID_C2S_DISCONNECT;
 		Packet << PacketID;
+		Packet << data;
 		NetObj.SendPacket(Packet);
 	}
 }

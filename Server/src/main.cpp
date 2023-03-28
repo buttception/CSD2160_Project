@@ -145,15 +145,8 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 				missile.x += missile.velocity_x * timer;
 				missile.y += missile.velocity_y * timer;
 
-				if (missile.x > CLIENT_SCREEN_WIDTH)
-					missile.x -= CLIENT_SCREEN_WIDTH;
-				else if (missile.x < 0)
-					missile.x = CLIENT_SCREEN_WIDTH - missile.x;
-				if (missile.y > CLIENT_SCREEN_HEIGHT)
-					missile.y -= CLIENT_SCREEN_HEIGHT;
-				else if (missile.y < 0)
-					missile.y = CLIENT_SCREEN_HEIGHT - missile.y;
-
+				if (missile.x > CLIENT_SCREEN_WIDTH || missile.x < 0 || missile.y > CLIENT_SCREEN_HEIGHT || missile.y < 0)
+					missile.alive = false;
 				// no need to update w because missile will not change direction
 			}
 

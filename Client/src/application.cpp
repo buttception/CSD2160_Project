@@ -450,7 +450,7 @@ bool Application::Loop()
 */
 void Application::Shutdown()
 {
-	Net::send_packet_quit();
+	Net::send_packet_disconnect(player);
 	hge_->System_Shutdown();
 	hge_->Release();
 }

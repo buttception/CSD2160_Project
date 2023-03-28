@@ -137,7 +137,7 @@ namespace Net
 
 		for (auto i = thisapp->GetClients().begin(); i != thisapp->GetClients().end(); )
 		{
-			if (i->tank_id == data.id)
+			if (i->tank_id == data.client_id)
 			{
 				i = thisapp->GetClients().erase(i);
 			}
