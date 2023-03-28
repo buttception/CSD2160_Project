@@ -18,6 +18,7 @@ namespace
 {
 	_Timer net_timer;
 	float timer_net_movement_update = 0;
+	float timer_net_turret_update = 0;
 }
 
 namespace Net
@@ -70,14 +71,14 @@ namespace Net
 	//-------------------------------------------------------------------------
 	void send_packet_turret_angle(Tank& me, float deltaTime, const float& angle, PKT_C2S_TankTurret& pkt)
 	{
-		static int currSequenceID = 0;
+		static int currTurrSequenceID = 0;
 
 		PKT_C2S_TankTurret data;
 		data.user_id = me.tank_id;
 		data.angle = angle;
 		data.missile_shot = me.missile_shot;
 		data.timestamp = static_cast<int64_t>(time(nullptr));
-		data.sequence_id = currSequenceID++;
+		data.sequence_id = currTurrSequenceID++;
 		data.timestamp = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 		data.frameTime = deltaTime;
 		pkt = data;

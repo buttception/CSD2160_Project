@@ -100,7 +100,7 @@ bool Application::Init()
 
 	// Initialize and prepare the game data & systems.
 	for (int i{}; i < MECHANISMS::MCH_COUNT; ++i)
-		isMechanism[i] = false;
+		isMechanism[i] = true;
 	red = green = 0;
 
 	red = SETR(red, 255);
@@ -155,12 +155,17 @@ bool Application::Update()
 	// Process the packet received from server.
 	Net::ProcessPacket(this);
 
-	if (GAMESTATE_INPLAY != GetGameState())
-		return false;
-
 	// Check key inputs and process the movements of spaceship.
 	if (hge_->Input_GetKeyState(HGEK_ESCAPE))
 		return true;
+
+	if(GAMESTATE_MENU == GetGameState())
+	{
+		
+	}
+
+	if (GAMESTATE_INPLAY != GetGameState())
+		return false;
 
 	// set the flags for client prediction/recon/interpo
 	static bool isDown1 = false;
@@ -169,6 +174,8 @@ bool Application::Update()
 	if (hge_->Input_GetKeyState(HGEK_1) && !isDown1)
 	{
 		isMechanism[MCH_CLIENT_PREDICTION] ^= true;
+		if (!isMechanism[MCH_CLIENT_PREDICTION])
+			isMechanism[MCH_RECONCILIATION] = false;
 		isDown1 = true;
 	}
 	else if(isDown1 && !hge_->Input_GetKeyState(HGEK_1))
@@ -178,6 +185,8 @@ bool Application::Update()
 	if (hge_->Input_GetKeyState(HGEK_2) && !isDown2)
 	{
 		isMechanism[MCH_RECONCILIATION] ^= true;
+		if (isMechanism[MCH_RECONCILIATION])
+			isMechanism[MCH_CLIENT_PREDICTION] = true;
 		isDown2 = true;
 	}
 	else if(isDown2 && !hge_->Input_GetKeyState(HGEK_2))
@@ -194,6 +203,19 @@ bool Application::Update()
 		isDown3 = false;
 	}
 
+	if(hge_->Input_GetKeyState(HGEK_LBUTTON))
+	{
+		for(int i{}; i < 3; ++i)
+		{
+			float x = static_cast<float>(10 * i + i * 64), y = 10;
+			if(ButtonCollision(x,y,64,32))
+			{
+				isMechanism[i] ^= true;
+				if (!isMechanism[MCH_CLIENT_PREDICTION])
+					isMechanism[MCH_RECONCILIATION] = false;
+			}
+		}
+	}
 
 	// Apply reconciliation.
 	float rotW;
@@ -202,13 +224,25 @@ bool Application::Update()
 	posX = player.get_server_x();	// Extrapolate client's position based off server's authoritative "you are here" position.
 	posY = player.get_server_y();	// Extrapolate client's position based off server's authoritative "you are here" position.
 	rotW = player.get_server_w();	// Extrapolate client's rotation based off server's authoritative "you are here" rotation.
-	for (const auto& temp : this->QueuedPlayerMovements)
+
+	if(isMechanism[MCH_CLIENT_PREDICTION])
 	{
-		rotW += (float)temp.rotate * TANK_ROT_SPEED * temp.frameTime;
-		velX = cos(rotW) * (float)temp.throttle;
-		velY = sin(rotW) * (float)temp.throttle;
-		posX += velX * TANK_MOV_SPEED * temp.frameTime;
-		posY += velY * TANK_MOV_SPEED * temp.frameTime;
+		for (const auto& temp : this->QueuedPlayerMovements)
+		{
+			rotW += (float)temp.rotate * TANK_ROT_SPEED * temp.frameTime;
+			velX = cos(rotW) * (float)temp.throttle;
+			velY = sin(rotW) * (float)temp.throttle;
+			posX += velX * TANK_MOV_SPEED * temp.frameTime;
+			posY += velY * TANK_MOV_SPEED * temp.frameTime;
+			if (posX > CLIENT_SCREEN_WIDTH)
+				posX -= CLIENT_SCREEN_WIDTH;
+			else if (posX < 0)
+				posX = CLIENT_SCREEN_WIDTH - posX;
+			if (posY > CLIENT_SCREEN_HEIGHT)
+				posY -= CLIENT_SCREEN_HEIGHT;
+			else if (posY < 0)
+				posY = CLIENT_SCREEN_HEIGHT - posY;
+		}
 	}
 
 	// This will be the new client prediction
@@ -216,31 +250,31 @@ bool Application::Update()
 	player.set_client_y(posY);
 	player.set_client_w(rotW);
 
+	float newX{ posX }, newY{ posY }, newW{ rotW };
 	// old predicted position is the current player position
-	float newX = player.get_x();
-	float newY = player.get_y();
-	float newW = player.get_w();
-	// X-axis.
-	if (abs(newX - player.get_client_x()) > FLT_EPSILON)
+	if(isMechanism[MCH_INTERPOLATE])
 	{
-		if (abs(newX - player.get_client_x()) < CLIENT_SCREEN_WIDTH)
-			newX = Interpolate(newX, player.get_client_x(), 0.1f);
-		else 
-			newX = player.get_client_x();
+		newX = player.get_x();
+		newY = player.get_y();
+		newW = player.get_w();
+
+		// X-axis.
+		if (abs(newX - player.get_client_x()) > FLT_EPSILON)
+		{
+			newX = Interpolate(newX, player.get_client_x(), 0.2f);
+		}
+		// Y-Axis.
+		if (abs(newY - player.get_client_y()) > FLT_EPSILON)
+		{
+			newY = Interpolate(newY, player.get_client_y(), 0.2f);
+		}
+		// Rotation.
+		if (abs(newW - player.get_client_w()) > FLT_EPSILON)
+		{
+			newW = Interpolate(newW, player.get_client_w(), 0.2f);
+		}
 	}
-	// Y-Axis.
-	if (abs(newY - player.get_client_y()) > FLT_EPSILON)
-	{
-		if (abs(newY - player.get_client_y()) < CLIENT_SCREEN_HEIGHT)
-			newY = Interpolate(newY, player.get_client_y(), 0.1f);
-		else
-			newY = player.get_client_y();
-	}
-	// Rotation.
-	if (abs(newW - player.get_client_w()) > FLT_EPSILON)
-	{
-		newW = Interpolate(newW, player.get_client_w(), 0.1f);
-	}
+
 	player.set_x(newX);
 	player.set_y(newY);
 	player.set_w(newW);
@@ -249,7 +283,32 @@ bool Application::Update()
 	float mouseX, mouseY;
 	hge_->Input_GetMousePos(&mouseX, &mouseY);
 	const float angle = atan2f(mouseY - player.get_y(), mouseX - player.get_x());
-	player.turret_rotation = angle;
+	// reconciliation
+	float turrRot = player.server_turret_rot;
+	if(isMechanism[MCH_CLIENT_PREDICTION])
+	{
+		for (const auto& temp : this->QueuedPlayerTurret)
+		{
+			turrRot = temp.angle;
+		}
+	}
+	
+	// client predication
+	player.client_turret_rot = turrRot;
+
+	// old prediction
+	//float newTurrRot = player.turret_rotation;
+	float newTurrRot = turrRot;
+	// Turret Rotation.
+	if (isMechanism[MCH_INTERPOLATE])
+	{
+		newTurrRot = player.turret_rotation;
+		if (abs(newTurrRot - player.client_turret_rot) > FLT_EPSILON)
+		{
+			newTurrRot = Interpolate(newTurrRot, player.client_turret_rot, 0.2f);
+		}
+	}
+	player.turret_rotation = newTurrRot;
 
 	// Rotate tank left/right.
 	if (hge_->Input_GetKeyState(HGEK_A))
@@ -449,6 +508,18 @@ bool Application::CheckCollision( Mov &moving_object, Tgt &other, float timedelt
 		}
 		return true;
 	}
+
+	return false;
+}
+
+bool Application::ButtonCollision(float px, float py, float w, float h)
+{
+	float mx, my;
+	hge_->Input_GetMousePos(&mx, &my);
+	//std::cout << mx << "," << my << "\n";
+	if (mx <= px + w && mx >= px &&
+		my <= py + h && my >= py)
+		return true;
 
 	return false;
 }

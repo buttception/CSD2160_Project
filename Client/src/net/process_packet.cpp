@@ -7,6 +7,7 @@
 #include "process_packet.h"
 #include "send_packet.h"
 #include "movables/Tank.h"
+#include "globals.h"
 
 // NetLib Step 2. Client network object to use network library.
 CatNet::ClientNetwork NetObj;
@@ -167,6 +168,17 @@ namespace Net
 				if (temp.sequence_id == INT_MIN || temp.sequence_id <= data.sequence_id)
 				{
 					//std::cout << "DISCARDED PKT ID: " << temp.sequence_id << " I: "<< i << std::endl;
+					if(!Global::application->isMechanism[Application::MCH_RECONCILIATION])
+					{
+						// for when the reconciliation is deactivated, clear the queue
+						// and save the same seq
+						if(temp.sequence_id == data.sequence_id)
+						{
+							thisapp->QueuedPlayerMovements.clear();
+							thisapp->QueuedPlayerMovements.push_back(temp);
+							break;
+						}
+					}
 					thisapp->QueuedPlayerMovements.pop_front();
 				}
 			}
@@ -223,12 +235,22 @@ namespace Net
 				if (temp.sequence_id == INT_MIN || temp.sequence_id <= data.sequence_id)
 				{
 					//std::cout << "DISCARDED PKT ID: " << temp.sequence_id << " I: "<< i << std::endl;
+					if (!Global::application->isMechanism[Application::MCH_RECONCILIATION])
+					{
+						if (temp.sequence_id == data.sequence_id)
+						{
+							thisapp->QueuedPlayerTurret.clear();
+							thisapp->QueuedPlayerTurret.push_back(temp);
+							break;
+						}
+					}
 					thisapp->QueuedPlayerTurret.pop_front();
 				}
 			}
 
 			// Set client's turret rot
-			tank->turret_rotation = data.angle;
+			//tank->turret_rotation = data.angle;
+			tank->server_turret_rot = data.angle;
 		}
 		else
 		{
@@ -246,7 +268,10 @@ namespace Net
 			if (tank != nullptr)
 			{
 				// interpolate the rotate of turret
-				tank->turret_rotation = data.angle;
+				//tank->turret_rotation = data.angle;
+				tank->server_turret_rot = data.angle;
+				if(Global::application->isMechanism[Application::MCH_INTERPOLATE])
+				tank->client_turret_rot = tank->turret_rotation;
 			}
 		}
 	}

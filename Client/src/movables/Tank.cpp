@@ -29,6 +29,8 @@ Tank::Tank(std::string tankSprite)
 	set_server_xyw(400, 300, 0);
 	set_client_xyw(400, 300, 0);
 	set_ratio(1.0f);
+
+	turret_rotation = server_turret_rot = client_turret_rot = 0.f;
 }
 
 void Tank::Render()
@@ -38,4 +40,18 @@ void Tank::Render()
 	turretSprite_->RenderEx(get_x(), get_y(), turret_rotation);
 	// print the ship name.
 	font_->printf(get_x(), get_y() + 30, HGETEXT_LEFT, "%s", player_name.c_str());
+}
+
+bool Tank::Update(float timedelta, float spritewidth, float spriteheight)
+{
+	float prev_rot = turret_rotation;
+	const float ratio = get_ratio();
+	turret_rotation = ratio * server_turret_rot + (1 - ratio) * client_turret_rot;
+
+	// call base class update
+	bool ret = Movable::Update(timedelta, spritewidth, spriteheight);
+
+	if (prev_rot != turret_rotation) ret = true;
+
+	return ret;
 }

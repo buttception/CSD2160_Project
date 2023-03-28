@@ -48,6 +48,11 @@ struct PKT_C2S_TankTurret : PKT_C2S_INPUTBASE
 	float angle;			// Angle in degrees of turret's orientation.
 	bool missile_shot;
 };
+
+struct PKT_C2S_Disconnect : PKT_C2S_BASE
+{
+	
+};
 //-- END Messages
 
 #pragma pack(pop) // Return back to default memory alignment.
