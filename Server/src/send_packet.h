@@ -4,6 +4,7 @@
 #include "ServerNetwork.h"
 #include "packets/packets_s2c.h"
 #include "tank.h"
+#include "missile.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Global function declarations.
@@ -13,5 +14,7 @@ void SendPacketProcess_NewAccept_SendWelcomeMessage(const int& sessionID);
 void SendPacketProcess_Disconnect(const int& sessionID);
 void SendPacketProcess_TankMovement(const Tank& Tank);
 void SendPacketProcess_TankTurret(const Tank& tank);
+void SendPacketProcess_Missile(const Missile& missile);
+void SendPacketProcess_TankState(const Tank& missile);
 
 #endif

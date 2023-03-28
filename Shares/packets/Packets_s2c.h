@@ -17,6 +17,8 @@ enum _PACKET_ID_SERVER_TO_CLIENT
 
 	PACKET_ID_S2C_TANKMOVEMENT,
 	PACKET_ID_S2C_TANKTURRET,
+	PACKET_ID_S2C_MISSILE,
+	PACKET_ID_S2C_TANKSTATE,
 
 	PACKET_ID_S2C_END
 };
@@ -49,7 +51,7 @@ struct PKT_S2C_ClientPos : PKT_S2C_BASE
 
 struct PKT_S2C_Disconnect : PKT_S2C_BASE
 {
-
+	
 };
 
 struct PKT_S2C_TankMovement : PKT_S2C_BASE
@@ -65,6 +67,22 @@ struct PKT_S2C_TankTurret : PKT_S2C_BASE
 	int sequence_id;
 
 	float angle;
+};
+
+struct PKT_S2C_Missile : PKT_S2C_BASE
+{
+	int sequence_id;
+
+	bool alive;
+	int missile_id;
+	float x, y, w;
+	float vx, vy;
+};
+
+struct PKT_S2C_TankState : PKT_S2C_BASE
+{
+	int sequence_id;
+	bool active;
 };
 //-- END Messages
 

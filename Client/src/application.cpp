@@ -23,6 +23,7 @@ namespace
 {
 	constexpr float TANK_ROT_SPEED = 5.f;
 	constexpr float TANK_MOV_SPEED = 100.f;
+	constexpr float MISSILE_COOLDOWN = 1.f;
 }
 
 #ifdef _DEBUG
@@ -120,6 +121,8 @@ bool Application::Init()
 
 	player = Tank();
 
+	missile_cooldown = MISSILE_COOLDOWN;
+
 	// Initialize the network with Network Library.
 	if( !(Net::InitNetwork()) )
 	{
@@ -145,6 +148,9 @@ bool Application::Init()
 bool Application::Update()
 {
 	float timedelta = hge_->Timer_GetDelta();
+	
+	if (missile_cooldown <= MISSILE_COOLDOWN)
+		missile_cooldown += timedelta;
 
 	// Process the packet received from server.
 	Net::ProcessPacket(this);
@@ -332,6 +338,17 @@ bool Application::Update()
 		player.throttle = 0;
 	}
 
+	// Missile shot CHANGED TO RMB FOR NOW JUST SO I CAN TEST PROPERLY
+	if (hge_->Input_GetKeyState(HGEK_RBUTTON) && missile_cooldown >= MISSILE_COOLDOWN)
+	{
+		player.missile_shot = true;
+		missile_cooldown = 0.f;
+	}
+	else
+	{
+		player.missile_shot = false;
+	}
+
 	// Store inputs into buffer.
 	PKT_C2S_TankMovement movePkt;
 	PKT_C2S_TankTurret turretPkt;
@@ -355,6 +372,13 @@ bool Application::Update()
 		tank.Update(timedelta, tank.sprite_->GetWidth(), tank.sprite_->GetHeight());
 	}
 
+	// OTHER MISSILES
+	for(auto& missile : missiles)
+	{
+		if(missile.second.alive)
+			missile.second.Update(timedelta, missile.second.sprite_->GetWidth(), missile.second.sprite_->GetHeight());
+	}
+
 	return false;
 }
 
@@ -375,6 +399,12 @@ void Application::Render()
 	for (auto& tank : clients)
 	{
 		tank.Render();
+	}
+
+	for (auto& missile : missiles)
+	{
+		if (missile.second.alive)
+			missile.second.Render();
 	}
 
 	// draw the buttons (client prediction, reconciliation, entity interpolation)

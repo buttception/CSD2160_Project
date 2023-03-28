@@ -10,7 +10,7 @@ class hgeFont;
 class Tank : public Movable
 {
 public:
-	Tank();
+	Tank(std::string tankSprite = "tank2.png");
 	~Tank() = default;
 
 	float turret_rotation;
@@ -21,6 +21,7 @@ public:
 	int tank_id;
 	int rotate, throttle;
 	bool active;
+	bool missile_shot;
 	std::string player_name;
 
 	void Render();

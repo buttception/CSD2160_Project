@@ -6,7 +6,7 @@
 #include "tank.h"
 
 #ifdef _DEBUG
-extern void log( char *szFormat, ... );
+extern void log(char* szFormat, ...);
 #endif
 
 extern CatNet::ServerNetwork NetObj;
@@ -74,19 +74,16 @@ void SendPacketProcess_Disconnect(const int& sessionID)
 	int PacketID = PACKET_ID_S2C_DISCONNECT_CLIENT;
 	Packet << PacketID;
 	Packet << sessionID;
+	NetObj.SendPacketToAll(Packet);
+	//for (int i = 1; i <= MAX_CLIENT_CONNECTION; ++i)
+	//{
+	//	if (true == g_Tanks[i].connected)
+	//	{
+	//		if (sessionID == i) continue;
 
-	for (int i = 1; i <= MAX_CLIENT_CONNECTION; ++i)
-	{
-		if (true == g_Tanks[i].connected)
-		{
-			if (sessionID == i) continue;
-
-			NetObj.SendPacket(i, Packet);
-#ifdef _DEBUG
-			log("\n Disconnect packet sent to ClientID:%d", i);
-#endif
-		}
-	}
+	//		NetObj.SendPacket(i, Packet);
+	//	}
+	//}
 }
 
 void SendPacketProcess_TankMovement(const Tank& tank)
@@ -120,4 +117,36 @@ void SendPacketProcess_TankTurret(const Tank& tank)
 	turret_update_packet << turret;
 
 	NetObj.SendPacketToAll(turret_update_packet);
+}
+
+void SendPacketProcess_Missile(const Missile& missile)
+{
+	CatNet::PacketMessage movement_update_packet;
+	int id = PACKET_ID_S2C_MISSILE;
+	movement_update_packet << id;
+
+	PKT_S2C_Missile movement;
+	movement.alive = missile.alive;
+	movement.missile_id = missile.id;
+	movement.client_id = missile.owner_id;
+	movement.x = missile.x;
+	movement.y = missile.y;
+	movement.w = missile.w;
+	movement.vx = missile.velocity_x;
+	movement.vy = missile.velocity_y;
+	movement_update_packet << movement;
+	NetObj.SendPacketToAll(movement_update_packet);
+}
+
+void SendPacketProcess_TankState(const Tank& tank)
+{
+	CatNet::PacketMessage movement_update_packet;
+	int id = PACKET_ID_S2C_TANKSTATE;
+	movement_update_packet << id;
+
+	PKT_S2C_TankState movement;
+	movement.client_id = tank.client_id;
+	movement.active = tank.active;
+	movement_update_packet << movement;
+	NetObj.SendPacketToAll(movement_update_packet);
 }

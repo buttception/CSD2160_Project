@@ -1,13 +1,13 @@
 #include "Tank.h"
 
-Tank::Tank()
+Tank::Tank(std::string tankSprite)
 {
 	HGE* hge = hgeCreate(HGE_VERSION);
 
 	set_object_type(MOVABLE_OBJECT_TYPE_TANK);
 
 	//std::string shipfilename = "ship" + std::to_string(shiptype_) + ".png";
-	tex_ = hge->Texture_Load("tank1.png");
+	tex_ = hge->Texture_Load(tankSprite.c_str());
 	//sprite_.reset(new hgeSprite(tex_, 0, 0, 64, 64));
 	sprite_ = new hgeSprite(tex_, 0, 0, 64, 64);
 	sprite_->SetHotSpot(32, 32);

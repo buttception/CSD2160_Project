@@ -16,6 +16,8 @@ namespace Net
 
     void UpdateTankMovement(Application* thisapp, CatNet::ProcessSession* ToProcessSession);
     void UpdateTankTurret(Application* thisapp, CatNet::ProcessSession* ToProcessSession);
+    void UpdateMissile(Application* thisapp, CatNet::ProcessSession* ToProcessSession);
+    void UpdateTankState(Application* thisapp, CatNet::ProcessSession* ToProcessSession);
 }
 
 #endif

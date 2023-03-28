@@ -39,13 +39,12 @@ void ReceivedPacketProcess( struct CatNet::ProcessSession *ToProcessSession )
 			ReceivedPacketProcess_TankTurret(ToProcessSession);
 		}
 		break;
-
-		// TODO: Handle client leaving
 		case PACKET_ID_C2S_DISCONNECT:
 		{
 			ReceivedPacketProcess_Disconnect(ToProcessSession);
 		}
 		break;
+		// TODO: Handle client leaving 
 	}
 }
 
@@ -59,6 +58,9 @@ void ReceivedPacketProcess_EnterGame(CatNet::ProcessSession* ToProcessSession)
 	g_Tanks[client_id].client_id = client_id;
 	g_Tanks[client_id].x = data.x;
 	g_Tanks[client_id].y = data.y;
+	g_Tanks[client_id].sprite_size_x = data.sprite_size_x;
+	g_Tanks[client_id].sprite_size_y = data.sprite_size_y;
+	g_Tanks[client_id].active = true;
 
 	// Send Ack.
 	CatNet::PacketMessage EnterGameAckPacket;
@@ -110,7 +112,10 @@ void ReceivedPacketProcess_TankTurret(CatNet::ProcessSession* ToProcessSession)
 	PKT_C2S_TankTurret data;
 	ToProcessSession->m_PacketMessage >> data;
 	// Store packet sequence ID.
-	g_Tanks[client_id].turret_input_queue.push({ data.sequence_id,data.angle });
+	g_Tanks[client_id].turret_input_queue.push({ data.sequence_id,data.angle, data.missile_shot });
+
+	// TODO: Rotate turret.
+
 }
 
 void ReceivedPacketProcess_Disconnect(CatNet::ProcessSession* ToProcessSession)
@@ -118,6 +123,4 @@ void ReceivedPacketProcess_Disconnect(CatNet::ProcessSession* ToProcessSession)
 	int client_id = ToProcessSession->m_SessionIndex;
 	PKT_C2S_Disconnect data;
 	ToProcessSession->m_PacketMessage >> data;
-
-	g_Tanks[client_id].connected = false;
 }

@@ -8,8 +8,7 @@ enum _PACKET_ID_CLIENT_TO_SERVER
 	PACKET_ID_C2S_ENTERGAME,	// Client entering server.
 	PACKET_ID_C2S_TANKMOVEMENT,	// Client moving tank.
 	PACKET_ID_C2S_TANKTURRET,	// Client rotating turret.
-	PACKET_ID_C2S_DISCONNECT,   // Client disconnect
-
+	PACKET_ID_C2S_DISCONNECT,
 	PACKET_ID_C2S_END			// This is the indicator for the end of the list. Do not put any packet ID after this.
 };
 
@@ -36,6 +35,7 @@ struct PKT_C2S_INPUTBASE : PKT_C2S_BASE
 struct PKT_C2S_EnterGame : PKT_C2S_BASE
 {
 	float x, y;
+	float sprite_size_x, sprite_size_y;
 };
 
 struct PKT_C2S_TankMovement : PKT_C2S_INPUTBASE
@@ -46,6 +46,7 @@ struct PKT_C2S_TankMovement : PKT_C2S_INPUTBASE
 struct PKT_C2S_TankTurret : PKT_C2S_INPUTBASE
 {
 	float angle;			// Angle in degrees of turret's orientation.
+	bool missile_shot;
 };
 
 struct PKT_C2S_Disconnect : PKT_C2S_BASE

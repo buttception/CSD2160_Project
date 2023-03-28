@@ -24,6 +24,7 @@
     </ClCompile>
     <ClCompile Include="src\movables\Tank.cpp" />
     <ClCompile Include="src\movables\Movable.cpp" />
+    <ClCompile Include="src\movables\Missile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\net\send_packet.h">
@@ -64,6 +65,7 @@
     </ClInclude>
     <ClInclude Include="src\movables\Tank.h" />
     <ClInclude Include="src\movables\Movable.h" />
+    <ClInclude Include="src\movables\Missile.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

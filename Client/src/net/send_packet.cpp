@@ -30,6 +30,8 @@ namespace Net
 		enter_game_data.user_id = me.tank_id;
 		enter_game_data.x = me.get_x();
 		enter_game_data.y = me.get_y();
+		enter_game_data.sprite_size_x = me.sprite_->GetWidth();
+		enter_game_data.sprite_size_y = me.sprite_->GetHeight();
 
 		CatNet::PacketMessage Packet;
 		int PacketID = PACKET_ID_C2S_ENTERGAME;
@@ -74,6 +76,7 @@ namespace Net
 		PKT_C2S_TankTurret data;
 		data.user_id = me.tank_id;
 		data.angle = angle;
+		data.missile_shot = me.missile_shot;
 		data.timestamp = static_cast<int64_t>(time(nullptr));
 		data.sequence_id = currTurrSequenceID++;
 		data.timestamp = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
@@ -86,7 +89,6 @@ namespace Net
 		Packet << data;
 		NetObj.SendPacket(Packet);
 	}
-
 	void send_packet_disconnect(Tank& tank)
 	{
 		PKT_C2S_Disconnect data;
