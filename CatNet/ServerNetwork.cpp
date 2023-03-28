@@ -100,7 +100,7 @@ namespace CatNet
                             server->GetProcessList()->Attach(currClient, SESSION_STATE_READPACKET, dataSize + 4, currClient->GetRecvBuffer());
                             offset += dataSize + 4;
                         }
-                        _strset_s(m_RecvBuf, '\0');
+                        memset(m_RecvBuf, '\0', RECV_BUFSIZE);
                     }
 
                     

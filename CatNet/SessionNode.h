@@ -41,7 +41,7 @@ namespace CatNet
 		SOCKADDR_IN& GetSessionAddr() { return m_SessionAddr; }
 		SOCKADDR_IN GetSessionAddr() const { return m_SessionAddr; }
 
-		void ClearRecvBuffer() { _strset_s(m_RecvBuf, '\0'); }
+		void ClearRecvBuffer() { memset(m_RecvBuf, '\0', RECV_BUFSIZE); }
 		bool AddToRecvBuffer(char NewBuffer[], size_t NewBufferLength)
 		{
 			if (m_RecvBufWritePos + strlen(m_RecvBuf) > NewBufferLength)

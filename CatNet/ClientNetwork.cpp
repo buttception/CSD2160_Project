@@ -76,7 +76,7 @@ namespace CatNet
 					client->GetProcessList()->Attach(client->GetSession(), SESSION_STATE_READPACKET, dataSize + 4, client->GetSession()->GetRecvBuffer());
 					offset += dataSize + 4;
 				}
-				_strset_s(m_RecvBuf, '\0');
+				memset(m_RecvBuf, '\0', RECV_BUFSIZE);
 			}
 				
 			else if (0 == client->CheckPacketRecevied())
