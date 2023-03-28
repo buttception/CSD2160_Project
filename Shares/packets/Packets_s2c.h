@@ -74,7 +74,7 @@ struct PKT_S2C_TankTurret : PKT_S2C_BASE
 struct PKT_S2C_ClickStart : PKT_S2C_BASE
 {
 	bool active;
-}
+};
 
 struct PKT_S2C_Missile : PKT_S2C_BASE
 {

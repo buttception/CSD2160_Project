@@ -42,7 +42,6 @@ struct Tank
 	float turret_rotation;
 	float sprite_size_x, sprite_size_y;
 	bool missile_shot;
-	bool active;
 
 	int hp;
 	int max_hp;
