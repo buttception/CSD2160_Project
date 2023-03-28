@@ -70,7 +70,7 @@ namespace CatNet
                         newClient->SetNewConnectedSession(client, server->serverAddr);
                         newClient->SetIndex(index);
                         server->GetSessionList()->AddSession(newClient);
-                        newClient->SetRecvBufferWritePos(recv(socket, newClient->GetRecvBuffer(), SEND_BUFSIZE, 0));
+                        newClient->SetRecvBufferWritePos(recv(socket, newClient->GetRecvBuffer(), RECV_BUFSIZE, 0));
                         server->GetProcessList()->Attach(newClient, SESSION_STATE_NEWCONNECTION, newClient->GetRecvBufferWritePos(), newClient->GetRecvBuffer());
                     }
                         
@@ -80,7 +80,7 @@ namespace CatNet
                     auto currClient = server->GetSessionList()->GetSessionNodeBySocket(socket);
                     char m_RecvBuf[RECV_BUFSIZE];
                     currClient->ClearRecvBuffer();
-                    int length = recv(socket, m_RecvBuf, SEND_BUFSIZE, 0);
+                    int length = recv(socket, m_RecvBuf, RECV_BUFSIZE, 0);
                     int offset = 0;
                     if (length > 0)
                     {

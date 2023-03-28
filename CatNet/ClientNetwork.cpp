@@ -63,7 +63,7 @@ namespace CatNet
 
 			char m_RecvBuf[RECV_BUFSIZE];
 			client->GetSession()->ClearRecvBuffer();
-			int length = recv(client->GetSocket(), m_RecvBuf, SEND_BUFSIZE, 0);
+			int length = recv(client->GetSocket(), m_RecvBuf, RECV_BUFSIZE, 0);
 			int offset = 0;
 			if (length > 0)
 			{
