@@ -111,7 +111,7 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 							//std::cout << "collided\n";
 							if (missile.alive)
 							{
-								tank.hp -= 10;
+								tank.hp -= 20;
 								if (tank.hp <= 0)
 								{
 									g_Tanks[missile.owner_id].score += 10;

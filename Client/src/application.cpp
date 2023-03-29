@@ -203,6 +203,7 @@ bool Application::Update()
 						SetGameState(GAMESTATE_INPLAY);
 						//send to server to say this client is in play state
 						Net::send_packet_click_start(player);
+						player.missile_shot = false;
 					}
 					else
 					{
