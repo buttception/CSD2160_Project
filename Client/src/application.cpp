@@ -406,8 +406,7 @@ bool Application::Update()
 		turretPkt.sequence_id = INT_MIN;	// Set seq ID to invalid state, to check if send_packet has actually set it or not.
 
 		// Server should handle the simulation, client only sends input data.
-		Net::send_packet_movement(player, timedelta, movePkt);
-		Net::send_packet_turret_angle(player, timedelta, angle, turretPkt);
+		Net::send_packet_movement(player, angle, movePkt, turretPkt);
 
 		// Store inputs for (Truth and) Reconciliation.
 		if (movePkt.sequence_id != INT_MIN)

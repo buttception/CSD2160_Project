@@ -84,6 +84,7 @@ namespace CatNet
                     char m_RecvBuf[RECV_BUFSIZE];
                     currClient->ClearRecvBuffer();
                     int length = recv(socket, m_RecvBuf, RECV_BUFSIZE, 0);
+                    std::cout << std::endl << length;
                     int offset = 0;
                     if (length > 0)
                     {

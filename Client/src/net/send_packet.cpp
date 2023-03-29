@@ -41,7 +41,7 @@ namespace Net
 	}
 
 	//-------------------------------------------------------------------------
-	void send_packet_movement(Tank& me, float deltaTime, PKT_C2S_TankMovement& pkt)
+	void send_packet_movement(Tank& me, const float& angle, PKT_C2S_TankMovement& pkt, PKT_C2S_TankTurret& t_pkt)
 	{
 		static int currSequenceID = 0;
 
@@ -55,9 +55,7 @@ namespace Net
 			data.rotate = me.rotate;
 			data.throttle = me.throttle;
 			data.sequence_id = currSequenceID++;
-			data.timestamp = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 			data.frameTime = timer_net_movement_update / 1000.f;
-			timer_net_movement_update = 0;
 			pkt = data;
 
 			CatNet::PacketMessage Packet;
@@ -65,29 +63,30 @@ namespace Net
 			Packet << PacketID;
 			Packet << data;
 			NetObj.SendPacket(Packet);
+
+			static int currTurrSequenceID = 0;
+
+			PKT_C2S_TankTurret turret_data;
+			turret_data.user_id = me.tank_id;
+			turret_data.angle = angle;
+			turret_data.missile_shot = me.missile_shot;
+			turret_data.sequence_id = currTurrSequenceID++;
+			turret_data.frameTime = timer_net_movement_update / 1000.f;
+			t_pkt = turret_data;
+
+			CatNet::PacketMessage turret_packet;
+			int turret_id = PACKET_ID_C2S_TANKTURRET;
+			turret_packet << turret_id;
+			turret_packet << turret_data;
+			NetObj.SendPacket(turret_packet);
+
+			timer_net_movement_update = 0;
 		}
 	}
 
 	//-------------------------------------------------------------------------
 	void send_packet_turret_angle(Tank& me, float deltaTime, const float& angle, PKT_C2S_TankTurret& pkt)
 	{
-		static int currTurrSequenceID = 0;
-
-		PKT_C2S_TankTurret data;
-		data.user_id = me.tank_id;
-		data.angle = angle;
-		data.missile_shot = me.missile_shot;
-		data.timestamp = static_cast<int64_t>(time(nullptr));
-		data.sequence_id = currTurrSequenceID++;
-		data.timestamp = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-		data.frameTime = deltaTime;
-		pkt = data;
-
-		CatNet::PacketMessage Packet;
-		int PacketID = PACKET_ID_C2S_TANKTURRET;
-		Packet << PacketID;
-		Packet << data;
-		NetObj.SendPacket(Packet);
 	}
 	
 	//-------------------------------------------------------------------------
