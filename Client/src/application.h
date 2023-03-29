@@ -36,12 +36,13 @@ private:
 	std::vector<Tank> clients;
 	std::unordered_map<int, Missile> missiles;
 	hgeSprite* button;
+	hgeSprite* background;
 	hgeFont* buttonFont;
 
 	float missile_cooldown;
 
 	// colour
-	DWORD red, green, color;
+	DWORD red, green, color, black;
 
 	struct pos
 	{

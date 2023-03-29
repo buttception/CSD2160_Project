@@ -101,7 +101,7 @@ bool Application::Init()
 	// Initialize and prepare the game data & systems.
 	for (int i{}; i < MECHANISMS::MCH_COUNT; ++i)
 		isMechanism[i] = true;
-	red = green = 0;
+	red = green = black = 0;
 
 	red = SETR(red, 255);
 	red = SETG(red, 0);
@@ -113,6 +113,11 @@ bool Application::Init()
 	green = SETB(green, 0);
 	green = SETA(green, 255);
 
+	black = SETR(black, 0);
+	black = SETG(black, 0);
+	black = SETB(black, 0);
+	black = SETA(black, 255);
+
 	color = ARGB(255, 125, 0, 0);
 
 	button = new hgeSprite(0, 0, 0, 64, 32);
@@ -123,6 +128,12 @@ bool Application::Init()
 
 	menuPos[0] = pos{ CLIENT_SCREEN_WIDTH * 0.5f, CLIENT_SCREEN_HEIGHT * 0.5f };
 	menuPos[1] = pos{ CLIENT_SCREEN_WIDTH * 0.5f, CLIENT_SCREEN_HEIGHT * 0.5f  + 64};
+
+	HGE* hge = hgeCreate(HGE_VERSION);
+	HTEXTURE tex_ = hge->Texture_Load("desert.png");
+	//sprite_.reset(new hgeSprite(tex_, 0, 0, 64, 64));
+	background = new hgeSprite(tex_, 0, 0, 1000, 1000);
+	background->SetHotSpot(500, 500);
 
 	player = Tank();
 
@@ -442,7 +453,8 @@ void Application::Render()
 {
 	hge_->Gfx_BeginScene();
 	hge_->Gfx_Clear(0);
-
+	background->RenderEx(CLIENT_SCREEN_WIDTH * 0.5f, CLIENT_SCREEN_HEIGHT * 0.5f, 0, 1);
+	buttonFont->SetColor(black);
 	if (GAMESTATE_MENU == GetGameState())
 	{
 		button->SetColor(color);
