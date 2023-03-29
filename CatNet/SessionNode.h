@@ -9,7 +9,7 @@
 #define MAX_CONNECTION FD_SETSIZE
 #endif
 
-#define RECV_BUFSIZE 24576
+#define RECV_BUFSIZE 28672
 
 namespace CatNet
 {

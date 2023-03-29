@@ -38,9 +38,11 @@ struct PKT_C2S_EnterGame : PKT_C2S_BASE
 {
 	float x, y;
 	float sprite_size_x, sprite_size_y;
+
+	int64_t pad1;
 };
 
-struct PKT_C2S_TankMovement : PKT_C2S_INPUTBASE
+struct PKT_C2S_TankMovement : PKT_C2S_INPUTBASE // 28 bytes
 {
 	int rotate, throttle;
 };
@@ -49,22 +51,27 @@ struct PKT_C2S_TankTurret : PKT_C2S_INPUTBASE
 {
 	float angle;			// Angle in degrees of turret's orientation.
 	bool missile_shot;
-};
 
-//struct PKT_C2S_TankState : PKT_C2S_INPUTBASE
-//{
-//	bool active;
-//	int hp;
-//};
+	int16_t pad1;
+	int8_t pad2;
+};
 
 struct PKT_C2S_Disconnect : PKT_C2S_BASE
 {
-	
+	int64_t pad1;
+	int64_t pad2;
+	int64_t pad3;
 };
 
 struct PKT_C2S_ClickStart : PKT_C2S_BASE
 {
 	bool active;
+
+	int64_t pad1;
+	int64_t pad2;
+	int32_t pad3;
+	int16_t pad4;
+	int8_t pad5;
 };
 //-- END Messages
 

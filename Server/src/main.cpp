@@ -64,115 +64,113 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 	_Timer framet = *framet_ptr;
 	while(1)
 	{
+		// Positional Update.
 		timer += framet.GetTimer_sec();
 		if(timer > frame_time)
 		{
 			//lock the mutex then work on updating all the clients
-			for(auto& it : tanks)
+			for(auto& tank : tanks)
 			{
-				
-				if(it.connected)
+				if(!tank.connected)
+					continue;
+				if (!tank.active && tank.respawn_timer > 0.f)
 				{
+					tank.respawn_timer -= timer;
+					if (tank.respawn_timer <= 0.f)
+						tank.active = true;
+					continue;
+				}
 
-					if(!it.active && it.respawn_timer > 0.f)
+				//update the clients based on their input queues
+				while (!tank.input_queue.empty())
+				{
+					//just clear the queue and teleport the player
+					Tank::InputData data = tank.input_queue.front();
+					tank.angular_velocity = (float)data.rotate * TANK_ROT_SPEED;
+					tank.w += tank.angular_velocity * data.frametime;
+					if (tank.w > pi_2)   tank.w -= pi_2;
+					if (tank.w < 0.0f) tank.w += pi_2;
+					tank.velocity_x = cos(tank.w) * (float)data.throttle;
+					tank.velocity_y = sin(tank.w) * (float)data.throttle;
+					tank.x += tank.velocity_x * TANK_MOV_SPEED * data.frametime;
+					tank.y += tank.velocity_y * TANK_MOV_SPEED * data.frametime;
+
+					// check collision with every single missile
+					for (auto& missile : g_missiles)
 					{
-						it.respawn_timer -= timer;
-						if(it.respawn_timer <= 0.f)
-							it.active = true;
-						continue;
-					}
+						if (!missile.alive)
+							continue;
 
-					//update the clients based on their input queues
-					while(!it.input_queue.empty())
-					{
-						//just clear the queue and teleport the player
-						Tank::InputData data = it.input_queue.front();
-						it.angular_velocity = (float)data.rotate * TANK_ROT_SPEED;
-						it.w += it.angular_velocity * data.frametime;
-						if (it.w > pi_2)   it.w -= pi_2;
-						if (it.w < 0.0f) it.w += pi_2;
-						it.velocity_x = cos(it.w) * (float)data.throttle;
-						it.velocity_y = sin(it.w) * (float)data.throttle;
-						it.x += it.velocity_x * TANK_MOV_SPEED * data.frametime;
-						it.y += it.velocity_y * TANK_MOV_SPEED * data.frametime;
+						if (missile.owner_id == tank.client_id)
+							continue;
 
-						// check collision with every single missile
-						for (auto& missile : g_missiles) 
+						// check collision
+						if (Collision::CheckCollision(Collision::Circle(tank.x, tank.y, 32.f, tank.velocity_x, tank.velocity_y),
+							Collision::Circle(missile.x, missile.y, 16.f, missile.velocity_x, missile.velocity_y)))
 						{
-							if (!missile.alive)
-								continue;
-
-							if (missile.owner_id == it.client_id)
-								continue;
-							
-							// check collision
-							if (Collision::CheckCollision(Collision::Circle(it.x, it.y, 32.f ,it.velocity_x, it.velocity_y), 
-									Collision::Circle(missile.x, missile.y, 16.f, missile.velocity_x, missile.velocity_y)))
+							//std::cout << "collided\n";
+							if (missile.alive)
 							{
-								//std::cout << "collided\n";
-								if (missile.alive)
+								tank.hp -= 10;
+								if (tank.hp <= 0)
 								{
-									it.hp -= 10;
-									if (it.hp <= 0)
-									{
-										it.active = false;
-									}
-								}
-								missile.alive = false;
-								//it.active = false; // tank destroyed
-
-								it.hp -= 50;
-								if(it.hp <= 0)
-								{
-									g_Tanks[missile.owner_id].score += 10;
+									tank.active = false;
 								}
 							}
-						}
+							missile.alive = false;
+							//tank.active = false; // tank destroyed
 
-						if(it.hp <= 0)
-						{
-							it.active = false;
-							//respawn tank
-							it.x = 400;
-							it.y = 300;
-							it.w = 0;
-							it.hp = it.max_hp;
-							it.respawn_timer = 1.f;
+							tank.hp -= 50;
+							if (tank.hp <= 0)
+							{
+								g_Tanks[missile.owner_id].score += 10;
+							}
 						}
-							
-
-						//wrap the positions
-						if (it.x > CLIENT_SCREEN_WIDTH + it.sprite_size_x / 2.f)
-							it.x -= CLIENT_SCREEN_WIDTH + it.sprite_size_x;
-						else if (it.x < - it.sprite_size_x / 2.f)
-							it.x += CLIENT_SCREEN_WIDTH + it.sprite_size_x;
-						if (it.y > CLIENT_SCREEN_HEIGHT + it.sprite_size_y / 2.f)
-							it.y -= CLIENT_SCREEN_HEIGHT + it.sprite_size_y;
-						else if (it.y < -it.sprite_size_y / 2.f)
-							it.y += CLIENT_SCREEN_HEIGHT + it.sprite_size_y;
-						it.latest_sequence_ID = data.movement_sequence_ID;
-						it.input_queue.pop();
 					}
-					// update the turret rots
-					while(!it.turret_input_queue.empty())
+
+					if (tank.hp <= 0)
 					{
-						Tank::TurretInputData data = it.turret_input_queue.front();
-						it.turret_rotation = data.angle;
-						it.missile_shot = data.missile_shot;
-
-						float missile_velX = cos(data.angle) * MISSILE_SPEED;
-						float missile_velY = sin(data.angle) * MISSILE_SPEED;
-
-						// if client shot missile
-						if (it.missile_shot)
-						{
-							//std::cout << it.missile_shot << "<-missile shot\n";
-							g_missiles.push_back(Missile(it.x, it.y, it.turret_rotation,
-								missile_velX, missile_velY, it.client_id));
-						}
-						it.latest_turret_seq_ID = data.turret_sequence_ID;
-						it.turret_input_queue.pop();
+						tank.active = false;
+						//respawn tank
+						tank.x = 400;
+						tank.y = 300;
+						tank.w = 0;
+						tank.hp = tank.max_hp;
+						tank.respawn_timer = 1.f;
 					}
+
+
+					//wrap the positions
+					if (tank.x > CLIENT_SCREEN_WIDTH + tank.sprite_size_x / 2.f)
+						tank.x -= CLIENT_SCREEN_WIDTH + tank.sprite_size_x;
+					else if (tank.x < -tank.sprite_size_x / 2.f)
+						tank.x += CLIENT_SCREEN_WIDTH + tank.sprite_size_x;
+					if (tank.y > CLIENT_SCREEN_HEIGHT + tank.sprite_size_y / 2.f)
+						tank.y -= CLIENT_SCREEN_HEIGHT + tank.sprite_size_y;
+					else if (tank.y < -tank.sprite_size_y / 2.f)
+						tank.y += CLIENT_SCREEN_HEIGHT + tank.sprite_size_y;
+					tank.latest_sequence_ID = data.movement_sequence_ID;
+					tank.input_queue.pop();
+				}
+				// update the turret rots
+				while (!tank.turret_input_queue.empty())
+				{
+					Tank::TurretInputData data = tank.turret_input_queue.front();
+					tank.turret_rotation = data.angle;
+					tank.missile_shot = data.missile_shot;
+
+					float missile_velX = cos(data.angle) * MISSILE_SPEED;
+					float missile_velY = sin(data.angle) * MISSILE_SPEED;
+
+					// if client shot missile
+					if (tank.missile_shot)
+					{
+						//std::cout << tank.missile_shot << "<-missile shot\n";
+						g_missiles.push_back(Missile(tank.x, tank.y, tank.turret_rotation,
+							missile_velX, missile_velY, tank.client_id));
+					}
+					tank.latest_turret_seq_ID = data.turret_sequence_ID;
+					tank.turret_input_queue.pop();
 				}
 			}
 			
@@ -190,36 +188,33 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 
 			timer = 0.f;
 		}
+
+		// Send-Packet Update.
 		server_timer += framet.GetTimer_sec();
 		if(server_timer > tickrate)
 		{
-			//send update packets to all clients
-			for(auto& it : tanks)
+			// Send update packets to all clients
+			for(auto& tank : tanks)
 			{
-				if (!NetObj.GetSessionList()->CheckIndex(it.client_id) && it.connected)
+				if (!NetObj.GetSessionList()->CheckIndex(tank.client_id) && tank.connected)
 				{
-					it.connected = false;
-					SendPacketProcess_Disconnect(it.client_id);
+					tank.connected = false;
+					SendPacketProcess_Disconnect(tank.client_id);
 				}
-				if(it.connected)
+				if(tank.connected)
 				{
-					SendPacketProcess_TankMovement(it);
-					SendPacketProcess_TankTurret(it);
+					SendPacketProcess_TankMovement(tank);
+					SendPacketProcess_TankTurret(tank);
 
 					// send packet for missiles to client
-					for (const auto& it : g_missiles)
-						SendPacketProcess_Missile(it);
+					for (const auto& tank : g_missiles)
+						SendPacketProcess_Missile(tank);
 					
-					SendPacketProcess_TankState(it);
-					/*if (!it.active)
-					{
-						it.connected = false;
-						SendPacketProcess_Disconnect(it.client_id);
-					}*/
+					SendPacketProcess_TankState(tank);
 				}
 			}
 
-			// remove destroyed missiles and missiles of disconnected clients
+			// Remove destroyed missiles and missiles of disconnected clients
 			auto missile = g_missiles.begin();
 			while (missile != g_missiles.end())
 			{
@@ -236,6 +231,17 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 
 void init_game_server( void )
 {
+	std::cout << "Server->Client packet sizes:\n";
+	std::cout << "PKT_S2C_WelcomeMessage " << sizeof(PKT_S2C_WelcomeMessage) << std::endl;
+	std::cout << "PKT_S2C_FullGame       " << sizeof(PKT_S2C_FullGame) << std::endl;
+	std::cout << "PKT_S2C_ClientPos      " << sizeof(PKT_S2C_ClientPos) << std::endl;
+	std::cout << "PKT_S2C_Disconnect     " << sizeof(PKT_S2C_Disconnect) << std::endl;
+	std::cout << "PKT_S2C_TankMovement   " << sizeof(PKT_S2C_TankMovement) << std::endl;
+	std::cout << "PKT_S2C_TankTurret     " << sizeof(PKT_S2C_TankTurret) << std::endl;
+	std::cout << "PKT_S2C_ClickStart     " << sizeof(PKT_S2C_ClickStart) << std::endl;
+	std::cout << "PKT_S2C_Missile        " << sizeof(PKT_S2C_Missile) << std::endl;
+	std::cout << "PKT_S2C_TankState      " << sizeof(PKT_S2C_TankState) << std::endl;
+
 	g_game_thread = std::thread{ GameUpdate, &g_LoopTimer, &g_Tanks };
 }
 

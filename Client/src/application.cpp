@@ -135,6 +135,13 @@ bool Application::Init()
 	}
 	SetGameState( GAMESTATE_INITIALIZING );
 
+	std::cout << "Client->Server packet sizes:\n";
+	std::cout << "PKT_C2S_EnterGame    " << sizeof(PKT_C2S_EnterGame) << std::endl;
+	std::cout << "PKT_C2S_TankMovement " << sizeof(PKT_C2S_TankMovement) << std::endl;
+	std::cout << "PKT_C2S_TankTurret   " << sizeof(PKT_C2S_TankTurret) << std::endl;
+	std::cout << "PKT_C2S_Disconnect   " << sizeof(PKT_C2S_Disconnect) << std::endl;
+	std::cout << "PKT_C2S_ClickStart   " << sizeof(PKT_C2S_ClickStart) << std::endl;
+
 	return true;
 }
 
@@ -267,6 +274,7 @@ bool Application::Update()
 		posY = player.get_server_y();	// Extrapolate client's position based off server's authoritative "you are here" position.
 		rotW = player.get_server_w();	// Extrapolate client's rotation based off server's authoritative "you are here" rotation.
 
+		// Apply queued movement inputs to player position.
 		if (isMechanism[MCH_CLIENT_PREDICTION])
 		{
 			for (const auto& temp : this->QueuedPlayerMovements)
@@ -292,8 +300,8 @@ bool Application::Update()
 		player.set_client_y(posY);
 		player.set_client_w(rotW);
 
+		// Old predicted position is the current player position
 		float newX{ posX }, newY{ posY }, newW{ rotW };
-		// old predicted position is the current player position
 		if (isMechanism[MCH_INTERPOLATE])
 		{
 			newX = player.get_x();
@@ -316,12 +324,12 @@ bool Application::Update()
 				newW = Interpolate(newW, player.get_client_w(), 0.2f);
 			}
 		}
-
+		// Apply interpolated value.
 		player.set_x(newX);
 		player.set_y(newY);
 		player.set_w(newW);
 
-		// TODO: Aim turret with mouse cursor.
+		// Aim turret with mouse cursor.
 		float mouseX, mouseY;
 		hge_->Input_GetMousePos(&mouseX, &mouseY);
 		const float angle = atan2f(mouseY - player.get_y(), mouseX - player.get_x());
@@ -380,8 +388,8 @@ bool Application::Update()
 			player.throttle = 0;
 		}
 
-		// Missile shot CHANGED TO RMB FOR NOW JUST SO I CAN TEST PROPERLY
-		if (hge_->Input_GetKeyState(HGEK_RBUTTON) && missile_cooldown >= MISSILE_COOLDOWN)
+		// Shoot missile.
+		if(hge_->Input_GetKeyState(HGEK_SPACE) && missile_cooldown >= MISSILE_COOLDOWN)
 		{
 			player.missile_shot = true;
 			missile_cooldown = 0.f;
