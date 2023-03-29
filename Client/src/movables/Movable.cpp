@@ -76,7 +76,7 @@ bool Movable::Update(float timedelta, float spritewidth, float spriteheight)
     set_server_y(get_server_y() + (get_server_velocity_y() * timedelta));
 
     // change the way movement is updated by using ratio.
-    if (get_server_x() < -spritewidth / 2)
+   /* if (get_server_x() < -spritewidth / 2)
         set_server_x(get_server_x() + (screenwidth + spritewidth));
     else if (get_server_x() > screenwidth + spritewidth / 2)
         set_server_x(get_server_x() - (screenwidth + spritewidth));
@@ -84,12 +84,12 @@ bool Movable::Update(float timedelta, float spritewidth, float spriteheight)
     if (get_server_y() < -spriteheight / 2)
         set_server_y(get_server_y() + (screenheight + spriteheight));
     else if (get_server_y() > screenheight + spriteheight / 2)
-        set_server_y(get_server_y() - (screenheight + spriteheight));
+        set_server_y(get_server_y() - (screenheight + spriteheight));*/
 
     set_client_x(get_client_x() + (get_velocity_x() * timedelta));
     set_client_y(get_client_y() + (get_velocity_y() * timedelta));
 
-    if (get_client_x() < -spritewidth / 2)
+   /* if (get_client_x() < -spritewidth / 2)
         set_client_x(get_client_x() + (screenwidth + spritewidth));
     else if (get_client_x() > screenwidth + spritewidth / 2)
         set_client_x(get_client_x() - (screenwidth + spritewidth));
@@ -97,7 +97,7 @@ bool Movable::Update(float timedelta, float spritewidth, float spriteheight)
     if (get_client_y() < -spriteheight / 2)
         set_client_y(get_client_y() + (screenheight + spriteheight));
     else if (get_client_y() > screenheight + spriteheight / 2)
-        set_client_y(get_client_y() - (screenheight + spriteheight));
+        set_client_y(get_client_y() - (screenheight + spriteheight));*/
 
     if (((get_server_x() < -spritewidth / 2) && (get_client_x() > (screenwidth + (spritewidth / 2)))) ||
         ((get_server_x() > screenwidth + (spritewidth / 2)) && (get_client_x() < -spritewidth / 2)))
@@ -126,23 +126,23 @@ bool Movable::Update(float timedelta, float spritewidth, float spriteheight)
         if (get_ratio() > 1) set_ratio(1);
     }
 
-    if (get_x() < (-spritewidth / 2))
-    {
-        set_x(get_x() + (screenwidth + spritewidth));
-    }
-    else if (get_x() > (screenwidth + (spritewidth / 2)))
-    {
-        set_x(get_x() - (screenwidth + spritewidth));
-    }
+    //if (get_x() < (-spritewidth / 2))
+    //{
+    //    set_x(get_x() + (screenwidth + spritewidth));
+    //}
+    //else if (get_x() > (screenwidth + (spritewidth / 2)))
+    //{
+    //    set_x(get_x() - (screenwidth + spritewidth));
+    //}
 
-    if (get_y() < (-spriteheight / 2))
-    {
-        set_y(get_y() + (screenheight + spriteheight));
-    }
-    else if (get_y() > (screenheight + (spriteheight / 2)))
-    {
-        set_y(get_y() - (screenheight + spriteheight));
-    }
+    //if (get_y() < (-spriteheight / 2))
+    //{
+    //    set_y(get_y() + (screenheight + spriteheight));
+    //}
+    //else if (get_y() > (screenheight + (spriteheight / 2)))
+    //{
+    //    set_y(get_y() - (screenheight + spriteheight));
+    //}
 
     if ((get_x() != prev_x) || (get_y() != prev_y)) return true; // something updated.
 

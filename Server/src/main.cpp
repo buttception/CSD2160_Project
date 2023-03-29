@@ -114,16 +114,9 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 								tank.hp -= 10;
 								if (tank.hp <= 0)
 								{
-									tank.active = false;
+									g_Tanks[missile.owner_id].score += 10;
 								}
-							}
-							missile.alive = false;
-							//tank.active = false; // tank destroyed
-
-							tank.hp -= 50;
-							if (tank.hp <= 0)
-							{
-								g_Tanks[missile.owner_id].score += 10;
+								missile.alive = false;
 							}
 						}
 					}
