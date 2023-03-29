@@ -394,10 +394,10 @@ bool Application::Update()
 			player.missile_shot = true;
 			missile_cooldown = 0.f;
 		}
-		else
-		{
-			player.missile_shot = false;
-		}
+		//else
+		//{
+		//	player.missile_shot = false;
+		//}
 
 		// Store inputs into buffer.
 		PKT_C2S_TankMovement movePkt;

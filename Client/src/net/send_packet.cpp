@@ -70,6 +70,7 @@ namespace Net
 			turret_data.user_id = me.tank_id;
 			turret_data.angle = angle;
 			turret_data.missile_shot = me.missile_shot;
+			me.missile_shot = false;
 			turret_data.sequence_id = currTurrSequenceID++;
 			turret_data.frameTime = timer_net_movement_update / 1000.f;
 			t_pkt = turret_data;
