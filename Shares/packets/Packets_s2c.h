@@ -38,71 +38,38 @@ struct PKT_S2C_BASE
 //-- Messages
 struct PKT_S2C_WelcomeMessage : PKT_S2C_BASE
 {
-	int64_t pad1;
-	int64_t pad2;
-	int64_t pad3;
-	int32_t pad4;
-	int8_t pad5;
 };
 
 struct PKT_S2C_FullGame : PKT_S2C_BASE
 {
-	int64_t pad1;
-	int64_t pad2;
-	int64_t pad3;
-	int32_t pad4;
-	int8_t pad5;
 };
 
 struct PKT_S2C_ClientPos : PKT_S2C_BASE
 {
 	float x, y;
-
-	int64_t pad1;
-	int64_t pad2;
-	int32_t pad3;
-	int8_t pad4;
 };
 
 struct PKT_S2C_Disconnect : PKT_S2C_BASE
 {
-	int64_t pad1;
-	int64_t pad2;
-	int64_t pad3;
-	int32_t pad4;
-	int8_t pad5;
 };
 
 struct PKT_S2C_TankMovement : PKT_S2C_BASE
 {
 	int sequence_id;
-
+	float frametime;
 	float x, y, w;
 	float vx, vy;
-
-	int32_t pad3;
-	int8_t pad4;
 };
 
 struct PKT_S2C_TankTurret : PKT_S2C_BASE
 {
 	int sequence_id;
 	float angle;
-
-	int64_t pad1;
-	int64_t pad2;
-	int32_t pad3;
-	int8_t pad4;
 };
 
 struct PKT_S2C_ClickStart : PKT_S2C_BASE
 {
 	bool active;
-
-	int64_t pad1;
-	int64_t pad2;
-	int64_t pad3;
-	int32_t pad4;
 };
 
 struct PKT_S2C_Missile : PKT_S2C_BASE
@@ -122,9 +89,6 @@ struct PKT_S2C_TankState : PKT_S2C_BASE
 	bool active;
 	int hp;
 	int score;
-
-	int64_t pad1;
-	int64_t pad2;
 };
 //-- END Messages
 

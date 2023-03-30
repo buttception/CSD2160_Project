@@ -20,7 +20,7 @@ enum _PACKET_ID_CLIENT_TO_SERVER
 //-- Base Structures
 struct PKT_C2S_BASE
 {
-	int8_t user_id;
+	int user_id;
 };
 
 struct PKT_C2S_INPUTBASE : PKT_C2S_BASE
@@ -37,13 +37,11 @@ struct PKT_C2S_EnterGame : PKT_C2S_BASE
 {
 	float x, y;
 	float sprite_size_x, sprite_size_y;
-
-	int64_t pad1;
 };
 
 struct PKT_C2S_TankMovement : PKT_C2S_INPUTBASE // 28 bytes
 {
-	int8_t rotate, throttle;
+	int rotate, throttle;
 };
 
 struct PKT_C2S_TankTurret : PKT_C2S_INPUTBASE

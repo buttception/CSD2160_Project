@@ -406,10 +406,6 @@ bool Application::Update()
 			player.missile_shot = true;
 			missile_cooldown = 0.f;
 		}
-		//else
-		//{
-		//	player.missile_shot = false;
-		//}
 
 		// Store inputs into buffer.
 		PKT_C2S_TankMovement movePkt;
@@ -431,7 +427,14 @@ bool Application::Update()
 		for (auto& tank : clients)
 		{
 			if(tank.active)
-			tank.Update(timedelta, tank.sprite_->GetWidth(), tank.sprite_->GetHeight());
+				if(isMechanism[MCH_INTERPOLATE])
+					tank.Update(timedelta, tank.sprite_->GetWidth(), tank.sprite_->GetHeight());
+				else
+				{
+					tank.set_x(tank.get_server_x());
+					tank.set_y(tank.get_server_y());
+					tank.set_w(tank.get_server_w());
+				}
 		}
 
 		// OTHER MISSILES

@@ -94,6 +94,7 @@ void SendPacketProcess_TankMovement(const Tank& tank)
 	PKT_S2C_TankMovement movement;
 	movement.sequence_id = tank.latest_sequence_ID;
 	movement.client_id = tank.client_id;
+	movement.frametime = tank.frametime;
 	movement.x = tank.x;
 	movement.y = tank.y;
 	movement.w = tank.w;

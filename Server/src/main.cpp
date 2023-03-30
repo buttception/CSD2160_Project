@@ -81,11 +81,33 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 					continue;
 				}
 
+				// update the turret rots
+				while (!tank.turret_input_queue.empty())
+				{
+					Tank::TurretInputData data = tank.turret_input_queue.front();
+					tank.turret_rotation = data.angle;
+					tank.missile_shot = data.missile_shot;
+
+					float missile_velX = cos(data.angle) * MISSILE_SPEED;
+					float missile_velY = sin(data.angle) * MISSILE_SPEED;
+
+					// if client shot missile
+					if (tank.missile_shot)
+					{
+						//std::cout << tank.missile_shot << "<-missile shot\n";
+						g_missiles.push_back(Missile(tank.x, tank.y, tank.turret_rotation,
+							missile_velX, missile_velY, tank.client_id));
+					}
+					tank.latest_turret_seq_ID = data.turret_sequence_ID;
+					tank.turret_input_queue.pop();
+				}
+
 				//update the clients based on their input queues
 				while (!tank.input_queue.empty())
 				{
 					//just clear the queue and teleport the player
 					Tank::InputData data = tank.input_queue.front();
+					tank.frametime += data.frametime;
 					tank.angular_velocity = (float)data.rotate * TANK_ROT_SPEED;
 					tank.w += tank.angular_velocity * data.frametime;
 					if (tank.w > pi_2)   tank.w -= pi_2;
@@ -145,26 +167,7 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 					tank.latest_sequence_ID = data.movement_sequence_ID;
 					tank.input_queue.pop();
 				}
-				// update the turret rots
-				while (!tank.turret_input_queue.empty())
-				{
-					Tank::TurretInputData data = tank.turret_input_queue.front();
-					tank.turret_rotation = data.angle;
-					tank.missile_shot = data.missile_shot;
-
-					float missile_velX = cos(data.angle) * MISSILE_SPEED;
-					float missile_velY = sin(data.angle) * MISSILE_SPEED;
-
-					// if client shot missile
-					if (tank.missile_shot)
-					{
-						//std::cout << tank.missile_shot << "<-missile shot\n";
-						g_missiles.push_back(Missile(tank.x, tank.y, tank.turret_rotation,
-							missile_velX, missile_velY, tank.client_id));
-					}
-					tank.latest_turret_seq_ID = data.turret_sequence_ID;
-					tank.turret_input_queue.pop();
-				}
+				
 			}
 			
 			// UPDATE MISSILES POS HERE
@@ -197,6 +200,7 @@ void GameUpdate(_Timer* framet_ptr, std::array<Tank, MAX_CLIENT_CONNECTION + 1>*
 				if(tank.connected)
 				{
 					SendPacketProcess_TankMovement(tank);
+					tank.frametime = 0.f;
 					SendPacketProcess_TankTurret(tank);
 
 					// send packet for missiles to client

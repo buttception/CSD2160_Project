@@ -89,28 +89,6 @@ namespace Net
 	void send_packet_turret_angle(Tank& me, float deltaTime, const float& angle, PKT_C2S_TankTurret& pkt)
 	{
 	}
-	
-	//-------------------------------------------------------------------------
-	/*void send_packet_tank_state(Tank& me, float deltaTime, PKT_C2S_TankState& pkt)
-	{
-		static int currTurrSequenceID = 0;
-
-		PKT_C2S_TankState data;
-		data.user_id = me.tank_id;
-		data.active = me.active;
-		data.hp = me.hp;
-		data.timestamp = static_cast<int64_t>(time(nullptr));
-		data.sequence_id = currTurrSequenceID++;
-		data.timestamp = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-		data.frameTime = deltaTime;
-		pkt = data;
-
-		CatNet::PacketMessage Packet;
-		int PacketID = PACKET_ID_C2S_TANKSTATE;
-		Packet << PacketID;
-		Packet << data;
-		NetObj.SendPacket(Packet);
-	}*/
 
 	//-------------------------------------------------------------------------
 	void send_packet_disconnect(Tank& tank)
@@ -125,6 +103,7 @@ namespace Net
 		NetObj.SendPacket(Packet);
 	}
 
+	//-------------------------------------------------------------------------
 	void send_packet_click_start(Tank& tank)
 	{
 		PKT_C2S_ClickStart data;

@@ -1,4 +1,5 @@
 #include "Tank.h"
+#include <iostream>
 
 Tank::Tank(std::string tankSprite)
 {
@@ -32,7 +33,7 @@ Tank::Tank(std::string tankSprite)
 	set_ratio(1.0f);
 
 	turret_rotation = server_turret_rot = client_turret_rot = 0.f;
-	active = false;
+	active = true;
 }
 
 void Tank::Render()
@@ -56,7 +57,6 @@ bool Tank::Update(float timedelta, float spritewidth, float spriteheight)
 	float prev_rot = turret_rotation;
 	const float ratio = get_ratio();
 	turret_rotation = ratio * server_turret_rot + (1 - ratio) * client_turret_rot;
-
 	// call base class update
 	bool ret = Movable::Update(timedelta, spritewidth, spriteheight);
 

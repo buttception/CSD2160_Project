@@ -66,7 +66,7 @@ void ReceivedPacketProcess_EnterGame(CatNet::ProcessSession* ToProcessSession)
 	g_Tanks[client_id].sprite_size_y = data.sprite_size_y;
 	g_Tanks[client_id].max_hp = 100;
 	g_Tanks[client_id].hp = g_Tanks[client_id].max_hp;
-	g_Tanks[client_id].active = false; //set to false first since in menu
+	g_Tanks[client_id].active = true; //set to false first since in menu
 
 	// Send Ack.
 	CatNet::PacketMessage EnterGameAckPacket;
@@ -121,18 +121,6 @@ void ReceivedPacketProcess_TankTurret(CatNet::ProcessSession* ToProcessSession)
 	g_Tanks[client_id].turret_input_queue.push({ data.sequence_id,data.angle, data.missile_shot });
 
 }
-
-//void ReceivedPacketProcess_TankState(CatNet::ProcessSession* ToProcessSession)
-//{
-//	int client_id = ToProcessSession->m_SessionIndex;
-//	PKT_C2S_TankState data;
-//	ToProcessSession->m_PacketMessage >> data;
-//	// Store packet sequence ID.
-//	g_Tanks[client_id].tank_state_queue.push({data.hp,  data.active });
-//
-//	// TODO: Rotate turret.
-//
-//}
 
 void ReceivedPacketProcess_Disconnect(CatNet::ProcessSession* ToProcessSession)
 {

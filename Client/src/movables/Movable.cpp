@@ -1,5 +1,6 @@
 #include "Movable.h"
 #include <globals.h>
+#include <iostream>
 
 Movable::Movable()
 {
@@ -49,7 +50,13 @@ bool Movable::Update(float timedelta, float spritewidth, float spriteheight)
     // Calculate the movement.
     HGE* hge = hgeCreate(HGE_VERSION);
     float pi = 3.141592654f * 2;
-
+    timer_ -= timedelta;
+    if (timer_ < FLT_EPSILON)
+        timer_ = 0;
+    if (frametime_ < FLT_EPSILON)
+        ratio_ = 1.f;
+    else
+        ratio_ = 1 - timer_ / frametime_;
     float prev_x = get_x();
     float prev_y = get_y();
     float prev_w = get_w();

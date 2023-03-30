@@ -16,7 +16,7 @@ public:
 	float turret_rotation;
 	float server_turret_rot;
 	float client_turret_rot;
-
+	float frametime;
 	float fire_rate, fire_timer;
 	int tank_id;
 	int rotate, throttle;
