@@ -314,7 +314,7 @@ bool Application::Update()
 
 		// Old predicted position is the current player position
 		float newX{ posX }, newY{ posY }, newW{ rotW };
-		if (isMechanism[MCH_INTERPOLATE])
+		if (isMechanism[MCH_RECONCILIATION])
 		{
 			newX = player.get_x();
 			newY = player.get_y();
@@ -335,6 +335,12 @@ bool Application::Update()
 			{
 				newW = Interpolate(newW, player.get_client_w(), 0.2f);
 			}
+		}
+		else
+		{
+			newX = player.get_server_x();
+			newY = player.get_server_y();
+			newW = player.get_server_w();
 		}
 		// Apply interpolated value.
 		player.set_x(newX);
