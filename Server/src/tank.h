@@ -47,5 +47,4 @@ struct Tank
 	int max_hp;
 	int score;
 	float respawn_timer;
-	float frametime;
 };

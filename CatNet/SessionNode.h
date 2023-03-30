@@ -9,7 +9,7 @@
 #define MAX_CONNECTION FD_SETSIZE
 #endif
 
-#define RECV_BUFSIZE 65536
+#define RECV_BUFSIZE 57344 // NOTE: Should be multiple of 28 (the largest value printed out by the client for Client->Server packet size)
 
 namespace CatNet
 {

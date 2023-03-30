@@ -84,13 +84,20 @@ namespace CatNet
                     char m_RecvBuf[RECV_BUFSIZE];
                     currClient->ClearRecvBuffer();
                     int length = recv(socket, m_RecvBuf, RECV_BUFSIZE, 0);
-                    //std::cout << std::endl << length;
+                    std::cout << std::endl << length;
                     int offset = 0;
                     if (length > 0)
                     {
                         while (offset < length)
                         {
                             int id = *reinterpret_cast<int*>(m_RecvBuf + offset);
+                            //if(id == PACKET_ID_C2S_DISCONNECT)
+                            //{
+                            //    server->GetSessionList()->RemoveSession(server->GetSessionList()->GetSessionIndexBySocket(socket));
+                            //    currClient->CloseSession();
+                            //    FD_CLR(socket, &connectedSockets);
+                            //    break;
+                            //}
                             int dataSize = c2sSize(id);
                             currClient->ClearRecvBuffer();
                             memcpy(currClient->GetRecvBuffer(), m_RecvBuf + offset, dataSize + 4);
@@ -106,6 +113,21 @@ namespace CatNet
                         currClient->CloseSession();
                         FD_CLR(socket, &connectedSockets);
                     }
+                    
+                   /* currClient->SetRecvBufferWritePos(recv(socket, currClient->GetRecvBuffer(), SEND_BUFSIZE, 0));
+                    int hi = WSAGetLastError();
+                    if (currClient->GetRecvBufferWritePos() > 0)
+                    {
+                        server->GetProcessList()->Attach(currClient, SESSION_STATE_READPACKET, currClient->GetRecvBufferWritePos(), currClient->GetRecvBuffer());
+                    }
+                    else if(currClient->GetRecvBufferWritePos() == 0)
+                    {
+
+                        server->GetSessionList()->RemoveSession(server->GetSessionList()->GetSessionIndexBySocket(socket));
+                        currClient->CloseSession();
+                        FD_CLR(socket, &connectedSockets);
+                    }*/
+                    
                 }
             }
         }

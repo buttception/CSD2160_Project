@@ -49,8 +49,7 @@ private:
 	float client_y_;
 	float client_w_;
 	float ratio_;
-	float frametime_;
-	float timer_;
+
 	hgeRect collidebox;
 	bool collided_with_me_;
 
@@ -133,12 +132,6 @@ public:
 
 	void  set_ratio(float r) { ratio_ = r; }
 	float get_ratio(void) { return ratio_; }
-
-	void  set_frametime(float r) { frametime_ = r; }
-	float get_frametime(void) { return frametime_; }
-
-	void  set_timer(float r) { timer_ = r; }
-	float get_timer(void) { return timer_; }
 
 	void set_collided_with_me(bool collided) { collided_with_me_ = collided; }
 	bool get_collided_with_me(void) { return collided_with_me_; }

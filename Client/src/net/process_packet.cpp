@@ -27,10 +27,6 @@ namespace Net
 	//-------------------------------------------------------------------------
 	void ProcessPacket(Application* thisapp)
 	{
-		for (auto& it : thisapp->GetClients())
-		{
-			it.frametime = 0;
-		}
 		// Check any message from network! You can try to make this message processing with another thread but becareful with synchronization.
 		// NetLib Step 6. Prepare the pointer of _ProcessSession and buffer structure of _PacketMessage.
 		//         _ProcessSession pointer will give you the session information if there is any network communication from any client.
@@ -166,6 +162,7 @@ namespace Net
 		{
 			// Update my tank.
 			tank = &thisapp->GetPlayer();
+
 			// Discard outdated inputs.
 			//std::cout << "\nDiscarding outdated input packets after " << data.sequence_id << "... BufSize: " << thisapp->QueuedPlayerMovements.size() << std::endl;
 			for (int i = thisapp->QueuedPlayerMovements.size(); i > 0; --i)
@@ -188,12 +185,7 @@ namespace Net
 					thisapp->QueuedPlayerMovements.pop_front();
 				}
 			}
-			if(data.frametime > FLT_EPSILON)
-			{
-				tank->frametime = data.frametime;
-				tank->set_timer(data.frametime);
-				tank->set_frametime(data.frametime);
-			}
+
 			// Set client's server data
 			tank->set_server_x(data.x);
 			tank->set_server_y(data.y);
@@ -217,12 +209,6 @@ namespace Net
 			// Update other tank.
 			if (tank != nullptr)
 			{
-				if (data.frametime > tank->frametime)
-				{
-					tank->frametime = data.frametime;
-					tank->set_timer(data.frametime);
-					tank->set_frametime(data.frametime);
-				}
 				tank->set_server_x(data.x);
 				tank->set_server_y(data.y);
 				tank->set_server_w(data.w);
